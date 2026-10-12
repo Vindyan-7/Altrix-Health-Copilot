@@ -45,7 +45,11 @@ Iteration 2B (Report Review Deep Alignment) implemented and verified on branch `
 - **Accessible Edit Modal Dialog:** Enhanced with explicit labels, original value reminder chip, client-side validation against empty/invalid values, and full keyboard trapping (`Escape` to close).
 - **Audit Logging & Dynamic Progress:** User corrections log audit metadata (`FieldCorrectionSchema`), update review status to `Corrected` with distinct indigo badges, re-evaluate reference ranges (`evaluateRange`), and update review progress dynamically.
 - **Reset & Confirmation State Machine:** Clear distinction between individual field confirmation, bulk confirmation (`Confirm All Verified`), and baseline fixture restoration (`Reset to Original`).
-- All 16 unit tests, strict typecheck, and production build pass with 0 errors. Dev server active on `http://localhost:4321/`.
+- **Confirmation Semantics & Integrity:** Bulk confirmation action updated to `Confirm All Fields` with an accessible modal dialog explaining that all unreviewed fields will be marked as reviewed by user against the source document.
+- **Optical Uncertainty Preservation:** Confirming a field (individually or in bulk) strictly PRESERVES optical flags (`isUncertain: true`, `uncertaintyReason`) on degraded print items (Platelet Count, TSH).
+- **Language & Safety Standard:** Replaced claims of "verified" with "Reviewed by User" / "User Confirmed" / "User Corrected", avoiding false claims of clinical laboratory verification.
+- **Correction Audit & Integrity:** Retains original extracted values separately in `correction.originalValue`, validates numerical formats, records audit timestamps and reasons, and deterministically recalculates reference ranges with `evaluateRange`.
+- All 19 unit tests, strict typecheck, and production build pass with 0 errors. Dev server active on `http://localhost:4321/review`.
 
 ## Current next task
 STOP for Product Manager (Vindyan) and CTO (ChatGPT) review of `/review` at http://localhost:4321/review and the branch `feat/review-page-iteration-2b`. Do not start Iteration 3 until approved.

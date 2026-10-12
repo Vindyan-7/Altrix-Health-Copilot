@@ -55,9 +55,10 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
           id="btn-confirm-all"
           type="button"
           class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs sm:text-sm shadow-xs transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          title="Open confirmation dialog to mark all remaining fields as reviewed by user"
         >
           <CheckCheck class="w-4 h-4" stroke-width={2} />
-          <span>Confirm All Verified</span>
+          <span>Confirm All Fields</span>
         </button>
         <button
           id="btn-reset-demo"
@@ -117,14 +118,14 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
         </div>
       </div>
 
-      <!-- Real-Time Progress Bar (Derived strictly from verified state) -->
+      <!-- Real-Time Progress Bar (Derived strictly from user review state) -->
       <div class="space-y-1.5 pt-1 border-t border-aura-border/30">
         <div class="flex justify-between text-xs font-medium text-aura-text">
           <span id="review-status-label" class="flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>Review Progress: 0 of {totalCount} fields verified</span>
+            <span>Review Progress: 0 of {totalCount} fields reviewed</span>
           </span>
-          <span id="review-percentage" class="font-bold text-emerald-800">0% Verified</span>
+          <span id="review-percentage" class="font-bold text-emerald-800">0% Reviewed by User</span>
         </div>
         <div class="w-full bg-aura-border/50 rounded-full h-2 overflow-hidden">
           <div id="review-bar" class="bg-emerald-600 h-2 rounded-full transition-all duration-300 w-[0%]"></div>
@@ -637,6 +638,79 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
       </div>
     </div>
 
+    <!-- 4B. Bulk Confirmation Dialog Modal -->
+    <div
+      id="bulk-confirm-modal"
+      class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 transition-all"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="bulk-confirm-title"
+      aria-describedby="bulk-confirm-desc"
+    >
+      <div class="bg-aura-surface rounded-aura-panel max-w-md w-full p-6 shadow-2xl space-y-4 border border-aura-border focus:outline-none" tabindex="-1">
+        <div class="flex justify-between items-start">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+              <CheckCheck class="w-4 h-4" stroke-width={2.2} />
+            </div>
+            <div>
+              <h3 id="bulk-confirm-title" class="text-base font-serif font-bold text-aura-text">
+                Confirm All Extracted Fields
+              </h3>
+              <p class="text-[11px] text-aura-text-muted">
+                User document review verification
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            id="bulk-modal-close"
+            class="p-1.5 rounded-full text-aura-text-muted hover:text-aura-text hover:bg-aura-surface-blush cursor-pointer focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
+            aria-label="Close dialog"
+          >
+            <X class="w-4 h-4" stroke-width={2} />
+          </button>
+        </div>
+
+        <div id="bulk-confirm-desc" class="space-y-2.5 text-xs text-aura-text leading-relaxed">
+          <p>
+            You are about to mark all remaining unreviewed fields in this report as <strong>reviewed by user</strong> against the original document slip.
+          </p>
+
+          <div class="p-3 rounded-xl bg-amber-50/70 border border-amber-200 text-amber-900 space-y-1">
+            <div class="font-bold flex items-center gap-1.5 text-xs text-amber-950">
+              <AlertTriangle class="w-3.5 h-3.5 text-aura-accent-orange shrink-0" stroke-width={2} />
+              <span>Optical Warning Flags Preserved</span>
+            </div>
+            <p class="text-[11.5px] leading-relaxed">
+              Optical uncertainty warnings (such as Platelet Count faint printing and TSH obscured prefix) will <strong>remain flagged</strong> in your timeline to preserve document integrity.
+            </p>
+          </div>
+
+          <div class="p-2.5 rounded-xl bg-aura-surface-blush text-[11px] text-aura-text-muted border border-aura-border/40">
+            <strong>Clinical Safety Notice:</strong> This action records your personal verification against the lab printout. It does not constitute laboratory re-testing or clinical validation.
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2.5 pt-3 border-t border-aura-border/60">
+          <button
+            type="button"
+            id="bulk-modal-cancel"
+            class="px-4 py-2 text-xs font-semibold rounded-full border border-aura-border text-aura-text hover:bg-aura-surface-blush cursor-pointer focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            id="bulk-modal-confirm"
+            class="px-5 py-2 text-xs font-semibold rounded-full bg-emerald-700 hover:bg-emerald-800 text-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          >
+            Confirm All Fields
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- 5. Toast Notification Banner (Floating Bottom) -->
     <div
       id="review-toast"
@@ -829,6 +903,12 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
   const btnResetDemo = document.getElementById('btn-reset-demo');
   const activeFilterBadge = document.getElementById('active-filter-badge');
 
+  // Bulk Confirmation Modal elements
+  const bulkConfirmModal = document.getElementById('bulk-confirm-modal');
+  const bulkModalClose = document.getElementById('bulk-modal-close');
+  const bulkModalCancel = document.getElementById('bulk-modal-cancel');
+  const bulkModalConfirm = document.getElementById('bulk-modal-confirm');
+
   // Edit Modal elements
   const editModal = document.getElementById('edit-modal');
   const editForm = document.getElementById('edit-form') as HTMLFormElement | null;
@@ -871,15 +951,15 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
 
   // Recalculates review progress dynamically from state
   function updateProgress() {
-    const verifiedCount = fields.filter((f) => f.reviewStatus === 'confirmed' || f.reviewStatus === 'corrected').length;
+    const reviewedCount = fields.filter((f) => f.reviewStatus === 'confirmed' || f.reviewStatus === 'corrected').length;
     const total = fields.length;
-    const pct = Math.round((verifiedCount / total) * 100);
+    const pct = Math.round((reviewedCount / total) * 100);
 
     if (reviewBar) reviewBar.style.width = `${pct}%`;
     if (reviewStatusLabel) {
-      reviewStatusLabel.innerHTML = `<span class="w-2 h-2 rounded-full ${pct === 100 ? 'bg-emerald-500' : 'bg-aura-accent-orange'}"></span><span>Review Progress: ${verifiedCount} of ${total} fields verified</span>`;
+      reviewStatusLabel.innerHTML = `<span class="w-2 h-2 rounded-full ${pct === 100 ? 'bg-emerald-500' : 'bg-aura-accent-orange'}"></span><span>Review Progress: ${reviewedCount} of ${total} fields reviewed</span>`;
     }
-    if (reviewPercentage) reviewPercentage.textContent = `${pct}% Verified`;
+    if (reviewPercentage) reviewPercentage.textContent = `${pct}% Reviewed by User`;
   }
 
   // Synchronizes Provenance Inspector with the selected field
@@ -1121,12 +1201,10 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
 
       if (f.reviewStatus === 'confirmed' || f.reviewStatus === 'corrected') {
         f.reviewStatus = 'unreviewed';
-        f.isUncertain = initialFieldData.find((x) => x.id === fid)?.isUncertain || false;
         showToast(`Unconfirmed ${f.name}`);
       } else {
         f.reviewStatus = 'confirmed';
-        f.isUncertain = false;
-        showToast(`Confirmed ${f.name}`);
+        showToast(`Confirmed ${f.name} (Reviewed by user)`);
       }
 
       renderFieldDOM(fid);
@@ -1135,17 +1213,32 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
     });
   });
 
-  // Confirm All Button
-  btnConfirmAll?.addEventListener('click', () => {
+  // Bulk Confirmation Modal Handlers
+  function openBulkModal() {
+    bulkConfirmModal?.classList.remove('hidden');
+    bulkModalConfirm?.focus();
+  }
+
+  function closeBulkModal() {
+    bulkConfirmModal?.classList.add('hidden');
+    btnConfirmAll?.focus();
+  }
+
+  btnConfirmAll?.addEventListener('click', openBulkModal);
+  bulkModalClose?.addEventListener('click', closeBulkModal);
+  bulkModalCancel?.addEventListener('click', closeBulkModal);
+
+  bulkModalConfirm?.addEventListener('click', () => {
     fields.forEach((f) => {
       if (f.reviewStatus !== 'corrected') {
         f.reviewStatus = 'confirmed';
       }
-      f.isUncertain = false;
+      // Note: optical flags (f.isUncertain) are strictly PRESERVED
       renderFieldDOM(f.id);
     });
     updateProgress();
-    showToast(`All ${fields.length} fields confirmed as verified.`);
+    closeBulkModal();
+    showToast(`All ${fields.length} fields marked as reviewed by user.`);
   });
 
   // Reset to Original Fixture Baseline
@@ -1155,7 +1248,7 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
     updateProgress();
     applyFilter('all');
     selectField('f-hemoglobin');
-    showToast('Reset all 8 fields to initial fixture values.');
+    showToast('Reset all 8 fields to initial fixture baseline.');
   });
 
   // Edit Modal Dialog Handling
@@ -1196,8 +1289,13 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
 
   // Close on Escape
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !editModal?.classList.contains('hidden')) {
-      closeEditModal();
+    if (e.key === 'Escape') {
+      if (!editModal?.classList.contains('hidden')) {
+        closeEditModal();
+      }
+      if (!bulkConfirmModal?.classList.contains('hidden')) {
+        closeBulkModal();
+      }
     }
   });
 

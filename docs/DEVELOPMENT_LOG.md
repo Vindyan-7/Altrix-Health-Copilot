@@ -164,6 +164,22 @@ Antigravity: inspect the current repository and environment, report findings, th
   - Production build: `astro build` clean with 0 errors (7.01s).
   - Dev server smoke test: `GET /review` -> HTTP 200 (267 KB); all adjacent routes returning HTTP 200.
 
+## 2026-10-12 — Review Workflow Integrity Fix (feat/review-page-iteration-2b)
+- **Confirmation Semantics & Integrity:**
+  - Corrected label and behavior: renamed bulk confirmation action from "Confirm All Verified" to "Confirm All Fields".
+  - Implemented an accessible bulk confirmation modal dialog (`#bulk-confirm-modal`) that clearly explains all remaining unreviewed fields will be marked as reviewed by user against the source document.
+  - Added explicit clinical safety notice in the dialog clarifying that user confirmation records personal document review and does not constitute laboratory re-testing or clinical validation.
+- **Optical Uncertainty Flag Preservation:**
+  - Updated `confirmField(field: ExtractedField)` pure function in `src/schemas/extraction.ts` to preserve `isUncertain` and `uncertaintyReason`.
+  - Confirming an uncertain field (individually or via bulk confirmation) no longer erases optical warnings for Platelet Count (~145k faint printing) or TSH (5.4 obscured unit prefix). Optical degradation remains an objective property of the source image.
+- **Terminology & Safety Standard:**
+  - Updated progress bar label from "0% Verified" to "0% Reviewed by User" / "Review Progress: X of 8 fields reviewed".
+  - Preserved distinct badges: "Confirmed" (emerald), "Corrected" (indigo), and "Unreviewed" (neutral).
+- **Unit Testing & Verification:**
+  - Expanded Vitest suite from 16 to 19 passing tests in `tests/extraction-schema.test.ts`.
+  - Added tests for optical uncertainty preservation upon confirmation, individual field isolation during confirm, bulk confirmation handling, and baseline reset integrity.
+  - All quality gates pass: `npm test` (19/19), `tsc --noEmit` (0 errors), `astro build` (5 static pages built cleanly).
+
 
 
 

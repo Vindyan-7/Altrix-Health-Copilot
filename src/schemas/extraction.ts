@@ -186,12 +186,12 @@ export function applyFieldCorrection(
 
 /**
  * Pure function to confirm an extracted field without edits
+ * NOTE: User confirmation records that the user has reviewed the field,
+ * but DOES NOT erase optical uncertainty flags (e.g. degraded ink, faint print).
  */
 export function confirmField(field: ExtractedField): ExtractedField {
   return {
     ...field,
     reviewStatus: 'confirmed',
-    isUncertain: false,
-    uncertaintyReason: null,
   };
 }

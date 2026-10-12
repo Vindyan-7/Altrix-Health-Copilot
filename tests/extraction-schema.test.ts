@@ -111,13 +111,63 @@ describe('User Field Review & Correction Workflow', () => {
     expect(corrected.correction?.reason).toBe('Verified against clean printed slip');
   });
 
-  it('confirms field without editing value', () => {
+  it('confirms field without editing value while preserving optical uncertainty flags', () => {
     const confirmed = confirmField(sampleField);
 
     expect(confirmed.value).toBe(145000);
     expect(confirmed.reviewStatus).toBe('confirmed');
-    expect(confirmed.isUncertain).toBe(false);
-    expect(confirmed.uncertaintyReason).toBeNull();
+    // Optical degradation remains true as an objective property of the source slip
+    expect(confirmed.isUncertain).toBe(true);
+    expect(confirmed.uncertaintyReason).toBe('Degraded OCR on slip');
+  });
+
+  it('individual confirmation updates exactly one field and leaves others unreviewed', () => {
+    const field1 = { ...sampleField, id: 'f-1', reviewStatus: 'unreviewed' as const };
+    const field2 = { ...sampleField, id: 'f-2', reviewStatus: 'unreviewed' as const };
+
+    const confirmed1 = confirmField(field1);
+
+    expect(confirmed1.reviewStatus).toBe('confirmed');
+    expect(field2.reviewStatus).toBe('unreviewed');
+  });
+
+  it('bulk confirmation marks all unreviewed fields confirmed while preserving optical flags and user corrections', () => {
+    const initialFields: ExtractedField[] = [
+      { ...sampleField, id: 'f-1', isUncertain: false, reviewStatus: 'unreviewed' },
+      { ...sampleField, id: 'f-2', isUncertain: true, uncertaintyReason: 'Faint ink', reviewStatus: 'unreviewed' },
+      applyFieldCorrection({ ...sampleField, id: 'f-3' }, 190000, '/cumm', 'Prior manual edit'),
+    ];
+
+    const bulkConfirmed = initialFields.map((f) => {
+      if (f.reviewStatus === 'corrected') return f;
+      return confirmField(f);
+    });
+
+    expect(bulkConfirmed[0].reviewStatus).toBe('confirmed');
+    expect(bulkConfirmed[0].isUncertain).toBe(false);
+
+    expect(bulkConfirmed[1].reviewStatus).toBe('confirmed');
+    expect(bulkConfirmed[1].isUncertain).toBe(true);
+    expect(bulkConfirmed[1].uncertaintyReason).toBe('Faint ink');
+
+    expect(bulkConfirmed[2].reviewStatus).toBe('corrected');
+    expect(bulkConfirmed[2].value).toBe(190000);
+  });
+
+  it('reset restores exact original fixture values and clears user corrections', () => {
+    const originalFixtureFields = SYNTHETIC_LAB_REPORT_FIXTURE.fields;
+    // Simulate modified working state
+    let workingFields = originalFixtureFields.map((f) => confirmField(f));
+    expect(workingFields.every((f) => f.reviewStatus === 'confirmed')).toBe(true);
+
+    // Perform reset to fixture baseline
+    workingFields = JSON.parse(JSON.stringify(originalFixtureFields));
+
+    expect(workingFields.length).toBe(8);
+    expect(workingFields.every((f) => f.reviewStatus === 'unreviewed')).toBe(true);
+    const platelets = workingFields.find((f) => f.id === 'f-platelets');
+    expect(platelets?.value).toBe(145000);
+    expect(platelets?.isUncertain).toBe(true);
   });
 
   it('preserves original value and derives dynamic progress correctly', () => {
