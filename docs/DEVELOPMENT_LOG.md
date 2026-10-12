@@ -273,6 +273,32 @@ Antigravity: inspect the current repository and environment, report findings, th
   - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
   - Production Build: Clean (`astro build`, 5 static pages + 1 API route in 4.15s).
 
+## 2026-10-12 — CTO Security Directive: Supabase Foundation Audit & Hardening (feat/guest-health-copilot-mvp)
+- **Supabase Foundation Security Audit & Hardening:**
+  1. **Missing RLS on `extraction_runs` (High Severity):**
+     - Found: `01_initial_schema.sql` missed `alter table public.extraction_runs enable row level security;`.
+     - Fixed: Added explicit RLS enablement to `01_initial_schema.sql` and scoped SELECT/INSERT policies via parent document ownership in `02_rls_and_storage_policies.sql`.
+  2. **Security Definer Search Path Hijacking (High Severity):**
+     - Found: `handle_new_user()` trigger was defined as `SECURITY DEFINER` without setting an explicit `search_path`.
+     - Fixed: Added `SET search_path = public` to `handle_new_user()` and revoked direct execution permissions from `public`, `anon`, and `authenticated` roles.
+  3. **Profiles Foreign Key Link to Auth Users (Medium Severity):**
+     - Found: `profiles.id` defaulted to `uuid_generate_v4()` without an explicit foreign key to `auth.users(id)`.
+     - Fixed: Updated to `id uuid primary key references auth.users(id) on delete cascade` to enforce relational integrity upon account deletion.
+  4. **Missing CRUD Policies & Immutability Rules (Medium Severity):**
+     - Fixed: Added explicit INSERT and UPDATE policies for `extracted_fields`, `observations`, and `extraction_runs`.
+     - Fixed: Added `update` policy on `storage.objects` for `health_documents_vault` to support standard Supabase client upserts.
+     - Confirmed: `audit_events` remains strictly append-only (SELECT and INSERT allowed; UPDATE and DELETE permanently blocked).
+  5. **Missing Indexes on Foreign Keys (Low Severity):**
+     - Added `idx_extraction_runs_document_id` and `idx_audit_events_actor_created`.
+- **Workflow Integrity Preserved:**
+  - Zero database credentials requested. Zero remote migrations executed.
+  - Setup and execution instructions documented in `supabase/README.md` for manual execution by Product Manager.
+- **Verification Gates:**
+  - Vitest Unit Tests: **46/46 passing**.
+  - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
+  - Production Build: Clean (`astro build`, 5 static pages + 1 API route in 6.01s).
+
+
 
 
 

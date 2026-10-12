@@ -7,9 +7,9 @@
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
 
--- 1. Profiles
+-- 1. Profiles (Linked to Supabase Auth Users)
 create table if not exists public.profiles (
-    id uuid primary key default uuid_generate_v4(),
+    id uuid primary key references auth.users(id) on delete cascade,
     preferred_language text not null default 'en' check (preferred_language in ('en', 'te')),
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now()
@@ -98,6 +98,7 @@ create table if not exists public.audit_events (
 -- Row Level Security (RLS) Policies
 alter table public.profiles enable row level security;
 alter table public.health_documents enable row level security;
+alter table public.extraction_runs enable row level security;
 alter table public.extracted_fields enable row level security;
 alter table public.observations enable row level security;
 alter table public.audit_events enable row level security;

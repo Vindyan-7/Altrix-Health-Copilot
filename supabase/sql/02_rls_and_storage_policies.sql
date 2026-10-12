@@ -5,8 +5,13 @@
 -- =============================================================================
 
 -- 1. Profile Creation Trigger on Supabase Auth Signup
+-- Secure search_path explicitly set to 'public' to prevent path hijacking
 create or replace function public.handle_new_user()
-returns trigger as $$
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
 begin
   insert into public.profiles (id, preferred_language, created_at, updated_at)
   values (
@@ -18,7 +23,12 @@ begin
   on conflict (id) do nothing;
   return new;
 end;
-$$ language plpgsql security definer;
+$$;
+
+-- Restrict function execution so only postgres system / trigger runs it
+revoke execute on function public.handle_new_user() from public;
+revoke execute on function public.handle_new_user() from anon;
+revoke execute on function public.handle_new_user() from authenticated;
 
 -- Trigger execution on auth.users insert
 drop trigger if exists on_auth_user_created on auth.users;
@@ -28,7 +38,7 @@ create trigger on_auth_user_created
 
 -- 2. Row Level Security Policies for Core Tables
 
--- Profiles: Users can only read and update their own profile
+-- Table: profiles
 create policy "Users can view own profile"
   on public.profiles for select
   using (auth.uid() = id);
@@ -38,26 +48,47 @@ create policy "Users can update own profile"
   using (auth.uid() = id)
   with check (auth.uid() = id);
 
--- Health Documents: Users can only manage their own documents
+-- Table: health_documents
 create policy "Users can view own health documents"
   on public.health_documents for select
   using (auth.uid() = profile_id and deleted_at is null);
 
 create policy "Users can insert own health documents"
   on public.health_documents for insert
-  with check (auth.uid() = profile_id);
+  with check (auth.uid() = profile_id and profile_id is not null);
 
 create policy "Users can update own health documents"
   on public.health_documents for update
   using (auth.uid() = profile_id)
   with check (auth.uid() = profile_id);
 
--- Soft delete: Users can mark their own health documents as deleted
 create policy "Users can delete own health documents"
   on public.health_documents for delete
   using (auth.uid() = profile_id);
 
--- Extracted Fields: Scoped through parent health document
+-- Table: extraction_runs (Scoped through parent health document)
+create policy "Users can view extraction runs for own documents"
+  on public.extraction_runs for select
+  using (
+    exists (
+      select 1 from public.health_documents d
+      where d.id = extraction_runs.document_id
+      and d.profile_id = auth.uid()
+      and d.deleted_at is null
+    )
+  );
+
+create policy "Users can insert extraction runs for own documents"
+  on public.extraction_runs for insert
+  with check (
+    exists (
+      select 1 from public.health_documents d
+      where d.id = extraction_runs.document_id
+      and d.profile_id = auth.uid()
+    )
+  );
+
+-- Table: extracted_fields (Scoped through parent health document)
 create policy "Users can view extracted fields for own documents"
   on public.extracted_fields for select
   using (
@@ -66,6 +97,16 @@ create policy "Users can view extracted fields for own documents"
       where d.id = extracted_fields.document_id
       and d.profile_id = auth.uid()
       and d.deleted_at is null
+    )
+  );
+
+create policy "Users can insert extracted fields for own documents"
+  on public.extracted_fields for insert
+  with check (
+    exists (
+      select 1 from public.health_documents d
+      where d.id = extracted_fields.document_id
+      and d.profile_id = auth.uid()
     )
   );
 
@@ -84,23 +125,47 @@ create policy "Users can update review status on own extracted fields"
       where d.id = extracted_fields.document_id
       and d.profile_id = auth.uid()
     )
+    and (reviewed_by is null or reviewed_by = auth.uid())
   );
 
--- Observations (Timeline & Trends): Scoped to user's profile
+create policy "Users can delete extracted fields for own documents"
+  on public.extracted_fields for delete
+  using (
+    exists (
+      select 1 from public.health_documents d
+      where d.id = extracted_fields.document_id
+      and d.profile_id = auth.uid()
+    )
+  );
+
+-- Table: observations (Timeline & Trends: Scoped directly to profile_id)
 create policy "Users can view own observations"
   on public.observations for select
   using (auth.uid() = profile_id);
 
 create policy "Users can insert own observations"
   on public.observations for insert
+  with check (auth.uid() = profile_id and profile_id is not null);
+
+create policy "Users can update own observations"
+  on public.observations for update
+  using (auth.uid() = profile_id)
   with check (auth.uid() = profile_id);
 
--- Audit Events: Users can view audit events concerning their own profile
+create policy "Users can delete own observations"
+  on public.observations for delete
+  using (auth.uid() = profile_id);
+
+-- Table: audit_events (Append-only audit trail: No UPDATE or DELETE allowed)
 create policy "Users can view own audit events"
   on public.audit_events for select
   using (auth.uid() = actor_id);
 
--- 3. Performant Indexes for Timeline and Document Queries
+create policy "Users can insert own audit events"
+  on public.audit_events for insert
+  with check (auth.uid() = actor_id and actor_id is not null);
+
+-- 3. Performant Indexes for Foreign Keys, Timeline and Document Queries
 create index if not exists idx_health_documents_profile_status
   on public.health_documents (profile_id, status)
   where deleted_at is null;
@@ -111,14 +176,20 @@ create index if not exists idx_observations_profile_code_date
 create index if not exists idx_extracted_fields_document_id
   on public.extracted_fields (document_id);
 
+create index if not exists idx_extraction_runs_document_id
+  on public.extraction_runs (document_id);
+
+create index if not exists idx_audit_events_actor_created
+  on public.audit_events (actor_id, created_at desc);
+
 -- 4. Supabase Storage Bucket & Object Policies (health_documents_vault)
--- Insert private bucket if storage schema exists
+-- Insert private bucket configuration into storage.buckets
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
   'health_documents_vault',
   'health_documents_vault',
   false,
-  10485760, -- 10 MB limit
+  10485760, -- 10 MB limit per file
   array['application/pdf', 'image/jpeg', 'image/png']
 )
 on conflict (id) do update set
@@ -126,11 +197,12 @@ on conflict (id) do update set
   file_size_limit = 10485760,
   allowed_mime_types = array['application/pdf', 'image/jpeg', 'image/png'];
 
--- Storage Object RLS: Users can only upload and read files within their own folder: <profile_id>/<filename>
+-- Storage Object RLS: Users can only manage files in their own folder: <profile_id>/<filename>
 create policy "Users can upload own health document files"
   on storage.objects for insert
   with check (
     bucket_id = 'health_documents_vault'
+    and auth.role() = 'authenticated'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
@@ -138,6 +210,20 @@ create policy "Users can view own health document files"
   on storage.objects for select
   using (
     bucket_id = 'health_documents_vault'
+    and auth.role() = 'authenticated'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+create policy "Users can update own health document files"
+  on storage.objects for update
+  using (
+    bucket_id = 'health_documents_vault'
+    and auth.role() = 'authenticated'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  )
+  with check (
+    bucket_id = 'health_documents_vault'
+    and auth.role() = 'authenticated'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
@@ -145,5 +231,6 @@ create policy "Users can delete own health document files"
   on storage.objects for delete
   using (
     bucket_id = 'health_documents_vault'
+    and auth.role() = 'authenticated'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
