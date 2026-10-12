@@ -18,6 +18,7 @@ import {
   PhoneCall,
   Clock,
   Sparkle,
+  ShieldCheck,
 } from '@lucide/astro';
 import Layout from '../layouts/Layout.astro';
 ---
@@ -204,7 +205,17 @@ import Layout from '../layouts/Layout.astro';
             <span class="topic-chip-label">Hands-Only CPR Steps</span>
           </button>
 
-          <!-- 5. General Wellness -->
+          <!-- 5. Bleeding & Wound Care -->
+          <button
+            type="button"
+            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
+            data-guide="bleeding-first-aid"
+          >
+            <ShieldCheck class="w-3.5 h-3.5 text-aura-accent-orange" />
+            <span class="topic-chip-label">Bleeding & Wound Care</span>
+          </button>
+
+          <!-- 6. General Wellness -->
           <button
             type="button"
             class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
@@ -449,13 +460,15 @@ import Layout from '../layouts/Layout.astro';
     guestTurnsUsed++;
     updateTurnsDisplay();
 
-    // Blocked dosage requests
+    // Blocked dosage requests & ambiguous medication safety
     if (result.intent === 'blocked_dosage_request') {
       const dosageNotice = currentLocale === 'te'
-        ? `<strong>క్లినికల్ భద్రతా నియమం:</strong><br/><br/>
-           నేను లక్షణాల ఆధారంగా వ్యక్తిగత మందుల మోతాదు (డైలీ డోస్) నిర్ణయించలేను. దయచేసి మీ ప్రిస్క్రిప్షన్ లేదా మందుల ప్యాకేజీపై ఉన్న అధికారిక తయారీదారుల సూచనలను మాత్రమే పాటించండి. సందేహాలు ఉంటే మీ డాక్టర్ లేదా ఫార్మసిస్ట్‌ను సంప్రదించండి.`
-        : `<strong>Clinical Safety Policy — No Individualized Dosing:</strong><br/><br/>
-           "I want to help you use reliable information safely. I cannot choose a dose for you based on symptoms or adjust your medication schedule. Please follow your prescription or the medicine's official packaging instructions, and check with a licensed doctor or pharmacist if anything is unclear."`;
+        ? `<strong>క్లినికల్ భద్రతా విధానం — వ్యక్తిగత మోతాదు & భద్రతా హామీలు నిషిద్ధం:</strong><br/><br/>
+           నేను లక్షణాల ఆధారంగా వ్యక్తిగత మందుల మోతాదు (డైలీ డోస్), మోతాదుల పెంపు/మార్పులు లేదా డ్రగ్ కాంబినేషన్లను నిర్ణయించలేను. అలాగే ఏ ఔషధమూ అందరికీ 100% సురక్షితం కాదు (వయస్సు, గర్భధారణ, కాలేయం/కిడ్నీ సమస్యలు ప్రభావితం చేస్తాయి).<br/><br/>
+           దయచేసి మీ ప్రిస్క్రిప్షన్ లేదా మందుల ప్యాకేజీపై ఉన్న అధికారిక తయారీదారుల సూచనలను మాత్రమే పాటించండి. సందేహాలు ఉంటే మీ డాక్టర్ లేదా ఫార్మసిస్ట్‌ను సంప్రదించండి.`
+        : `<strong>Clinical Safety Policy — No Individualized Dosing or Universal Safety Guarantees:</strong><br/><br/>
+           "I want to help you use reliable information safely. I cannot recommend a specific dose for you, calculate pediatric amounts, or approve medication combinations.<br/><br/>
+           Additionally, <strong>no medication is universally 100% safe for everyone</strong>: individual medical history, allergies, pregnancy, and liver or kidney health significantly affect suitability. Please check the official package insert or speak directly with a licensed physician or pharmacist."`;
 
       appendCustomAssistantBubble(
         dosageNotice,

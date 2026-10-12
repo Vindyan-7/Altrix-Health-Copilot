@@ -249,6 +249,31 @@ Antigravity: inspect the current repository and environment, report findings, th
   - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
   - Production Build: Clean (`astro build`, 5 static pages + 1 API route built cleanly in ~4s).
 
+## 2026-10-12 — Guest MVP Acceptance Checkpoint & Safety Refinements (feat/guest-health-copilot-mvp)
+- **Preview Deployment Audit:**
+  - Production deployment operational on `https://altrix-health-copilot.vercel.app` (HTTP 200).
+  - Live readiness verified via `https://altrix-health-copilot.vercel.app/api/health.json`.
+- **Safety Fixes & Demonstrated Defect Resolutions:**
+  1. **Telugu Bleeding Keyword Nuance (Gate 1 vs Gate 3):**
+     - Prior defect: Generic Telugu word for bleeding (`రక్తస్రావం`) was erroneously grouped under unconditional cardiac/stroke emergency.
+     - Resolved: Differentiated severe/uncontrolled bleeding (`తీవ్ర రక్తస్రావం`, `ఆగని రక్తస్రావం`, `రక్తం ఆగట్లేదు`) which triggers critical Gate 1 escalation from minor/general cuts (`రక్తస్రావం`, `గాయం`, `రక్తం కారుతోంది`).
+     - Added dedicated bilingual guide `bleeding-first-aid` (American Red Cross / CDC) with explicit clarifying triage questions: distinguishes pulsing/spurting bleeding (call 112/108) from shallow abrasions (clean water, direct pressure, bandage, tetanus check).
+  2. **Ambiguous Medication Questions & Universal Safety Refusal (Gate 2):**
+     - Prior defect: Broad queries like "Is paracetamol 100% safe to take?" fell through to generic catalogue lookup.
+     - Resolved: Expanded Gate 2 interception to catch universal safety questions (`100% safe`, `completely safe`), pregnancy queries (`safe while pregnant`, `గర్భధారణలో సురక్షితమేనా`), pediatric amounts, and unverified drug combinations.
+     - Enforced explicit clinical safety refusal notice: No individual dosing, no universal safety guarantees, and clear direction to package inserts and licensed physicians/pharmacists.
+  3. **Emergency Priority Over Turn Counter:**
+     - Verified that emergency red-flag triggers execute prior to turn limit evaluations and do not consume guest turns, guaranteeing emergency access even when budget is depleted.
+- **Supabase Foundation Prepared (Manual-Only Review):**
+  - Prepared `supabase/sql/02_rls_and_storage_policies.sql`: Auth trigger (`handle_new_user`), strict Row Level Security policies (`auth.uid() = profile_id`), composite performance indexes, and private storage bucket `health_documents_vault` (10MB limit, PDF/PNG/JPEG) with folder isolation.
+  - Prepared `supabase/README.md` with step-by-step instructions for Product Manager (Vindyan).
+  - Maintained zero remote connection, zero secret requests, and zero automatic executions.
+- **Quality Gates:**
+  - Vitest Unit Tests: **46/46 passing** (27 in `guest-router.test.ts`, 13 in `extraction-schema.test.ts`, 6 in `provider.test.ts`).
+  - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
+  - Production Build: Clean (`astro build`, 5 static pages + 1 API route in 4.15s).
+
+
 
 
 

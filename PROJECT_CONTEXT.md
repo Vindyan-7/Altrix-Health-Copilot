@@ -39,19 +39,17 @@ Reviewed evidence determines what may be said; templates determine tone; AI may 
 10. Update this file and `docs/DEVELOPMENT_LOG.md` after each milestone with current status, test results, known issues, and the next exact task.
 
 ## Current implementation status
-Guest Health Guide MVP Sprint completed on branch `feat/guest-health-copilot-mvp` (branched from `origin/develop` at `a9c7c91`):
+Guest Health Guide MVP Acceptance Checkpoint completed on branch `feat/guest-health-copilot-mvp`:
 - **Current Baseline:** `feat/guest-health-copilot-mvp` active; `develop`, `feat/timeline-iteration-3`, and `feat/review-page-iteration-2b` preserved intact.
-- **Guest Health Guide Capabilities:**
-  1. **Deterministic Router:** Multilingual symptom/keyword matching across English and Telugu without paid AI API keys.
-  2. **Emergency Red Flag Escalation:** Immediate advice for 112/108 (India) or 911 (US) on chest pain, stroke (FAST), severe breathing difficulty; bypasses turn budget.
-  3. **Dosage Block:** Requests for individualized medication dosing/titration are safely blocked with authoritative medication safety guidelines.
-  4. **Turn Budget:** 6 turns per guest session with dynamic counter, session reset, and emergency bypass.
-  5. **Verified Health Catalogue:** 7 core topics (Fever, Cold/Cough, Headache, Stomach Pain, Safe Medicine Use, Chest Pain/Emergency Signs, CPR & First Aid, Preventive Wellness) with CDC, MedlinePlus, AHA, and 112 citations.
-  6. **Bilingual Support:** Complete English and Telugu curated translations for topics, red flags, and emergency numbers.
-- **Quality Gates:** 39/39 Vitest unit tests pass (including 20 guest-router tests), TypeScript strict mode passes (`tsc --noEmit`), and static production build passes cleanly (`astro build`).
+- **Safety Polish & Acceptance Results:**
+  1. **Telugu Bleeding Nuance:** Differentiated severe/uncontrolled bleeding (`తీవ్ర రక్తస్రావం`, `ఆగని రక్తస్రావం`) from minor bleeding (`రక్తస్రావం`, `గాయం`), adding dedicated bilingual `bleeding-first-aid` guide with clarifying triage questions (American Red Cross / CDC).
+  2. **Ambiguous Medication Safety Refusal:** Expanded Gate 2 interception to catch universal safety questions (`100% safe`), pregnancy questions, and drug combinations, enforcing explicit clinical disclaimer.
+  3. **Emergency Priority:** Emergency queries bypass the turn limit and execute unconditionally.
+  4. **Supabase Foundation Prepared:** Migrations `01_initial_schema.sql` and `02_rls_and_storage_policies.sql` with full RLS, triggers, indexes, and private vault bucket ready for manual execution via Supabase SQL Editor by PM.
+- **Quality Gates:** 46/46 Vitest unit tests pass, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
 
 ## Current next task
-Commit and push `feat/guest-health-copilot-mvp`, present Vercel preview deployment instructions, and await review from Product Manager (Vindyan) and CTO (ChatGPT).
+Push `feat/guest-health-copilot-mvp` to origin, await live demo acceptance from Product Manager (Vindyan), and prepare for manual execution of Supabase migrations when ready.
 
 
 

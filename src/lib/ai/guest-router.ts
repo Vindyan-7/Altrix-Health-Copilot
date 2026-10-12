@@ -8,6 +8,20 @@ import type { HealthGuide, IntentMatchResult, SupportedLocale } from '../../data
  * Completely autonomous: requires no external API keys, no network calls, and no auth.
  */
 
+// Severe Bleeding Keywords (English & Telugu)
+const SEVERE_BLEEDING_KEYWORDS = [
+  'severe bleeding',
+  'uncontrolled bleeding',
+  'spurting blood',
+  'bleeding heavily',
+  'heavy blood loss',
+  'hemorrhage',
+  'తీవ్ర రక్తస్రావం',
+  'ఆగని రక్తస్రావం',
+  'ఎక్కువ రక్తస్రావం',
+  'రక్తం ఆగట్లేదు',
+];
+
 // Emergency Red-Flag Keywords (English & Telugu)
 const EMERGENCY_KEYWORDS = [
   // English
@@ -23,13 +37,13 @@ const EMERGENCY_KEYWORDS = [
   'unconscious',
   'passed out',
   'fainted',
-  'severe bleeding',
   'choking',
   'cardiac arrest',
   'emergency',
   'dying',
   'suicide',
   'blue lips',
+  ...SEVERE_BLEEDING_KEYWORDS,
   // Telugu
   'గుండెపోటు',
   'ఛాతీ నొప్పి',
@@ -37,24 +51,60 @@ const EMERGENCY_KEYWORDS = [
   'శ్వాస ఇబ్బంది',
   'పక్షవాతం',
   'స్పృహ లేదు',
-  'రక్తస్రావం',
   'ఎమర్జెన్సీ',
 ];
 
-// Individualized Dosage Keywords (Strictly Intercepted)
-const DOSING_KEYWORDS = [
+// Individualized Dosage & Ambiguous Medication Safety Keywords (Strictly Intercepted)
+const DOSING_AND_SAFETY_KEYWORDS = [
+  // Specific dosage / quantity / titration
   'how much should i take',
+  'how much can i take',
+  'how much to take',
   'how many tablets',
+  'how many pills',
   'what dose',
-  'dosage for my child',
-  'dose for 5 year old',
+  'what is the dose',
+  'what is the dosage',
+  'dosage for',
+  'dose for',
+  'daily dose',
+  'can i take 500mg',
+  'can i take 650mg',
   'can i take 1000mg',
+  'how many mg',
   'stop taking my',
   'increase dose',
   'double the dose',
+  'skip a dose',
+  'dosage calculation',
+  // Ambiguous safety guarantees & drug interactions
+  '100% safe',
+  'safe to take',
+  'is it safe',
+  'universal safety',
+  'completely safe',
+  'is it safe in pregnancy',
+  'safe while pregnant',
+  'safe in pregnancy',
+  'safe for pregnancy',
+  'safe for children',
+  'safe for child',
+  'can i mix',
+  'can i combine',
+  'take together',
+  'drug interaction',
+  'can i take with',
+  // Telugu
   'ఎంత డోస్',
+  'ఎంత మోతాదు',
   'ఎన్ని మాత్రలు',
   'పిల్లలకి ఎంత ఇవ్వాలి',
+  'గర్భధారణలో సురక్షితమేనా',
+  'కలిపి వేసుకోవచ్చా',
+  'డైలీ డోస్',
+  'ఎంత తీసుకోవాలి',
+  '100% సేఫ్',
+  'పూర్తిగా సురక్షితమేనా',
 ];
 
 // Topic Keyword Maps (Case-insensitive multi-keyword matches)
@@ -184,6 +234,27 @@ const TOPIC_MATCHERS: TopicMatcher[] = [
       'నీరు ఎంత తాగాలి',
     ],
   },
+  {
+    id: 'bleeding-first-aid',
+    keywords: [
+      'bleeding',
+      'blood',
+      'cut',
+      'scrape',
+      'wound',
+      'minor bleeding',
+      'nosebleed',
+      'gauze',
+      'bandage',
+      'రక్తస్రావం',
+      'రక్తం',
+      'గాయం',
+      'దెబ్బ',
+      'రక్తం కారుతోంది',
+      'చిన్న గాయం',
+      'ముక్కులో రక్తం',
+    ],
+  },
 ];
 
 /**
@@ -208,7 +279,9 @@ export function routeGuestQuery(
   // Gate 1: Deterministic Emergency Red Flag Detection
   const hasEmergency = EMERGENCY_KEYWORDS.some((kw) => query.includes(kw));
   if (hasEmergency) {
-    const guide = getGuideById('emergency-signs', locale);
+    const isSevereBleeding = SEVERE_BLEEDING_KEYWORDS.some((kw) => query.includes(kw));
+    const guideId = isSevereBleeding ? 'bleeding-first-aid' : 'emergency-signs';
+    const guide = getGuideById(guideId, locale);
     return {
       matched: true,
       intent: 'emergency_red_flag',
@@ -218,9 +291,9 @@ export function routeGuestQuery(
     };
   }
 
-  // Gate 2: Block Individualized Dosing / Drug Prescription Changes
-  const isDosing = DOSING_KEYWORDS.some((kw) => query.includes(kw));
-  if (isDosing) {
+  // Gate 2: Block Individualized Dosing & Ambiguous Medication Safety / Interactions
+  const isDosingOrSafety = DOSING_AND_SAFETY_KEYWORDS.some((kw) => query.includes(kw));
+  if (isDosingOrSafety) {
     const guide = getGuideById('medicine-info', locale);
     return {
       matched: true,
@@ -281,6 +354,7 @@ export function getFeaturedTopicSuggestions(
       { id: 'cold-cough', label: 'జలుబు & దగ్గు' },
       { id: 'headache', label: 'తలనొప్పి' },
       { id: 'stomach-pain', label: 'కడుపు నొప్పి' },
+      { id: 'bleeding-first-aid', label: 'గాయాలు & రక్తస్రావం' },
       { id: 'emergency-signs', label: 'అత్యవసర సంకేతాలు (112)' },
       { id: 'cpr', label: 'CPR ప్రథమ చికిత్స' },
       { id: 'medicine-info', label: 'మందుల సమాచారం' },
@@ -292,8 +366,10 @@ export function getFeaturedTopicSuggestions(
     { id: 'cold-cough', label: 'Cold & Cough' },
     { id: 'headache', label: 'Headache & Migraine' },
     { id: 'stomach-pain', label: 'Stomach Pain' },
+    { id: 'bleeding-first-aid', label: 'Bleeding & First Aid' },
     { id: 'emergency-signs', label: 'Emergency Red Flags' },
     { id: 'cpr', label: 'Hands-Only CPR' },
     { id: 'medicine-info', label: 'Medicine Safety' },
   ];
 }
+

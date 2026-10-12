@@ -39,9 +39,26 @@ describe('Guest Health Copilot — Intent Router & Safety Gates', () => {
       expect(res.intent).toBe('emergency_red_flag');
       expect(res.guide?.locale).toBe('te');
     });
+
+    it('intercepts severe/uncontrolled bleeding in English as an emergency red flag', () => {
+      const res = routeGuestQuery('Severe bleeding that is spurting and not stopping', 'en');
+      expect(res.matched).toBe(true);
+      expect(res.isEmergency).toBe(true);
+      expect(res.intent).toBe('emergency_red_flag');
+      expect(res.guide?.id).toBe('bleeding-first-aid');
+    });
+
+    it('intercepts severe bleeding in Telugu (తీవ్ర రక్తస్రావం / రక్తం ఆగట్లేదు) as emergency', () => {
+      const res = routeGuestQuery('గాయం నుండి రక్తం ఆగట్లేదు తీవ్ర రక్తస్రావం', 'te');
+      expect(res.matched).toBe(true);
+      expect(res.isEmergency).toBe(true);
+      expect(res.intent).toBe('emergency_red_flag');
+      expect(res.guide?.id).toBe('bleeding-first-aid');
+      expect(res.guide?.locale).toBe('te');
+    });
   });
 
-  describe('Gate 2: Individualized Dosage Interception', () => {
+  describe('Gate 2: Individualized Dosage & Ambiguous Medication Safety Interception', () => {
     it('blocks specific dosage request and routes to safe medicine principles', () => {
       const res = routeGuestQuery('How many tablets of paracetamol should I take?', 'en');
       expect(res.matched).toBe(true);
@@ -58,6 +75,29 @@ describe('Guest Health Copilot — Intent Router & Safety Gates', () => {
 
     it('blocks dosage queries in Telugu (ఎంత డోస్)', () => {
       const res = routeGuestQuery('పిల్లలకి పారాసిటమాల్ ఎంత డోస్ ఇవ్వాలి?', 'te');
+      expect(res.matched).toBe(true);
+      expect(res.intent).toBe('blocked_dosage_request');
+    });
+
+    it('blocks ambiguous questions asking for universal safety guarantees', () => {
+      const res = routeGuestQuery('Is paracetamol 100% safe to take?', 'en');
+      expect(res.matched).toBe(true);
+      expect(res.intent).toBe('blocked_dosage_request');
+      expect(res.guide?.clinicalDisclaimer).toContain('safety guarantees');
+    });
+
+    it('blocks medication safety questions regarding pregnancy and drug combinations', () => {
+      const res1 = routeGuestQuery('Is this painkiller safe while pregnant?', 'en');
+      expect(res1.matched).toBe(true);
+      expect(res1.intent).toBe('blocked_dosage_request');
+
+      const res2 = routeGuestQuery('Can I combine multiple cold medicines?', 'en');
+      expect(res2.matched).toBe(true);
+      expect(res2.intent).toBe('blocked_dosage_request');
+    });
+
+    it('blocks Telugu ambiguous medication safety queries (గర్భధారణలో సురక్షితమేనా)', () => {
+      const res = routeGuestQuery('గర్భధారణలో సురక్షితమేనా ఈ మందు?', 'te');
       expect(res.matched).toBe(true);
       expect(res.intent).toBe('blocked_dosage_request');
     });
@@ -103,6 +143,15 @@ describe('Guest Health Copilot — Intent Router & Safety Gates', () => {
       expect(res.matched).toBe(true);
       expect(res.intent).toBe('wellness');
     });
+
+    it('distinguishes minor bleeding in English and provides clarifying first aid', () => {
+      const res = routeGuestQuery('I cut my finger and it is bleeding a little bit', 'en');
+      expect(res.matched).toBe(true);
+      expect(res.isEmergency).toBe(false);
+      expect(res.intent).toBe('bleeding-first-aid');
+      expect(res.guide?.title).toContain('Bleeding');
+      expect(res.guide?.details?.some((d) => d.includes('Clarifying'))).toBe(true);
+    });
   });
 
   describe('Gate 4: Telugu Language Catalogue Matching', () => {
@@ -126,6 +175,15 @@ describe('Guest Health Copilot — Intent Router & Safety Gates', () => {
       expect(res.matched).toBe(true);
       expect(res.intent).toBe('stomach-pain');
       expect(res.guide?.locale).toBe('te');
+    });
+
+    it('distinguishes minor/general bleeding in Telugu (రక్తస్రావం) without falsely escalating to emergency', () => {
+      const res = routeGuestQuery('నాకు చిన్న గాయం అయ్యింది రక్తం కారుతోంది', 'te');
+      expect(res.matched).toBe(true);
+      expect(res.isEmergency).toBe(false);
+      expect(res.intent).toBe('bleeding-first-aid');
+      expect(res.guide?.locale).toBe('te');
+      expect(res.guide?.details?.some((d) => d.includes('స్పష్టత కోసం'))).toBe(true);
     });
   });
 

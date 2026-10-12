@@ -172,23 +172,25 @@ export const HEALTH_GUIDES_EN: Record<string, HealthGuide> = {
       'Paracetamol (Acetaminophen) is commonly used for fever and mild aches; do not exceed the stated package maximum to protect your liver.',
       'Store medicines in their original containers in a cool, dry place away from children and moisture.',
       'Never take leftover antibiotics or share prescription medicines with others.',
-      'This assistant does not provide personalized dosage calculations or prescription modifications.',
+      'No medication is universally safe: age, liver/kidney function, underlying conditions, and pregnancy status all alter safety profiles.',
+      'This assistant does not provide personalized dosage calculations, drug interaction checks, or prescription modifications.',
     ],
     warningSigns: [
       'Signs of severe allergic reaction: hives, facial swelling, lip or tongue swelling, difficulty breathing.',
       'Accidental overdose or taking more than the maximum daily package limit.',
       'Severe unexplained dizziness, nausea, or rash after starting a new medicine.',
+      'Taking multiple medicines that contain the same active ingredient.',
     ],
     nextSteps: [
       'Check the physical label or package insert on your medicine for official manufacturer directions.',
-      'Consult a licensed pharmacist or physician for personal dosing, interactions, and suitability.',
+      'Consult a licensed pharmacist or physician for personal dosing, interactions, pregnancy safety, and suitability.',
       'In case of accidental overdose, contact your local poison control center or emergency services immediately.',
     ],
     sourceName: 'MedlinePlus Drug Information & FDA Safe Use',
     sourceUrl: 'https://medlineplus.gov/druginformation.html',
     reviewedDate: '2026-10-12',
     clinicalDisclaimer:
-      'Educational overview only. We do not provide individualized dosing, treatment selection, or medication changes. Always follow your prescription.',
+      'Educational overview only. We do not provide individualized dosing, safety guarantees, pregnancy approvals, or medication changes. Always follow your prescription.',
     quickQuestions: [
       'Why is it dangerous to combine multiple cold medications?',
       'What should I do if I suspect an allergic drug reaction?',
@@ -305,4 +307,44 @@ export const HEALTH_GUIDES_EN: Record<string, HealthGuide> = {
       'What routine screenings are recommended for adults?',
     ],
   },
+
+  // 6. First Aid: Bleeding & Wound Care
+  'bleeding-first-aid': {
+    id: 'bleeding-first-aid',
+    category: 'first_aid',
+    locale: 'en',
+    title: 'Bleeding & Wound First Aid',
+    summary:
+      'Proper first aid depends on whether bleeding is severe and uncontrolled or minor. Follow clarifying triage steps below to assess urgency.',
+    details: [
+      'Clarifying Assessment 1 (Emergency): Is blood spurting, pulsing, or failing to stop after 10-15 minutes of firm, direct pressure? If YES, this is a medical emergency — Call 112 (India) or 911 (US) immediately.',
+      'Clarifying Assessment 2 (Minor Wound): Is the cut minor (shallow scrape or small puncture with bleeding stopped)? If YES, proceed with standard home self-care.',
+      'Minor Wound Care: Wash hands thoroughly. Rinse the cut gently under running clean water and mild soap to remove dirt.',
+      'Direct Pressure: Place a clean cloth or sterile gauze over the wound and apply firm, continuous pressure for 5-10 minutes. Do not peek repeatedly.',
+      'Protection: Apply a thin layer of petroleum jelly or antiseptic ointment, then cover with a sterile adhesive bandage. Change bandage daily or when wet.',
+      'Tetanus Evaluation: Seek medical advice if the cut was caused by rusty metal, dirt, animal bites, or if you have not had a tetanus booster in the last 5-10 years.',
+    ],
+    warningSigns: [
+      'Severe / Critical: Blood is spurting, soaking through multiple bandages, or not stopping after 10-15 minutes of direct pressure.',
+      'Deep gaping wound where edges cannot be easily pulled together (may need stitches within 6-8 hours).',
+      'The person feels faint, pale, cold, clammy, or dizzy (signs of hypovolemic shock — call 112/911 immediately).',
+      'Signs of infection developing later: worsening redness, warmth, swelling, throbbing pain, or pus drainage.',
+    ],
+    nextSteps: [
+      'If bleeding is uncontrolled or spurting: Call 112 / 108 (India) or 911 (US) immediately; keep continuous direct pressure and elevate the limb if possible.',
+      'For minor cuts: Clean thoroughly, apply gentle pressure, dress with a clean bandage, and keep clean and dry.',
+      'Consult a doctor or clinic if the wound is deep, caused by an animal/human bite, or if you suspect foreign objects remain inside.',
+    ],
+    sourceName: 'American Red Cross & CDC — First Aid for Bleeding',
+    sourceUrl: 'https://www.cdc.gov/niosh/topics/firstaid/bleeding.html',
+    reviewedDate: '2026-10-12',
+    clinicalDisclaimer:
+      'First-aid educational guidance only. Uncontrolled bleeding requires immediate emergency medical services (112 / 911).',
+    quickQuestions: [
+      'How long should you hold direct pressure on a bleeding cut?',
+      'When does a cut require stitches or a tetanus shot?',
+      'What are the signs of shock from severe blood loss?',
+    ],
+  },
 };
+
