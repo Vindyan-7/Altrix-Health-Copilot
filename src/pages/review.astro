@@ -11,6 +11,10 @@ import {
   CheckCheck,
   Eye,
   Info,
+  SlidersHorizontal,
+  ChevronDown,
+  ShieldCheck,
+  ExternalLink,
 } from '@lucide/astro';
 import Layout from '../layouts/Layout.astro';
 import {
@@ -25,8 +29,8 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
 ---
 
 <Layout title="Report Review" subtext="Interactive field verification & provenance inspection">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
-    <!-- Breadcrumb & Header -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+    <!-- 1. Breadcrumb & Action Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-aura-border/30">
       <div>
         <nav class="flex items-center gap-2 text-xs text-aura-text-muted mb-2">
@@ -41,16 +45,16 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
           <span>Review Extracted Findings</span>
         </h1>
         <p class="text-aura-text-muted text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
-          Verify extracted lab values against the source document. Inspect bounding boxes and confirm readings before saving to your timeline.
+          Verify extracted laboratory readings against the source document slip. Inspect source bounding boxes and confirm readings before saving to your timeline.
         </p>
       </div>
 
       <!-- Action buttons -->
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2.5">
         <button
           id="btn-confirm-all"
           type="button"
-          class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs sm:text-sm shadow-xs transition cursor-pointer"
+          class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs sm:text-sm shadow-xs transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           <CheckCheck class="w-4 h-4" stroke-width={2} />
           <span>Confirm All Verified</span>
@@ -58,7 +62,7 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
         <button
           id="btn-reset-demo"
           type="button"
-          class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-white hover:bg-aura-surface-blush text-aura-text font-medium text-xs sm:text-sm border border-aura-border transition cursor-pointer"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-white hover:bg-aura-surface-blush text-aura-text font-medium text-xs sm:text-sm border border-aura-border transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
         >
           <RotateCcw class="w-3.5 h-3.5 text-aura-text-muted" stroke-width={2} />
           <span>Reset to Original</span>
@@ -66,121 +70,150 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
       </div>
     </div>
 
-    <!-- Document Metadata & Uncertainty Alert -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Metadata Card -->
-      <div class="lg:col-span-2 bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card p-5 sm:p-6 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-aura-border/60 pb-3">
-          <div class="flex items-center gap-2">
-            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-aura-surface-cream text-aura-text border border-black/5">
-              Lab Panel
-            </span>
-            <span class="font-bold text-aura-text text-sm truncate max-w-xs">{doc.fileName}</span>
-          </div>
-          <span class="text-xs text-aura-text-subtle font-mono">ID: {doc.id}</span>
+    <!-- 2. Compact Hierarchy Strip: Document Info + Real-Time Review Progress + Interactive Filter Chips -->
+    <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card p-4 sm:p-5 space-y-4">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <!-- Document summary badge & facility -->
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
+          <span class="px-2.5 py-1 rounded-full font-bold bg-aura-surface-cream text-aura-text border border-black/5 text-[11px] uppercase tracking-wider">
+            CBC & Metabolic Panel
+          </span>
+          <span class="font-bold text-aura-text">{doc.fileName}</span>
+          <span class="text-aura-text-subtle hidden sm:inline">•</span>
+          <span class="text-aura-text-muted">{doc.facilityName}</span>
+          <span class="text-aura-text-subtle hidden sm:inline">•</span>
+          <span class="text-aura-text-subtle font-mono text-[11px]">{doc.documentDate}</span>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-          <div>
-            <span class="text-aura-text-subtle block">Patient Profile:</span>
-            <strong class="text-aura-text">{doc.patientDisplayName}</strong>
-          </div>
-          <div>
-            <span class="text-aura-text-subtle block">Facility:</span>
-            <strong class="text-aura-text">{doc.facilityName}</strong>
-          </div>
-          <div>
-            <span class="text-aura-text-subtle block">Report Date:</span>
-            <strong class="text-aura-text">{doc.documentDate}</strong>
-          </div>
-          <div>
-            <span class="text-aura-text-subtle block">Extractor Engine:</span>
-            <strong class="text-aura-text font-mono text-[11px]">{doc.provider}</strong>
-          </div>
-        </div>
-
-        <!-- Review Progress Bar (Represents real confirmed state) -->
-        <div class="space-y-1.5 pt-2">
-          <div class="flex justify-between text-xs font-medium text-aura-text">
-            <span id="review-status-label">Review Status: 0 of {totalCount} fields confirmed</span>
-            <span id="review-percentage">0% Reviewed</span>
-          </div>
-          <div class="w-full bg-aura-border rounded-full h-2 overflow-hidden">
-            <div id="review-bar" class="bg-emerald-600 h-2 rounded-full transition-all duration-300 w-[0%]"></div>
-          </div>
+        <!-- Filter Chips: All, Optical Flags, Out of Range -->
+        <div class="flex items-center gap-1.5 text-xs">
+          <span class="text-aura-text-subtle text-[11px] uppercase font-bold mr-1 hidden sm:inline">Filter:</span>
+          <button
+            type="button"
+            id="filter-all"
+            class="filter-chip px-3 py-1 rounded-full text-xs font-semibold bg-aura-sidebar text-white transition cursor-pointer shadow-2xs"
+            data-filter="all"
+          >
+            All Fields ({totalCount})
+          </button>
+          <button
+            type="button"
+            id="filter-uncertain"
+            class="filter-chip px-3 py-1 rounded-full text-xs font-semibold bg-white text-aura-text border border-aura-border hover:bg-aura-surface-blush transition cursor-pointer flex items-center gap-1"
+            data-filter="uncertain"
+          >
+            <span class="w-1.5 h-1.5 rounded-full bg-aura-accent-orange"></span>
+            <span>Optical Flags ({uncertainCount})</span>
+          </button>
+          <button
+            type="button"
+            id="filter-out-of-range"
+            class="filter-chip px-3 py-1 rounded-full text-xs font-semibold bg-white text-aura-text border border-aura-border hover:bg-aura-surface-blush transition cursor-pointer flex items-center gap-1"
+            data-filter="out-of-range"
+          >
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+            <span>Out of Range ({outOfRangeCount})</span>
+          </button>
         </div>
       </div>
 
-      <!-- Uncertainty Indicator Callout -->
-      <div class="bg-aura-accent-peach/50 border border-aura-accent-orange/30 rounded-aura-panel p-5 shadow-aura-card flex flex-col justify-between space-y-3">
-        <div class="space-y-2">
-          <div class="flex items-center gap-2 font-bold text-aura-text text-sm">
-            <AlertTriangle class="w-4 h-4 text-aura-accent-orange shrink-0" stroke-width={2} />
-            <span>Uncertainty Indicators ({uncertainCount})</span>
-          </div>
-          <p class="text-xs text-aura-text-muted leading-relaxed">
-            <strong class="text-aura-text">Platelet Count</strong> and <strong class="text-aura-text">TSH</strong> have degraded printing or obscured unit prefixes on the simulated lab slip.
-            Please verify their values against the source snippet.
-          </p>
+      <!-- Real-Time Progress Bar (Derived strictly from verified state) -->
+      <div class="space-y-1.5 pt-1 border-t border-aura-border/30">
+        <div class="flex justify-between text-xs font-medium text-aura-text">
+          <span id="review-status-label" class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>Review Progress: 0 of {totalCount} fields verified</span>
+          </span>
+          <span id="review-percentage" class="font-bold text-emerald-800">0% Verified</span>
         </div>
-        <div class="text-[11px] text-aura-text bg-white/70 p-2.5 rounded-xl border border-black/5">
-          <strong>Safety Rule:</strong> Unknown values remain marked uncertain until explicit human confirmation.
+        <div class="w-full bg-aura-border/50 rounded-full h-2 overflow-hidden">
+          <div id="review-bar" class="bg-emerald-600 h-2 rounded-full transition-all duration-300 w-[0%]"></div>
         </div>
       </div>
     </div>
 
-    <!-- Main Content: Extracted Fields (Desktop Table + Mobile Cards) & Inspector -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Left (2 cols): Extracted Fields Container -->
-      <div class="lg:col-span-2 space-y-4">
+    <!-- 3. Main Review Section: Primary Clinical Fields (Left) + Provenance Inspector & Summary (Right) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+      <!-- Left Column (~65% width / 8 cols): Primary Extracted Clinical Fields -->
+      <div class="lg:col-span-8 space-y-4">
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-serif font-normal text-aura-text">
-            Extracted Clinical Fields ({totalCount})
-          </h2>
-          <span class="text-xs text-aura-text-muted">Tap or click any field to inspect provenance</span>
+          <div class="flex items-center gap-2">
+            <h2 class="text-lg font-serif font-normal text-aura-text">
+              Clinical Parameter Findings
+            </h2>
+            <span id="active-filter-badge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-aura-surface-blush text-aura-text border border-aura-border/60">
+              Showing All {totalCount}
+            </span>
+          </div>
+          <span class="text-xs text-aura-text-muted hidden sm:inline">
+            Click or tap any parameter to inspect provenance snippet
+          </span>
         </div>
 
-        <!-- 1. Desktop / Tablet View (Table) -->
+        <!-- 3A. Desktop / Tablet Table View (hidden on mobile) -->
         <div class="hidden md:block bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs sm:text-sm">
               <thead>
                 <tr class="bg-aura-surface-blush border-b border-aura-border text-aura-text font-semibold text-xs uppercase tracking-wider">
-                  <th class="py-3 px-4">Test Parameter</th>
-                  <th class="py-3 px-4">Extracted Value</th>
-                  <th class="py-3 px-4">Ref. Range</th>
-                  <th class="py-3 px-4">Status / Flag</th>
-                  <th class="py-3 px-4 text-right">Actions</th>
+                  <th class="py-3.5 px-4 w-1/3">Test Parameter</th>
+                  <th class="py-3.5 px-4 w-1/5">Extracted Value</th>
+                  <th class="py-3.5 px-4 w-1/5">Reference Range</th>
+                  <th class="py-3.5 px-4 w-1/6">Status & Flag</th>
+                  <th class="py-3.5 px-4 text-right w-1/6">Actions</th>
                 </tr>
               </thead>
               <tbody id="fields-table-body" class="divide-y divide-aura-border/40">
                 {doc.fields.map((field) => (
                   <tr
                     id={`row-${field.id}`}
-                    class={`hover:bg-aura-surface-blush/60 cursor-pointer transition select-none ${field.isUncertain ? 'bg-aura-accent-peach/20' : ''}`}
+                    tabindex="0"
+                    role="button"
+                    aria-label={`Select ${field.name} to view source document provenance`}
+                    class={`cursor-pointer transition-all select-none focus:outline-none focus:ring-2 focus:ring-aura-accent-orange/70 ${
+                      field.isUncertain
+                        ? 'bg-amber-50/40 hover:bg-amber-50/70 border-l-4 border-l-aura-accent-orange'
+                        : 'hover:bg-aura-surface-blush/60'
+                    }`}
                     data-field-id={field.id}
+                    data-is-uncertain={field.isUncertain ? 'true' : 'false'}
+                    data-interpretation={field.interpretation}
                     data-raw-snippet={field.provenance.rawSnippet}
                     data-page={field.provenance.page}
                     data-name={field.name}
+                    data-val={field.value}
+                    data-unit={field.unit || ''}
+                    data-ref={field.referenceRange?.text || 'Not reported'}
                   >
                     <!-- Test Parameter -->
                     <td class="py-3.5 px-4">
                       <div class="font-bold text-aura-text flex items-center gap-1.5">
                         <span>{field.name}</span>
                         {field.isUncertain && (
-                          <span class="w-2 h-2 rounded-full bg-aura-accent-orange" title="Uncertain extraction"></span>
+                          <span
+                            class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-aura-accent-orange/15 text-aura-accent-orange border border-aura-accent-orange/30"
+                            title={field.uncertaintyReason || 'Low optical confidence'}
+                          >
+                            <AlertTriangle class="w-2.5 h-2.5 shrink-0" stroke-width={2} />
+                            <span>Flagged</span>
+                          </span>
                         )}
                       </div>
                       <div class="text-[11px] text-aura-text-muted">{field.category}</div>
                     </td>
 
-                    <!-- Value -->
+                    <!-- Extracted Value -->
                     <td class="py-3.5 px-4 font-mono">
-                      <span id={`val-display-${field.id}`} class="font-semibold text-aura-text text-sm">
-                        {field.value}
-                      </span>
-                      <span id={`unit-display-${field.id}`} class="text-aura-text-muted text-xs ml-1">
-                        {field.unit || ''}
+                      <div>
+                        <span id={`val-display-${field.id}`} class="font-bold text-aura-text text-sm">
+                          {field.value}
+                        </span>
+                        <span id={`unit-display-${field.id}`} class="text-aura-text-muted text-xs ml-1">
+                          {field.unit || ''}
+                        </span>
+                      </div>
+                      <span id={`edited-audit-${field.id}`} class="hidden text-[10px] font-sans font-medium text-indigo-700 block mt-0.5">
+                        Edited by User
                       </span>
                     </td>
 
@@ -189,7 +222,7 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
                       {field.referenceRange?.text || 'Not reported'}
                     </td>
 
-                    <!-- Flag & Uncertainty -->
+                    <!-- Status & Flag -->
                     <td class="py-3.5 px-4">
                       <div class="flex flex-col gap-1 items-start">
                         <!-- Flag Badge -->
@@ -206,23 +239,12 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
                           {field.interpretation.toUpperCase()}
                         </span>
 
-                        <!-- Uncertainty badge -->
-                        {field.isUncertain && (
-                          <span
-                            id={`uncertain-badge-${field.id}`}
-                            class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-aura-accent-orange/20 text-aura-accent-orange border border-aura-accent-orange/30 inline-flex items-center gap-1"
-                            title={field.uncertaintyReason || 'Low confidence OCR'}
-                          >
-                            <AlertTriangle class="w-2.5 h-2.5 shrink-0" stroke-width={2} />
-                            <span>Uncertain ({(field.confidence * 100).toFixed(0)}%)</span>
-                          </span>
-                        )}
-
+                        <!-- Review status badge -->
                         <span
                           id={`review-badge-${field.id}`}
                           class="text-[10px] font-medium text-aura-text-muted"
                         >
-                          {field.reviewStatus === 'unreviewed' ? 'Unreviewed' : 'Confirmed'}
+                          Unreviewed
                         </span>
                       </div>
                     </td>
@@ -249,7 +271,7 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
                           aria-label={`Confirm ${field.name}`}
                         >
                           <Check class="w-3 h-3 text-emerald-700" stroke-width={2.2} />
-                          <span>Confirm</span>
+                          <span id={`btn-confirm-text-${field.id}`}>Confirm</span>
                         </button>
                       </div>
                     </td>
@@ -260,80 +282,93 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
           </div>
         </div>
 
-        <!-- 2. Mobile View (Card List - Eliminates horizontal table scrolling) -->
+        <!-- 3B. Mobile Stacked Card View (block on mobile, hidden on md+) -->
         <div id="mobile-fields-list" class="block md:hidden space-y-3">
           {doc.fields.map((field) => (
             <div
               id={`mobile-card-${field.id}`}
-              class={`bg-aura-surface rounded-2xl p-4 border border-aura-border/50 shadow-2xs space-y-3 cursor-pointer transition select-none ${field.isUncertain ? 'bg-aura-accent-peach/15' : ''}`}
+              tabindex="0"
+              role="button"
+              aria-label={`Select ${field.name} to view source document provenance`}
+              class={`bg-aura-surface rounded-2xl p-4 border border-aura-border/50 shadow-2xs space-y-3 cursor-pointer transition select-none focus:outline-none focus:ring-2 focus:ring-aura-accent-orange ${
+                field.isUncertain ? 'bg-amber-50/40 border-l-4 border-l-aura-accent-orange' : ''
+              }`}
               data-field-id={field.id}
+              data-is-uncertain={field.isUncertain ? 'true' : 'false'}
+              data-interpretation={field.interpretation}
               data-raw-snippet={field.provenance.rawSnippet}
               data-page={field.provenance.page}
               data-name={field.name}
+              data-val={field.value}
+              data-unit={field.unit || ''}
             >
-              <!-- Card Header -->
+              <!-- Card Top Header -->
               <div class="flex items-start justify-between gap-2">
                 <div>
-                  <div class="font-bold text-sm text-aura-text">{field.name}</div>
+                  <div class="font-bold text-sm text-aura-text flex items-center gap-1.5">
+                    <span>{field.name}</span>
+                    {field.isUncertain && (
+                      <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-aura-accent-orange/15 text-aura-accent-orange">
+                        <AlertTriangle class="w-2.5 h-2.5 shrink-0" stroke-width={2} />
+                        <span>Flagged</span>
+                      </span>
+                    )}
+                  </div>
                   <div class="text-[11px] text-aura-text-muted">{field.category}</div>
                 </div>
-                <div class="flex flex-col items-end gap-1 shrink-0">
-                  <span
-                    id={`mobile-flag-${field.id}`}
-                    class={`px-2 py-0.5 rounded-full text-[10.5px] font-semibold ${
-                      field.interpretation === 'low'
-                        ? 'bg-aura-accent-peach text-aura-text'
-                        : field.interpretation === 'high'
-                        ? 'bg-rose-100 text-rose-800'
-                        : 'bg-emerald-100 text-emerald-800'
-                    }`}
-                  >
-                    {field.interpretation.toUpperCase()}
-                  </span>
-                  {field.isUncertain && (
-                    <span
-                      class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-aura-accent-orange/20 text-aura-accent-orange border border-aura-accent-orange/30 inline-flex items-center gap-1"
-                    >
-                      <AlertTriangle class="w-2.5 h-2.5" stroke-width={2} />
-                      <span>Uncertain ({(field.confidence * 100).toFixed(0)}%)</span>
-                    </span>
-                  )}
-                </div>
+
+                <!-- Interpretation Flag -->
+                <span
+                  id={`mobile-flag-${field.id}`}
+                  class={`px-2 py-0.5 rounded-full text-[10.5px] font-semibold shrink-0 ${
+                    field.interpretation === 'low'
+                      ? 'bg-aura-accent-peach text-aura-text'
+                      : field.interpretation === 'high'
+                      ? 'bg-rose-100 text-rose-800'
+                      : 'bg-emerald-100 text-emerald-800'
+                  }`}
+                >
+                  {field.interpretation.toUpperCase()}
+                </span>
               </div>
 
-              <!-- Measurement Details Grid -->
-              <div class="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-aura-surface-blush/80 border border-aura-border/40 text-xs">
+              <!-- Measurement Details Box -->
+              <div class="grid grid-cols-2 gap-2 p-3 rounded-xl bg-aura-surface-blush/80 border border-aura-border/40 text-xs">
                 <div>
                   <span class="text-aura-text-subtle block text-[10px] font-semibold uppercase">Extracted Value</span>
-                  <span id={`mobile-val-display-${field.id}`} class="font-bold font-mono text-aura-text text-sm">
-                    {field.value} {field.unit || ''}
+                  <div class="font-bold font-mono text-aura-text text-sm">
+                    <span id={`mobile-val-display-${field.id}`}>{field.value}</span>
+                    <span id={`mobile-unit-display-${field.id}`} class="text-xs text-aura-text-muted ml-0.5">{field.unit || ''}</span>
+                  </div>
+                  <span id={`mobile-edited-audit-${field.id}`} class="hidden text-[10px] font-sans font-medium text-indigo-700 block mt-0.5">
+                    Edited by User
                   </span>
                 </div>
                 <div>
                   <span class="text-aura-text-subtle block text-[10px] font-semibold uppercase">Reference Range</span>
-                  <span class="font-mono text-aura-text-muted text-xs">
+                  <span class="font-mono text-aura-text-muted text-xs block mt-0.5">
                     {field.referenceRange?.text || 'Not reported'}
                   </span>
                 </div>
               </div>
 
-              <!-- Touchscreen Provenance Snippet (Always accessible without hover) -->
+              <!-- Touchscreen Provenance Snippet Toggle -->
               <div class="space-y-1.5 pt-1">
                 <button
                   type="button"
-                  class="btn-toggle-snippet text-[11px] font-semibold text-aura-accent-orange hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  class="btn-toggle-snippet text-[11px] font-semibold text-aura-accent-orange hover:underline inline-flex items-center gap-1 cursor-pointer py-1"
                   data-target={`snippet-panel-${field.id}`}
                   onclick="event.stopPropagation();"
                 >
-                  <Eye class="w-3 h-3" stroke-width={2} />
-                  <span>Inspect Source OCR Snippet</span>
+                  <Eye class="w-3.5 h-3.5" stroke-width={2} />
+                  <span>Inspect Source OCR Slip Region</span>
                 </button>
                 <div
                   id={`snippet-panel-${field.id}`}
-                  class="hidden bg-aura-sidebar-deep rounded-xl p-3 font-mono text-xs text-emerald-300 space-y-1"
+                  class="hidden bg-aura-sidebar-deep rounded-xl p-3 font-mono text-xs text-emerald-300 space-y-1 transition"
                 >
                   <div class="text-[9.5px] text-aura-sidebar-text uppercase tracking-widest border-b border-white/10 pb-1">
-                    Raw Document Snippet (Page {field.provenance.page})
+                    Raw Document Text (Page {field.provenance.page})
                   </div>
                   <div class="whitespace-pre-wrap leading-relaxed text-[11px]">
                     {field.provenance.rawSnippet}
@@ -341,156 +376,79 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
                 </div>
               </div>
 
-              <!-- Card Actions -->
+              <!-- Mobile Card Footer Actions (Min 44px touch targets) -->
               <div class="flex items-center justify-between pt-2 border-t border-aura-border/40" onclick="event.stopPropagation();">
                 <span id={`mobile-review-badge-${field.id}`} class="text-[11px] font-medium text-aura-text-muted">
-                  {field.reviewStatus === 'unreviewed' ? 'Unreviewed' : 'Confirmed'}
+                  Unreviewed
                 </span>
                 <div class="flex items-center gap-2">
                   <button
                     type="button"
-                    class="btn-edit inline-flex items-center gap-1 px-3 py-1.5 text-xs rounded-full border border-aura-border hover:bg-aura-surface-blush font-medium text-aura-text cursor-pointer"
+                    class="btn-edit min-h-[44px] px-3.5 py-2 text-xs rounded-full border border-aura-border hover:bg-aura-surface-blush font-medium text-aura-text cursor-pointer flex items-center gap-1 focus:ring-2 focus:ring-aura-sidebar"
                     data-id={field.id}
                     data-name={field.name}
                     data-val={field.value}
                     data-unit={field.unit || ''}
                     aria-label={`Edit ${field.name}`}
                   >
-                    <Edit3 class="w-3 h-3 text-aura-text-muted" stroke-width={2} />
+                    <Edit3 class="w-3.5 h-3.5 text-aura-text-muted" stroke-width={2} />
                     <span>Edit</span>
                   </button>
                   <button
                     type="button"
-                    class="btn-confirm inline-flex items-center gap-1 px-3 py-1.5 text-xs rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-medium cursor-pointer"
+                    class="btn-confirm min-h-[44px] px-4 py-2 text-xs rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-medium cursor-pointer flex items-center gap-1 focus:ring-2 focus:ring-emerald-500"
                     data-id={field.id}
                     aria-label={`Confirm ${field.name}`}
                   >
-                    <Check class="w-3 h-3 text-emerald-700" stroke-width={2.2} />
-                    <span>Confirm</span>
+                    <Check class="w-3.5 h-3.5 text-emerald-700" stroke-width={2.2} />
+                    <span id={`mobile-btn-confirm-text-${field.id}`}>Confirm</span>
                   </button>
                 </div>
               </div>
             </div>
           ))}
         </div>
-
-        <!-- Inline Edit Modal Dialog (Accessible) -->
-        <div
-          id="edit-modal"
-          class="hidden fixed inset-0 z-50 bg-aura-sidebar-deep/60 backdrop-blur-xs flex items-center justify-center p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="edit-dialog-title"
-        >
-          <div class="bg-aura-surface rounded-aura-panel max-w-md w-full p-6 shadow-2xl space-y-4 border border-aura-border">
-            <div class="flex justify-between items-start">
-              <div>
-                <h3 id="edit-dialog-title" class="text-base font-serif font-bold text-aura-text">
-                  Correct Extracted Parameter
-                </h3>
-                <p id="edit-dialog-subtitle" class="text-xs text-aura-text-muted">
-                  Adjust numerical value or unit based on original document.
-                </p>
-              </div>
-              <button
-                type="button"
-                id="modal-close"
-                class="p-1 rounded-full text-aura-text-muted hover:text-aura-text hover:bg-aura-surface-blush cursor-pointer"
-                aria-label="Close dialog"
-              >
-                <X class="w-4 h-4" stroke-width={2} />
-              </button>
-            </div>
-
-            <form id="edit-form" class="space-y-4">
-              <input type="hidden" id="edit-field-id" />
-
-              <div>
-                <label for="edit-value-input" class="block text-xs font-semibold text-aura-text mb-1">
-                  Corrected Numerical Value
-                </label>
-                <input
-                  type="text"
-                  id="edit-value-input"
-                  required
-                  class="w-full px-3 py-2 border border-aura-border rounded-xl text-sm font-mono focus:ring-2 focus:ring-aura-sidebar-active focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label for="edit-unit-input" class="block text-xs font-semibold text-aura-text mb-1">
-                  Unit
-                </label>
-                <input
-                  type="text"
-                  id="edit-unit-input"
-                  class="w-full px-3 py-2 border border-aura-border rounded-xl text-sm font-mono focus:ring-2 focus:ring-aura-sidebar-active focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label for="edit-reason-input" class="block text-xs font-semibold text-aura-text mb-1">
-                  Reason for Adjustment (Audit Trail)
-                </label>
-                <input
-                  type="text"
-                  id="edit-reason-input"
-                  placeholder="e.g. Corrected faint decimal printing"
-                  class="w-full px-3 py-2 border border-aura-border rounded-xl text-sm focus:ring-2 focus:ring-aura-sidebar-active focus:outline-none"
-                />
-              </div>
-
-              <div class="flex justify-end gap-2 pt-2 border-t border-aura-border/60">
-                <button
-                  type="button"
-                  id="modal-cancel"
-                  class="px-4 py-2 text-xs font-semibold rounded-full border border-aura-border text-aura-text hover:bg-aura-surface-blush cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  class="px-4 py-2 text-xs font-semibold rounded-full bg-aura-action hover:bg-aura-action-hover text-white cursor-pointer"
-                >
-                  Save Correction
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
       </div>
 
-      <!-- Right (1 col): Provenance Snippet Inspector & Grounded Summary -->
-      <div class="space-y-6">
-        <!-- Provenance Inspector Box (Updates on desktop hover/click AND mobile tap) -->
-        <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card p-5 space-y-3">
+      <!-- Right Column (~35% width / 4 cols): Provenance Inspector & Grounded Summary -->
+      <div class="lg:col-span-4 space-y-6">
+        <!-- 1. Source Document Provenance Inspector Box -->
+        <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card p-5 space-y-3 sticky top-6">
           <div class="flex items-center justify-between">
             <h3 class="text-sm font-serif font-bold text-aura-text flex items-center gap-1.5">
               <Search class="w-4 h-4 text-aura-accent-orange" stroke-width={2} />
-              <span>Source Document Provenance</span>
+              <span>Source Provenance Inspector</span>
             </h3>
             <span id="inspector-page-badge" class="text-[11px] font-mono text-aura-text-subtle">Page 1</span>
           </div>
 
           <p class="text-xs text-aura-text-muted leading-relaxed">
-            Active parameter snippet from the simulated laboratory report:
+            Active parameter snippet mapped from the source document slip:
           </p>
 
+          <!-- Terminal Preview Box -->
           <div class="bg-aura-sidebar-deep rounded-xl p-3.5 font-mono text-xs text-aura-sidebar-active space-y-1">
             <div id="inspector-label" class="text-[10px] text-aura-sidebar-text uppercase tracking-widest border-b border-white/10 pb-1">
-              Raw Extracted Text Snippet • Hemoglobin
+              Raw Extracted Text • Hemoglobin
             </div>
             <div id="inspector-snippet" class="whitespace-pre-wrap leading-relaxed text-emerald-300">
               Hemoglobin ................... 11.2 g/dL (Ref: 12.0 - 15.5)
             </div>
           </div>
-          <div class="text-[11px] text-aura-text-muted flex items-center justify-between">
-            <span>Bounding Box: <strong id="inspector-box" class="font-mono text-aura-text">Top: 18%, Left: 12%</strong></span>
-            <span class="text-[10px] text-aura-text-subtle">High OCR Confidence</span>
+
+          <div class="text-[11px] text-aura-text-muted flex items-center justify-between pt-1">
+            <span>Coordinates: <strong id="inspector-box" class="font-mono text-aura-text">Top: 18%, Left: 12%</strong></span>
+            <span id="inspector-status-badge" class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              High Confidence
+            </span>
+          </div>
+
+          <div class="bg-aura-surface-blush/80 rounded-xl p-2.5 text-[10.5px] text-aura-text-muted border border-aura-border/50">
+            <strong>Touch/Keyboard Tip:</strong> Click any row, tap any card, or use Tab + Enter to inspect its bounding coordinates.
           </div>
         </div>
 
-        <!-- Grounded Summary Box with English / Telugu toggle -->
+        <!-- 2. Grounded Evidence Summary Box with English / Telugu toggle -->
         <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card p-5 space-y-4">
           <div class="flex items-center justify-between border-b border-aura-border/60 pb-3">
             <h3 class="text-sm font-serif font-bold text-aura-text flex items-center gap-1.5">
@@ -516,10 +474,10 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
             </div>
           </div>
 
-          <!-- English Summary Content (Accurate 5 out-of-range observations) -->
+          <!-- English Summary Content -->
           <div id="summary-en" class="space-y-3 text-xs leading-relaxed text-aura-text-muted">
             <p>
-              This report contains <strong class="text-aura-text">{totalCount} extracted parameters</strong>. <strong class="text-aura-text">{outOfRangeCount} parameters differ from standard reference ranges</strong>:
+              This report contains <strong class="text-aura-text">{totalCount} extracted parameters</strong>. <strong id="summary-out-count" class="text-aura-text">{outOfRangeCount} parameters differ from standard reference ranges</strong>:
             </p>
             <ul class="space-y-1.5 list-disc pl-4 text-aura-text-muted">
               <li><strong class="text-aura-text">Hemoglobin (11.2 g/dL):</strong> Below reference (12.0 - 15.5 g/dL). Oxygen-carrying protein in red blood cells.</li>
@@ -534,7 +492,7 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
               <ol class="list-decimal pl-4 space-y-1 text-aura-text-muted">
                 <li>What dietary patterns or follow-up tests are recommended for my fasting sugar and HbA1c readings?</li>
                 <li>Does the mild hemoglobin reading warrant iron profile or ferritin testing?</li>
-                <li>Should the TSH level be re-checked alongside thyroid antibodies?</li>
+                <li>Should the TSH level be re-checked alongside a thyroid antibody panel?</li>
               </ol>
             </div>
           </div>
@@ -566,24 +524,310 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
             <strong>Safety Notice:</strong> Sourced purely from reviewed fields. No autonomous diagnosis or prescribing.
           </div>
         </div>
+
+        <!-- 3. Technical Metadata Drawer/Card -->
+        <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 p-4 text-xs space-y-2">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-aura-text-subtle">
+            Extraction Provenance Metadata
+          </div>
+          <div class="space-y-1 text-aura-text-muted font-mono text-[11px]">
+            <div>Document ID: <strong class="text-aura-text">{doc.id}</strong></div>
+            <div>File Size: <strong class="text-aura-text">{(doc.fileSize / 1024).toFixed(0)} KB (PDF)</strong></div>
+            <div>Provider: <strong class="text-aura-text">{doc.provider}</strong></div>
+            <div>Verification Mode: <strong class="text-emerald-700">Offline Mock Fixture</strong></div>
+          </div>
+        </div>
       </div>
+    </div>
+
+    <!-- 4. Accessible Edit Modal Dialog -->
+    <div
+      id="edit-modal"
+      class="hidden fixed inset-0 z-50 bg-aura-sidebar/70 backdrop-blur-xs flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-dialog-title"
+    >
+      <div class="bg-aura-surface rounded-aura-panel max-w-md w-full p-6 shadow-2xl space-y-4 border border-aura-border focus:outline-none" tabindex="-1">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 id="edit-dialog-title" class="text-base font-serif font-bold text-aura-text">
+              Correct Extracted Parameter
+            </h3>
+            <p id="edit-dialog-subtitle" class="text-xs text-aura-text-muted">
+              Adjust numerical value or unit based on original document.
+            </p>
+          </div>
+          <button
+            type="button"
+            id="modal-close"
+            class="p-1.5 rounded-full text-aura-text-muted hover:text-aura-text hover:bg-aura-surface-blush cursor-pointer focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
+            aria-label="Close dialog"
+          >
+            <X class="w-4 h-4" stroke-width={2} />
+          </button>
+        </div>
+
+        <!-- Original Value Reminder Chip -->
+        <div class="bg-aura-surface-blush rounded-xl p-3 text-xs border border-aura-border/60 flex items-center justify-between">
+          <span class="text-aura-text-muted font-medium">Original OCR Extracted:</span>
+          <span id="original-val-chip" class="font-mono font-bold text-aura-text">--</span>
+        </div>
+
+        <!-- Inline Validation Error Box -->
+        <div id="edit-validation-error" class="hidden bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs text-rose-800 flex items-start gap-2">
+          <AlertTriangle class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" stroke-width={2} />
+          <span id="edit-error-text">Please enter a valid value.</span>
+        </div>
+
+        <form id="edit-form" class="space-y-4">
+          <input type="hidden" id="edit-field-id" />
+
+          <div>
+            <label for="edit-value-input" class="block text-xs font-semibold text-aura-text mb-1">
+              Corrected Value <span class="text-rose-600">*</span>
+            </label>
+            <input
+              type="text"
+              id="edit-value-input"
+              required
+              class="w-full px-3.5 py-2.5 border border-aura-border rounded-xl text-sm font-mono focus:ring-2 focus:ring-aura-sidebar-active focus:outline-none bg-white"
+            />
+          </div>
+
+          <div>
+            <label for="edit-unit-input" class="block text-xs font-semibold text-aura-text mb-1">
+              Measurement Unit
+            </label>
+            <input
+              type="text"
+              id="edit-unit-input"
+              class="w-full px-3.5 py-2.5 border border-aura-border rounded-xl text-sm font-mono focus:ring-2 focus:ring-aura-sidebar-active focus:outline-none bg-white"
+            />
+          </div>
+
+          <div>
+            <label for="edit-reason-input" class="block text-xs font-semibold text-aura-text mb-1">
+              Reason for Adjustment (Audit Trail)
+            </label>
+            <input
+              type="text"
+              id="edit-reason-input"
+              placeholder="e.g. Corrected faint decimal printing on lab slip"
+              class="w-full px-3.5 py-2.5 border border-aura-border rounded-xl text-sm focus:ring-2 focus:ring-aura-sidebar-active focus:outline-none bg-white"
+            />
+          </div>
+
+          <div class="flex justify-end gap-2.5 pt-3 border-t border-aura-border/60">
+            <button
+              type="button"
+              id="modal-cancel"
+              class="px-4 py-2 text-xs font-semibold rounded-full border border-aura-border text-aura-text hover:bg-aura-surface-blush cursor-pointer focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-5 py-2 text-xs font-semibold rounded-full bg-aura-action hover:bg-aura-action-hover text-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
+            >
+              Save Correction
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 5. Toast Notification Banner (Floating Bottom) -->
+    <div
+      id="review-toast"
+      class="hidden fixed bottom-6 right-6 z-50 bg-aura-sidebar text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 text-xs font-medium border border-white/10 transition-all duration-300"
+      role="status"
+      aria-live="polite"
+    >
+      <Check class="w-4 h-4 text-emerald-400" stroke-width={2.2} />
+      <span id="toast-message">Notification</span>
     </div>
   </div>
 </Layout>
 
 <script>
-  // Interactive client review & correction logic
+  // Initial Fixture Baseline Definition
+  interface FieldState {
+    id: string;
+    name: string;
+    category: string;
+    originalValue: string | number;
+    currentValue: string | number;
+    unit: string;
+    refText: string;
+    refLow?: number | null;
+    refHigh?: number | null;
+    originalInterpretation: string;
+    currentInterpretation: string;
+    isUncertain: boolean;
+    uncertaintyReason?: string | null;
+    reviewStatus: 'unreviewed' | 'confirmed' | 'corrected';
+    correctionAudit?: { reason: string; timestamp: string } | null;
+    provenance: {
+      page: number;
+      rawSnippet: string;
+      top: number;
+      left: number;
+    };
+  }
+
+  const initialFieldData: FieldState[] = [
+    {
+      id: 'f-hemoglobin',
+      name: 'Hemoglobin',
+      category: 'Hematology',
+      originalValue: 11.2,
+      currentValue: 11.2,
+      unit: 'g/dL',
+      refText: '12.0 - 15.5 g/dL',
+      refLow: 12.0,
+      refHigh: 15.5,
+      originalInterpretation: 'low',
+      currentInterpretation: 'low',
+      isUncertain: false,
+      reviewStatus: 'unreviewed',
+      provenance: { page: 1, rawSnippet: 'Hemoglobin ................... 11.2 g/dL (Ref: 12.0 - 15.5)', top: 18, left: 12 },
+    },
+    {
+      id: 'f-rbc',
+      name: 'RBC Count',
+      category: 'Hematology',
+      originalValue: 4.1,
+      currentValue: 4.1,
+      unit: 'million/mcL',
+      refText: '3.8 - 5.2 million/mcL',
+      refLow: 3.8,
+      refHigh: 5.2,
+      originalInterpretation: 'normal',
+      currentInterpretation: 'normal',
+      isUncertain: false,
+      reviewStatus: 'unreviewed',
+      provenance: { page: 1, rawSnippet: 'RBC Count .................... 4.1 million/mcL (Ref: 3.8 - 5.2)', top: 23, left: 12 },
+    },
+    {
+      id: 'f-wbc',
+      name: 'Total Leukocyte Count (WBC)',
+      category: 'Hematology',
+      originalValue: 7800,
+      currentValue: 7800,
+      unit: '/cumm',
+      refText: '4000 - 11000 /cumm',
+      refLow: 4000,
+      refHigh: 11000,
+      originalInterpretation: 'normal',
+      currentInterpretation: 'normal',
+      isUncertain: false,
+      reviewStatus: 'unreviewed',
+      provenance: { page: 1, rawSnippet: 'Total WBC .................... 7,800 /cumm (Ref: 4,000 - 11,000)', top: 28, left: 12 },
+    },
+    {
+      id: 'f-platelets',
+      name: 'Platelet Count',
+      category: 'Hematology',
+      originalValue: 145000,
+      currentValue: 145000,
+      unit: '/cumm',
+      refText: '150,000 - 450,000 /cumm',
+      refLow: 150000,
+      refHigh: 450000,
+      originalInterpretation: 'low',
+      currentInterpretation: 'low',
+      isUncertain: true,
+      uncertaintyReason: 'Faint decimal printing on source slip',
+      reviewStatus: 'unreviewed',
+      provenance: { page: 1, rawSnippet: 'Platelets .................... ~145,000 /cumm [faint print]', top: 33, left: 12 },
+    },
+    {
+      id: 'f-fbs',
+      name: 'Fasting Blood Sugar (Glucose)',
+      category: 'Biochemistry',
+      originalValue: 118,
+      currentValue: 118,
+      unit: 'mg/dL',
+      refText: '70 - 100 mg/dL (Normal fasting)',
+      refLow: 70,
+      refHigh: 100,
+      originalInterpretation: 'high',
+      currentInterpretation: 'high',
+      isUncertain: false,
+      reviewStatus: 'unreviewed',
+      provenance: { page: 1, rawSnippet: 'Glucose, Fasting ............. 118 mg/dL (Ref: 70 - 100 mg/dL)', top: 42, left: 12 },
+    },
+    {
+      id: 'f-hba1c',
+      name: 'HbA1c (Glycated Hemoglobin)',
+      category: 'Biochemistry',
+      originalValue: 6.2,
+      currentValue: 6.2,
+      unit: '%',
+      refText: '< 5.7% (Non-diabetic)',
+      refLow: null,
+      refHigh: 5.7,
+      originalInterpretation: 'high',
+      currentInterpretation: 'high',
+      isUncertain: false,
+      reviewStatus: 'unreviewed',
+      provenance: { page: 1, rawSnippet: 'HbA1c ........................ 6.2 % (Ref: < 5.7%)', top: 47, left: 12 },
+    },
+    {
+      id: 'f-creatinine',
+      name: 'Serum Creatinine',
+      category: 'Renal Panel',
+      originalValue: 0.9,
+      currentValue: 0.9,
+      unit: 'mg/dL',
+      refText: '0.6 - 1.2 mg/dL',
+      refLow: 0.6,
+      refHigh: 1.2,
+      originalInterpretation: 'normal',
+      currentInterpretation: 'normal',
+      isUncertain: false,
+      reviewStatus: 'unreviewed',
+      provenance: { page: 1, rawSnippet: 'Serum Creatinine ............. 0.90 mg/dL (Ref: 0.6 - 1.2)', top: 56, left: 12 },
+    },
+    {
+      id: 'f-tsh',
+      name: 'TSH (Thyroid Stimulating Hormone)',
+      category: 'Endocrinology',
+      originalValue: 5.4,
+      currentValue: 5.4,
+      unit: 'uIU/mL',
+      refText: '0.40 - 4.50 uIU/mL',
+      refLow: 0.4,
+      refHigh: 4.5,
+      originalInterpretation: 'high',
+      currentInterpretation: 'high',
+      isUncertain: true,
+      uncertaintyReason: 'Unit prefix label partially obscured by stamp',
+      reviewStatus: 'unreviewed',
+      provenance: { page: 1, rawSnippet: 'TSH (Ultrasensitive) ......... 5.4 [uIU/mL?] (Ref: 0.4 - 4.5)', top: 64, left: 12 },
+    },
+  ];
+
+  // Deep clone initial state into working state
+  let fields: FieldState[] = JSON.parse(JSON.stringify(initialFieldData));
+  let currentFilter = 'all';
+  let activeFieldId = 'f-hemoglobin';
+
+  // DOM references
   const tableRows = document.querySelectorAll('#fields-table-body tr');
   const mobileCards = document.querySelectorAll('#mobile-fields-list > div');
   const inspectorSnippet = document.getElementById('inspector-snippet');
   const inspectorBox = document.getElementById('inspector-box');
   const inspectorLabel = document.getElementById('inspector-label');
   const inspectorPageBadge = document.getElementById('inspector-page-badge');
+  const inspectorStatusBadge = document.getElementById('inspector-status-badge');
   const reviewBar = document.getElementById('review-bar');
   const reviewStatusLabel = document.getElementById('review-status-label');
   const reviewPercentage = document.getElementById('review-percentage');
   const btnConfirmAll = document.getElementById('btn-confirm-all');
   const btnResetDemo = document.getElementById('btn-reset-demo');
+  const activeFilterBadge = document.getElementById('active-filter-badge');
 
   // Edit Modal elements
   const editModal = document.getElementById('edit-modal');
@@ -592,6 +836,9 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
   const editValueInput = document.getElementById('edit-value-input') as HTMLInputElement | null;
   const editUnitInput = document.getElementById('edit-unit-input') as HTMLInputElement | null;
   const editReasonInput = document.getElementById('edit-reason-input') as HTMLInputElement | null;
+  const originalValChip = document.getElementById('original-val-chip');
+  const editValidationError = document.getElementById('edit-validation-error');
+  const editErrorText = document.getElementById('edit-error-text');
   const modalClose = document.getElementById('modal-close');
   const modalCancel = document.getElementById('modal-cancel');
 
@@ -600,190 +847,407 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
   const langTe = document.getElementById('lang-te');
   const summaryEn = document.getElementById('summary-en');
   const summaryTe = document.getElementById('summary-te');
+  const reviewToast = document.getElementById('review-toast');
+  const toastMessage = document.getElementById('toast-message');
 
-  const confirmedFields = new Set<string>();
-  const totalCount = 8;
+  function showToast(msg: string) {
+    if (toastMessage && reviewToast) {
+      toastMessage.textContent = msg;
+      reviewToast.classList.remove('hidden');
+      setTimeout(() => reviewToast.classList.add('hidden'), 3000);
+    }
+  }
 
-  function updateReviewProgress() {
-    const confirmedCount = confirmedFields.size;
-    const pct = Math.round((confirmedCount / totalCount) * 100);
+  // Pure helper to re-evaluate interpretation against reference range
+  function evaluateValue(val: number | string, low?: number | null, high?: number | null): string {
+    const num = typeof val === 'number' ? val : parseFloat(val);
+    if (isNaN(num)) return 'unspecified';
+    if (low !== null && low !== undefined && num < low) return 'low';
+    if (high !== null && high !== undefined && num > high) return 'high';
+    if (low !== null && low !== undefined && high !== null && high !== undefined && num >= low && num <= high) return 'normal';
+    if (low === null && high !== null && high !== undefined && num <= high) return 'normal';
+    return 'unspecified';
+  }
+
+  // Recalculates review progress dynamically from state
+  function updateProgress() {
+    const verifiedCount = fields.filter((f) => f.reviewStatus === 'confirmed' || f.reviewStatus === 'corrected').length;
+    const total = fields.length;
+    const pct = Math.round((verifiedCount / total) * 100);
+
     if (reviewBar) reviewBar.style.width = `${pct}%`;
-    if (reviewStatusLabel) reviewStatusLabel.textContent = `Review Status: ${confirmedCount} of ${totalCount} fields confirmed`;
-    if (reviewPercentage) reviewPercentage.textContent = `${pct}% Reviewed`;
+    if (reviewStatusLabel) {
+      reviewStatusLabel.innerHTML = `<span class="w-2 h-2 rounded-full ${pct === 100 ? 'bg-emerald-500' : 'bg-aura-accent-orange'}"></span><span>Review Progress: ${verifiedCount} of ${total} fields verified</span>`;
+    }
+    if (reviewPercentage) reviewPercentage.textContent = `${pct}% Verified`;
   }
 
-  // Provenance synchronization for both hover and touch tap
-  function activateProvenance(name: string, snippet: string, page: string) {
-    if (inspectorSnippet) inspectorSnippet.textContent = snippet;
-    if (inspectorBox) inspectorBox.textContent = `Page ${page} (Region mapped)`;
-    if (inspectorLabel) inspectorLabel.textContent = `Raw Extracted Text Snippet • ${name}`;
-    if (inspectorPageBadge) inspectorPageBadge.textContent = `Page ${page}`;
+  // Synchronizes Provenance Inspector with the selected field
+  function selectField(fieldId: string) {
+    activeFieldId = fieldId;
+    const f = fields.find((x) => x.id === fieldId);
+    if (!f) return;
+
+    // Visual selection rings
+    tableRows.forEach((r) => {
+      if (r.getAttribute('data-field-id') === fieldId) {
+        r.classList.add('ring-2', 'ring-aura-accent-orange', 'bg-aura-accent-peach/20');
+      } else {
+        r.classList.remove('ring-2', 'ring-aura-accent-orange', 'bg-aura-accent-peach/20');
+      }
+    });
+
+    mobileCards.forEach((c) => {
+      if (c.getAttribute('data-field-id') === fieldId) {
+        c.classList.add('ring-2', 'ring-aura-accent-orange');
+      } else {
+        c.classList.remove('ring-2', 'ring-aura-accent-orange');
+      }
+    });
+
+    // Update Provenance Inspector
+    if (inspectorSnippet) inspectorSnippet.textContent = f.provenance.rawSnippet;
+    if (inspectorBox) inspectorBox.textContent = `Top: ${f.provenance.top}%, Left: ${f.provenance.left}%`;
+    if (inspectorLabel) inspectorLabel.textContent = `Raw Extracted Text • ${f.name}`;
+    if (inspectorPageBadge) inspectorPageBadge.textContent = `Page ${f.provenance.page}`;
+    if (inspectorStatusBadge) {
+      if (f.isUncertain) {
+        inspectorStatusBadge.textContent = 'Optical Flag';
+        inspectorStatusBadge.className = 'text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-300';
+      } else {
+        inspectorStatusBadge.textContent = 'High Confidence';
+        inspectorStatusBadge.className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200';
+      }
+    }
   }
 
-  // Desktop Table Rows (Click or Hover)
+  // Update DOM representation of a single field
+  function renderFieldDOM(fieldId: string) {
+    const f = fields.find((x) => x.id === fieldId);
+    if (!f) return;
+
+    // Desktop elements
+    const valDisplay = document.getElementById(`val-display-${f.id}`);
+    const unitDisplay = document.getElementById(`unit-display-${f.id}`);
+    const editedAudit = document.getElementById(`edited-audit-${f.id}`);
+    const flagBadge = document.getElementById(`flag-${f.id}`);
+    const reviewBadge = document.getElementById(`review-badge-${f.id}`);
+    const btnConfirmText = document.getElementById(`btn-confirm-text-${f.id}`);
+
+    // Mobile elements
+    const mobileValDisplay = document.getElementById(`mobile-val-display-${f.id}`);
+    const mobileUnitDisplay = document.getElementById(`mobile-unit-display-${f.id}`);
+    const mobileEditedAudit = document.getElementById(`mobile-edited-audit-${f.id}`);
+    const mobileFlagBadge = document.getElementById(`mobile-flag-${f.id}`);
+    const mobileReviewBadge = document.getElementById(`mobile-review-badge-${f.id}`);
+    const mobileBtnConfirmText = document.getElementById(`mobile-btn-confirm-text-${f.id}`);
+
+    if (valDisplay) valDisplay.textContent = String(f.currentValue);
+    if (unitDisplay) unitDisplay.textContent = f.unit;
+    if (mobileValDisplay) mobileValDisplay.textContent = String(f.currentValue);
+    if (mobileUnitDisplay) mobileUnitDisplay.textContent = f.unit;
+
+    // Corrected audit line
+    if (f.reviewStatus === 'corrected') {
+      editedAudit?.classList.remove('hidden');
+      mobileEditedAudit?.classList.remove('hidden');
+    } else {
+      editedAudit?.classList.add('hidden');
+      mobileEditedAudit?.classList.add('hidden');
+    }
+
+    // Flag styling
+    const flagClass = f.currentInterpretation === 'low'
+      ? 'bg-aura-accent-peach text-aura-text'
+      : f.currentInterpretation === 'high'
+      ? 'bg-rose-100 text-rose-800'
+      : 'bg-emerald-100 text-emerald-800';
+
+    if (flagBadge) {
+      flagBadge.textContent = f.currentInterpretation.toUpperCase();
+      flagBadge.className = `px-2 py-0.5 rounded-full text-[11px] font-semibold ${flagClass}`;
+    }
+    if (mobileFlagBadge) {
+      mobileFlagBadge.textContent = f.currentInterpretation.toUpperCase();
+      mobileFlagBadge.className = `px-2 py-0.5 rounded-full text-[10.5px] font-semibold shrink-0 ${flagClass}`;
+    }
+
+    // Review status badge & button text
+    if (reviewBadge) {
+      if (f.reviewStatus === 'confirmed') {
+        reviewBadge.textContent = 'Confirmed';
+        reviewBadge.className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200';
+      } else if (f.reviewStatus === 'corrected') {
+        reviewBadge.textContent = 'Corrected';
+        reviewBadge.className = 'text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200';
+      } else {
+        reviewBadge.textContent = 'Unreviewed';
+        reviewBadge.className = 'text-[10px] font-medium text-aura-text-muted';
+      }
+    }
+
+    if (mobileReviewBadge) {
+      if (f.reviewStatus === 'confirmed') {
+        mobileReviewBadge.textContent = 'Confirmed';
+        mobileReviewBadge.className = 'text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200';
+      } else if (f.reviewStatus === 'corrected') {
+        mobileReviewBadge.textContent = 'Corrected';
+        mobileReviewBadge.className = 'text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200';
+      } else {
+        mobileReviewBadge.textContent = 'Unreviewed';
+        mobileReviewBadge.className = 'text-[11px] font-medium text-aura-text-muted';
+      }
+    }
+
+    const isVerified = f.reviewStatus === 'confirmed' || f.reviewStatus === 'corrected';
+    if (btnConfirmText) btnConfirmText.textContent = isVerified ? 'Verified' : 'Confirm';
+    if (mobileBtnConfirmText) mobileBtnConfirmText.textContent = isVerified ? 'Verified' : 'Confirm';
+
+    // Desktop row styling
+    const row = document.getElementById(`row-${f.id}`);
+    if (row) {
+      if (isVerified) {
+        row.classList.add('bg-emerald-50/25');
+      } else {
+        row.classList.remove('bg-emerald-50/25');
+      }
+    }
+
+    // Mobile card styling
+    const card = document.getElementById(`mobile-card-${f.id}`);
+    if (card) {
+      if (isVerified) {
+        card.classList.add('border-emerald-300', 'bg-emerald-50/20');
+      } else {
+        card.classList.remove('border-emerald-300', 'bg-emerald-50/20');
+      }
+    }
+  }
+
+  // Filter fields (All, Optical Flags, Out of Range)
+  function applyFilter(filter: string) {
+    currentFilter = filter;
+
+    document.querySelectorAll('.filter-chip').forEach((btn) => {
+      if (btn.getAttribute('data-filter') === filter) {
+        btn.classList.add('bg-aura-sidebar', 'text-white');
+        btn.classList.remove('bg-white', 'text-aura-text');
+      } else {
+        btn.classList.remove('bg-aura-sidebar', 'text-white');
+        btn.classList.add('bg-white', 'text-aura-text');
+      }
+    });
+
+    if (activeFilterBadge) {
+      activeFilterBadge.textContent = filter === 'uncertain'
+        ? `Showing 2 Optical Flags`
+        : filter === 'out-of-range'
+        ? `Showing 5 Out of Range`
+        : `Showing All ${fields.length}`;
+    }
+
+    fields.forEach((f) => {
+      let isVisible = true;
+      if (filter === 'uncertain') {
+        isVisible = f.isUncertain;
+      } else if (filter === 'out-of-range') {
+        isVisible = f.currentInterpretation === 'low' || f.currentInterpretation === 'high';
+      }
+
+      const row = document.getElementById(`row-${f.id}`);
+      const card = document.getElementById(`mobile-card-${f.id}`);
+      if (row) row.classList.toggle('hidden', !isVisible);
+      if (card) card.classList.toggle('hidden', !isVisible);
+    });
+  }
+
+  // Setup Event Listeners for Filters
+  document.querySelectorAll('.filter-chip').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const filter = btn.getAttribute('data-filter');
+      if (filter) applyFilter(filter);
+    });
+  });
+
+  // Desktop Table Row selection (Mouse click & Keyboard Enter/Space)
   tableRows.forEach((row) => {
-    const name = row.getAttribute('data-name') || 'Field';
-    const snippet = row.getAttribute('data-raw-snippet') || '';
-    const page = row.getAttribute('data-page') || '1';
+    const fid = row.getAttribute('data-field-id');
+    if (!fid) return;
 
-    row.addEventListener('mouseenter', () => activateProvenance(name, snippet, page));
-    row.addEventListener('click', () => {
-      tableRows.forEach((r) => r.classList.remove('ring-2', 'ring-aura-accent-orange/40'));
-      row.classList.add('ring-2', 'ring-aura-accent-orange/40');
-      activateProvenance(name, snippet, page);
+    row.addEventListener('click', () => selectField(fid));
+    row.addEventListener('keydown', (e: any) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectField(fid);
+      }
     });
   });
 
-  // Mobile Cards (Tap to activate inspector)
+  // Mobile Card selection (Touch tap & Keyboard)
   mobileCards.forEach((card) => {
-    const name = card.getAttribute('data-name') || 'Field';
-    const snippet = card.getAttribute('data-raw-snippet') || '';
-    const page = card.getAttribute('data-page') || '1';
+    const fid = card.getAttribute('data-field-id');
+    if (!fid) return;
 
-    card.addEventListener('click', () => {
-      mobileCards.forEach((c) => c.classList.remove('ring-2', 'ring-aura-accent-orange'));
-      card.classList.add('ring-2', 'ring-aura-accent-orange');
-      activateProvenance(name, snippet, page);
+    card.addEventListener('click', () => selectField(fid));
+    card.addEventListener('keydown', (e: any) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectField(fid);
+      }
     });
   });
 
-  // Mobile Inline Snippet Toggles (Touchscreen without hover)
+  // Mobile Collapsible Snippet Toggles
   document.querySelectorAll('.btn-toggle-snippet').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const targetId = btn.getAttribute('data-target');
       if (targetId) {
         const panel = document.getElementById(targetId);
-        if (panel) {
-          panel.classList.toggle('hidden');
-        }
+        panel?.classList.toggle('hidden');
       }
     });
   });
 
-  // Confirm Single Field Handler (Works across desktop table and mobile cards)
+  // Individual Field Confirmation Toggle
   document.querySelectorAll('.btn-confirm').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const fieldId = btn.getAttribute('data-id');
-      if (!fieldId) return;
+      const fid = btn.getAttribute('data-id');
+      if (!fid) return;
 
-      if (confirmedFields.has(fieldId)) {
-        confirmedFields.delete(fieldId);
-        markFieldUI(fieldId, false);
+      const f = fields.find((x) => x.id === fid);
+      if (!f) return;
+
+      if (f.reviewStatus === 'confirmed' || f.reviewStatus === 'corrected') {
+        f.reviewStatus = 'unreviewed';
+        f.isUncertain = initialFieldData.find((x) => x.id === fid)?.isUncertain || false;
+        showToast(`Unconfirmed ${f.name}`);
       } else {
-        confirmedFields.add(fieldId);
-        markFieldUI(fieldId, true);
+        f.reviewStatus = 'confirmed';
+        f.isUncertain = false;
+        showToast(`Confirmed ${f.name}`);
       }
-      updateReviewProgress();
+
+      renderFieldDOM(fid);
+      updateProgress();
+      selectField(fid);
     });
   });
-
-  function markFieldUI(fieldId: string, isConfirmed: boolean) {
-    // Desktop badge
-    const desktopBadge = document.getElementById(`review-badge-${fieldId}`);
-    if (desktopBadge) {
-      desktopBadge.textContent = isConfirmed ? 'Confirmed' : 'Unreviewed';
-      desktopBadge.className = isConfirmed ? 'text-[10px] font-bold text-emerald-700' : 'text-[10px] font-medium text-aura-text-muted';
-    }
-
-    // Mobile badge
-    const mobileBadge = document.getElementById(`mobile-review-badge-${fieldId}`);
-    if (mobileBadge) {
-      mobileBadge.textContent = isConfirmed ? 'Confirmed' : 'Unreviewed';
-      mobileBadge.className = isConfirmed ? 'text-[11px] font-bold text-emerald-700' : 'text-[11px] font-medium text-aura-text-muted';
-    }
-
-    // Update row & card border
-    const row = document.getElementById(`row-${fieldId}`);
-    if (row) {
-      if (isConfirmed) row.classList.add('bg-emerald-50/40');
-      else row.classList.remove('bg-emerald-50/40');
-    }
-
-    const card = document.getElementById(`mobile-card-${fieldId}`);
-    if (card) {
-      if (isConfirmed) card.classList.add('border-emerald-300', 'bg-emerald-50/30');
-      else card.classList.remove('border-emerald-300', 'bg-emerald-50/30');
-    }
-  }
 
   // Confirm All Button
   btnConfirmAll?.addEventListener('click', () => {
-    tableRows.forEach((row) => {
-      const fid = row.getAttribute('data-field-id');
-      if (fid) {
-        confirmedFields.add(fid);
-        markFieldUI(fid, true);
+    fields.forEach((f) => {
+      if (f.reviewStatus !== 'corrected') {
+        f.reviewStatus = 'confirmed';
       }
+      f.isUncertain = false;
+      renderFieldDOM(f.id);
     });
-    updateReviewProgress();
+    updateProgress();
+    showToast(`All ${fields.length} fields confirmed as verified.`);
   });
 
-  // Reset Demo Button
+  // Reset to Original Fixture Baseline
   btnResetDemo?.addEventListener('click', () => {
-    confirmedFields.clear();
-    tableRows.forEach((row) => {
-      const fid = row.getAttribute('data-field-id');
-      if (fid) markFieldUI(fid, false);
-    });
-    updateReviewProgress();
+    fields = JSON.parse(JSON.stringify(initialFieldData));
+    fields.forEach((f) => renderFieldDOM(f.id));
+    updateProgress();
+    applyFilter('all');
+    selectField('f-hemoglobin');
+    showToast('Reset all 8 fields to initial fixture values.');
   });
 
-  // Edit Modal Event Handlers
+  // Edit Modal Dialog Handling
+  let lastFocusedElement: HTMLElement | null = null;
+
   document.querySelectorAll('.btn-edit').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const id = btn.getAttribute('data-id');
-      const name = btn.getAttribute('data-name');
-      const val = btn.getAttribute('data-val');
-      const unit = btn.getAttribute('data-unit');
+      lastFocusedElement = btn as HTMLElement;
+      const fid = btn.getAttribute('data-id');
+      if (!fid) return;
 
-      if (editFieldId) editFieldId.value = id || '';
-      if (editValueInput) editValueInput.value = val || '';
-      if (editUnitInput) editUnitInput.value = unit || '';
-      if (editReasonInput) editReasonInput.value = '';
+      const f = fields.find((x) => x.id === fid);
+      if (!f) return;
 
-      const dialogTitle = document.getElementById('edit-dialog-title');
-      if (dialogTitle && name) {
-        dialogTitle.textContent = `Correct: ${name}`;
-      }
+      if (editFieldId) editFieldId.value = f.id;
+      if (editValueInput) editValueInput.value = String(f.currentValue);
+      if (editUnitInput) editUnitInput.value = f.unit;
+      if (editReasonInput) editReasonInput.value = f.correctionAudit?.reason || '';
+      if (originalValChip) originalValChip.textContent = `${f.originalValue} ${f.unit}`;
+      if (editValidationError) editValidationError.classList.add('hidden');
+
+      const title = document.getElementById('edit-dialog-title');
+      if (title) title.textContent = `Correct: ${f.name}`;
 
       editModal?.classList.remove('hidden');
       editValueInput?.focus();
     });
   });
 
-  modalClose?.addEventListener('click', () => editModal?.classList.add('hidden'));
-  modalCancel?.addEventListener('click', () => editModal?.classList.add('hidden'));
-
-  editForm?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const id = editFieldId?.value;
-    const newVal = editValueInput?.value;
-    const newUnit = editUnitInput?.value;
-
-    if (id && newVal !== undefined) {
-      // Update desktop
-      const valDisplay = document.getElementById(`val-display-${id}`);
-      const unitDisplay = document.getElementById(`unit-display-${id}`);
-      if (valDisplay) valDisplay.textContent = newVal;
-      if (unitDisplay) unitDisplay.textContent = newUnit || '';
-
-      // Update mobile
-      const mobileValDisplay = document.getElementById(`mobile-val-display-${id}`);
-      if (mobileValDisplay) mobileValDisplay.textContent = `${newVal} ${newUnit || ''}`;
-
-      // Automatically confirm the edited field
-      confirmedFields.add(id);
-      markFieldUI(id, true);
-      updateReviewProgress();
-    }
-
+  function closeEditModal() {
     editModal?.classList.add('hidden');
+    lastFocusedElement?.focus();
+  }
+
+  modalClose?.addEventListener('click', closeEditModal);
+  modalCancel?.addEventListener('click', closeEditModal);
+
+  // Close on Escape
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !editModal?.classList.contains('hidden')) {
+      closeEditModal();
+    }
   });
 
-  // Language toggle handlers
+  // Submit edit form with validation
+  editForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const fid = editFieldId?.value;
+    const newValRaw = editValueInput?.value?.trim();
+    const newUnit = editUnitInput?.value?.trim() || '';
+    const reason = editReasonInput?.value?.trim() || 'Manual user verification';
+
+    if (!fid || !newValRaw) {
+      if (editValidationError && editErrorText) {
+        editErrorText.textContent = 'Measurement value cannot be empty.';
+        editValidationError.classList.remove('hidden');
+      }
+      return;
+    }
+
+    const f = fields.find((x) => x.id === fid);
+    if (!f) return;
+
+    // Check if numeric field
+    const parsedNum = parseFloat(newValRaw);
+    if (typeof f.originalValue === 'number' && isNaN(parsedNum)) {
+      if (editValidationError && editErrorText) {
+        editErrorText.textContent = 'Please enter a valid numeric value for this laboratory test.';
+        editValidationError.classList.remove('hidden');
+      }
+      return;
+    }
+
+    const finalVal = typeof f.originalValue === 'number' ? parsedNum : newValRaw;
+
+    // Apply correction
+    f.currentValue = finalVal;
+    f.unit = newUnit;
+    f.currentInterpretation = evaluateValue(finalVal, f.refLow, f.refHigh);
+    f.reviewStatus = 'corrected';
+    f.isUncertain = false;
+    f.correctionAudit = { reason, timestamp: new Date().toISOString() };
+
+    renderFieldDOM(fid);
+    updateProgress();
+    selectField(fid);
+    closeEditModal();
+    showToast(`Saved correction for ${f.name} (${finalVal} ${newUnit}).`);
+  });
+
+  // Language Tabs
   langEn?.addEventListener('click', () => {
     langEn.classList.add('bg-white', 'text-aura-text', 'shadow-2xs');
     langEn.classList.remove('text-aura-text-muted');
@@ -801,4 +1265,8 @@ const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
     summaryTe?.classList.remove('hidden');
     summaryEn?.classList.add('hidden');
   });
+
+  // Initial selection
+  selectField('f-hemoglobin');
+  updateProgress();
 </script>

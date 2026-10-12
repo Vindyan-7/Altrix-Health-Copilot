@@ -39,15 +39,17 @@ Reviewed evidence determines what may be said; templates determine tone; AI may 
 10. Update this file and `docs/DEVELOPMENT_LOG.md` after each milestone with current status, test results, known issues, and the next exact task.
 
 ## Current implementation status
-Iteration 2A.1 (UX Consistency & Usability Pass) implemented and verified on branch `feat/records-page-iteration-2a`. Key deliverables:
-- **Synthetic Data Consistency:** Shared helper `SYNTHETIC_REPORT_STATS` created. Accurately distinguishes 4 vault documents, 2 priority optical uncertainties (Platelets & TSH), 5 out-of-range observations, and real-time review confirmation state across all pages.
-- **UI Repetition Reduced:** Standardized global banner and header height (`h-16`) across all routes. Removed redundant repetitive "offline mock" text and fake decorative progress bars from Dashboard KPI cards.
-- **Usability Enhancements on `/review`:** Responsive mobile card view implemented eliminating forced horizontal table scrolling on mobile. Touchscreen-accessible provenance inspector works without hover via inline toggles and tap synchronization.
-- **Copilot Usability & Safety Prioritization:** Grouped guided topic options into Primary Health Guidance, Safety Guardrail Demonstrations, and explicitly disclosed Demo Mock Booking Flow.
-- All 15 tests, strict typecheck, and production build pass with 0 errors. Dev server active on `http://localhost:4321/`.
+Iteration 2B (Report Review Deep Alignment) implemented and verified on branch `feat/review-page-iteration-2b`. Key deliverables:
+- **Hierarchy & Visual Streamlining:** Extracted clinical parameters elevated to primary focus with a compact document summary strip. Interactive filter chips (`All Fields (8)`, `Optical Flags (2)`, `Out of Range (5)`) allow immediate quick filtering without visual alarmism.
+- **Multi-Modal Provenance:** Source Document Provenance Inspector updates synchronously via mouse click, touch tap, and keyboard navigation (`Tab` + `Enter`/`Space`) without requiring hover. Mobile cards include inline expandable snippet drawers.
+- **Accessible Edit Modal Dialog:** Enhanced with explicit labels, original value reminder chip, client-side validation against empty/invalid values, and full keyboard trapping (`Escape` to close).
+- **Audit Logging & Dynamic Progress:** User corrections log audit metadata (`FieldCorrectionSchema`), update review status to `Corrected` with distinct indigo badges, re-evaluate reference ranges (`evaluateRange`), and update review progress dynamically.
+- **Reset & Confirmation State Machine:** Clear distinction between individual field confirmation, bulk confirmation (`Confirm All Verified`), and baseline fixture restoration (`Reset to Original`).
+- All 16 unit tests, strict typecheck, and production build pass with 0 errors. Dev server active on `http://localhost:4321/`.
 
 ## Current next task
-STOP for Product Manager (Vindyan) and CTO (ChatGPT) review of the UX consistency pass across http://localhost:4321/ (`/`, `/records`, `/review`, `/copilot`). Await approval before starting Iteration 2B (Report Review screen deep alignment).
+STOP for Product Manager (Vindyan) and CTO (ChatGPT) review of `/review` at http://localhost:4321/review and the branch `feat/review-page-iteration-2b`. Do not start Iteration 3 until approved.
+
 
 
 

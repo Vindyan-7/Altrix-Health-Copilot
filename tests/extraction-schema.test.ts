@@ -119,4 +119,23 @@ describe('User Field Review & Correction Workflow', () => {
     expect(confirmed.isUncertain).toBe(false);
     expect(confirmed.uncertaintyReason).toBeNull();
   });
+
+  it('preserves original value and derives dynamic progress correctly', () => {
+    const fields = [
+      confirmField({ ...sampleField, id: 'f-1' }),
+      applyFieldCorrection({ ...sampleField, id: 'f-2' }, 180000, '/cumm', 'Audited correction'),
+      { ...sampleField, id: 'f-3', reviewStatus: 'unreviewed' as const },
+      { ...sampleField, id: 'f-4', reviewStatus: 'unreviewed' as const },
+    ];
+
+    const verifiedCount = fields.filter(
+      (f) => f.reviewStatus === 'confirmed' || f.reviewStatus === 'corrected'
+    ).length;
+    const progressPct = Math.round((verifiedCount / fields.length) * 100);
+
+    expect(verifiedCount).toBe(2);
+    expect(progressPct).toBe(50);
+    expect(fields[1].correction?.originalValue).toBe(145000);
+    expect(fields[1].value).toBe(180000);
+  });
 });

@@ -137,6 +137,34 @@ Antigravity: inspect the current repository and environment, report findings, th
   - Production build: `astro build` clean with 0 errors (7.25s).
   - Dev server HTTP checks: All 6 routes (`/`, `/records`, `/review`, `/timeline`, `/copilot`, `/api/health.json`) returning HTTP 200.
 
+## 2026-10-12 — Iteration 2B: Report Review Deep Alignment (feat/review-page-iteration-2b)
+- **Hierarchy & Visual Streamlining (`src/pages/review.astro`):**
+  - Clinical parameters elevated to the immediate primary focus by condensing document metadata into a compact summary strip above the fields.
+  - Integrated interactive quick-filter chips directly into the top bar:
+    - `All Fields (8)`
+    - `Optical Flags (2)` (calm amber badge with warning indicator)
+    - `Out of Range (5)` (soft rose/peach indicator)
+  - Preserved Aura design system tokens, typography (DM Serif / DM Sans), and Lucide icons without visual alarmism.
+- **Provenance & Multi-Modal Navigation:**
+  - Provenance synchronizes dynamically on row click, mobile card tap, and keyboard interaction (`Tab` + `Enter`/`Space`), eliminating reliance on hover.
+  - Displays bounding box coordinates, optical confidence indicator, and raw text snippet in the dark aubergine terminal container.
+  - On mobile, each field card includes an inline expandable drawer to inspect the raw document snippet directly.
+- **Accessible Edit Modal Dialog:**
+  - Explicit form labels, original extracted value reminder pill, unit editing, and optional audit reason input.
+  - Real-time client-side validation prevents empty submissions and flags invalid non-numeric entries with inline error banners.
+  - Focus trapping and `Escape` key shortcut support. Cancel safely restores focus to the row's edit button without state alteration.
+  - Saving a correction runs range evaluation (`evaluateRange`), logs an audit trail (`FieldCorrectionSchema`), updates review status to `Corrected` with a distinct indigo badge, and dynamically recalculates the review progress bar.
+- **Review Confirmation & Reset State Machine:**
+  - Clear distinction between confirming an individual field (`Confirmed` / `Verified` toggle), saving an edited correction (`Corrected`), and bulk-confirming (`Confirm All Verified`).
+  - Reset action cleanly restores all 8 fields to the exact initial fixture values, clears corrections, resets review progress to 0%, and defaults back to the "All Fields" view.
+  - Non-intrusive floating toast notifications provide immediate status feedback for confirmations, edits, and resets.
+- **Quality Gates & Smoke Tests:**
+  - Unit tests: 16/16 passing in Vitest (added tests for progress derivation and reset value preservation).
+  - Typecheck: `tsc --noEmit` clean with 0 errors.
+  - Production build: `astro build` clean with 0 errors (7.01s).
+  - Dev server smoke test: `GET /review` -> HTTP 200 (267 KB); all adjacent routes returning HTTP 200.
+
+
 
 
 

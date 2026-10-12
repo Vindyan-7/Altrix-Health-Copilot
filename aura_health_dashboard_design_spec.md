@@ -674,6 +674,7 @@ Do not connect Supabase, add Gemini API usage, execute SQL, or push to a remote 
 | 2026-10-12 | Adopt `@lucide/astro` (v1.55.0) as the standardized icon system across all pages and components; replace UI emojis and ad-hoc SVGs with consistent Lucide stroke icons. | Implemented across all routes and components; smoke tested and verified |
 | 2026-10-12 | Iteration 2A: Align `/records` with warm aubergine/ivory tokens, interactive drag-and-drop dropzone, four-stage simulated extraction progress, format/size validation, and verified synthetic fixture loader. | Implemented on branch feat/records-page-iteration-2a; verified with tests, typecheck, build, and smoke tests |
 | 2026-10-12 | Iteration 2A.1: UX consistency pass — derive all metrics from shared fixture, remove fake decorative progress bars, standardize banner/header heights, add mobile card view & touch provenance to `/review`, and prioritize Copilot guided options. | Implemented on branch feat/records-page-iteration-2a; all quality gates and smoke tests passing |
+| 2026-10-12 | Iteration 2B: Deep alignment of `/review` — compact hierarchy with top filter pills (All, Optical Flags, Out of Range), keyboard/touch provenance syncing, accessible correction modal with live error handling, audit trail logging, and full in-memory reset/confirm state machine. | Implemented on branch feat/review-page-iteration-2b; unit tests (16/16), typecheck, build, and smoke tests passing |
 
 
 
