@@ -8,41 +8,82 @@
 ## Migration Architecture & Security Review
 
 ### 1. [`sql/01_initial_schema.sql`](file:///c:/Projects/person/altrix-health-copilot/supabase/sql/01_initial_schema.sql)
-- **Tables Created:** `profiles`, `health_documents`, `extraction_runs`, `extracted_fields`, `observations`, and `audit_events`.
-- **Foreign Key Cascade:** `profiles.id` references `auth.users(id) on delete cascade` to ensure user account deletions clean up profile records.
-- **Row Level Security (RLS):** Explicitly enabled across all tables, including `extraction_runs`.
-- **Synthetic Data Separation:** `is_synthetic_demo` flag segregates demo documents.
-- **Data Integrity:** Optical uncertainty (`is_uncertain`) is decoupled from human review status (`review_status`).
+- **Execution Order:** Must be executed **FIRST** on a clean or existing project.
+- **Prerequisites:** Enables `uuid-ossp` extension (`create extension if not exists "uuid-ossp"`).
+- **Tables Created:**
+  1. `profiles`: Linked to `auth.users(id)` via `references auth.users(id) on delete cascade`.
+  2. `health_documents`: Document vault metadata with `is_synthetic_demo` boolean flag.
+  3. `extraction_runs`: Audit records of OCR/extraction attempts, foreign-keyed to `health_documents(id)`.
+  4. `extracted_fields`: Optical uncertainty (`is_uncertain`) decoupled from human review status (`review_status`).
+  5. `observations`: Longitudinal trend and timeline points scoped to `profiles(id)` and `health_documents(id)`.
+  6. `audit_events`: Security event log.
+- **Row Level Security (RLS):** Explicitly enabled across all 6 tables via `alter table ... enable row level security`.
+- **Synthetic Data Separation:** `is_synthetic_demo` flag ensures synthetic hackathon demo records are easily partitioned and never conflated with real patient records.
 
 ### 2. [`sql/02_rls_and_storage_policies.sql`](file:///c:/Projects/person/altrix-health-copilot/supabase/sql/02_rls_and_storage_policies.sql)
+- **Execution Order:** Must be executed **SECOND** (depends on tables created in Migration 01).
+- **Idempotency Guarantee:**
+  - Every policy definition is preceded by `DROP POLICY IF EXISTS "..." ON ...;` ensuring 100% idempotent reruns without `policy already exists` errors.
+  - The trigger is guarded by `DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;`.
+  - The storage bucket insertion uses `ON CONFLICT (id) DO UPDATE` to safely update bucket limits if already registered.
 - **Auth Trigger (`handle_new_user`):**
-  - Configured with `SECURITY DEFINER` and hardened with an explicit `SET search_path = public` to prevent search path hijacking.
-  - Direct execution revoked from `public`, `anon`, and `authenticated` roles (callable only by the database trigger engine).
-- **Table-Level RLS Policies:**
-  - `profiles`: SELECT and UPDATE restricted strictly to `auth.uid() = id`.
-  - `health_documents`: SELECT, INSERT, UPDATE, DELETE restricted strictly to `auth.uid() = profile_id`.
-  - `extraction_runs`: Scoped through the parent document to ensure only the document owner can view or insert runs.
-  - `extracted_fields`: Scoped through the parent document. UPDATE enforces review status checks and ensures `reviewed_by` matches `auth.uid()`.
-  - `observations`: Full CRUD restricted strictly to `auth.uid() = profile_id`.
-  - `audit_events`: Strictly append-only. SELECT and INSERT allowed only for `auth.uid() = actor_id`. UPDATE and DELETE policies are omitted to ensure tamper-proof audit trails.
-- **Foreign Key & Query Indexes:**
-  - `idx_health_documents_profile_status`: Composite index on `(profile_id, status)` for vault filtering.
-  - `idx_observations_profile_code_date`: Composite index on `(profile_id, code_or_name, observed_at desc)` for timeline and longitudinal graphs.
-  - `idx_extracted_fields_document_id`: Foreign key index on `(document_id)`.
-  - `idx_extraction_runs_document_id`: Foreign key index on `(document_id)`.
-  - `idx_audit_events_actor_created`: Audit query index on `(actor_id, created_at desc)`.
+  - Hardened with `SECURITY DEFINER` and an explicit `SET search_path = public` to mitigate search path hijacking.
+  - Revokes direct function execution from `public`, `anon`, and `authenticated` roles so it is only callable by the internal database trigger engine on `auth.users`.
+- **Table-Level RLS Policy Breakdown:**
+  - `profiles`:
+    - `SELECT`: `auth.uid() = id` (users can only view own profile)
+    - `UPDATE`: `auth.uid() = id` (users can only update own profile)
+  - `health_documents`:
+    - `SELECT`: `auth.uid() = profile_id and deleted_at is null`
+    - `INSERT`: `with check (auth.uid() = profile_id and profile_id is not null)`
+    - `UPDATE`: `using (auth.uid() = profile_id) with check (auth.uid() = profile_id)`
+    - `DELETE`: `using (auth.uid() = profile_id)`
+  - `extraction_runs`:
+    - `SELECT`, `INSERT`, `UPDATE`: Verified through parent document ownership (`exists (select 1 from public.health_documents d where d.id = extraction_runs.document_id and d.profile_id = auth.uid())`).
+  - `extracted_fields`:
+    - `SELECT`, `INSERT`, `DELETE`: Scoped through parent document ownership.
+    - `UPDATE`: Scoped through parent document AND restricts `reviewed_by` to `auth.uid()`.
+  - `observations`:
+    - `SELECT`, `INSERT`, `UPDATE`, `DELETE`: Scoped directly to `auth.uid() = profile_id`.
+  - `audit_events`:
+    - `SELECT`: `auth.uid() = actor_id`
+    - `INSERT`: `with check (auth.uid() = actor_id and actor_id is not null)`
+    - **Append-Only Immutability:** No `UPDATE` or `DELETE` policies are defined. Because RLS is enabled, any attempt by authenticated users to update or delete audit records is blocked by PostgreSQL default deny.
 - **Storage Vault (`health_documents_vault`):**
-  - Private bucket with a 10MB file size limit and MIME-type restrictions (`application/pdf`, `image/jpeg`, `image/png`).
-  - Isolated folder policies: Users can only upload, read, update (for upserts), and delete files in their own folder: `<auth.uid()>/<filename>`.
+  - Private bucket (`public = false`) with 10 MB file size limit and strict MIME types (`application/pdf`, `image/jpeg`, `image/png`).
+  - Tenant Isolation: Storage policies on `storage.objects` strictly require `bucket_id = 'health_documents_vault'` and `(storage.foldername(name))[1] = auth.uid()::text`. Users can never access or upload files outside their personal folder.
 
 ---
 
-## Execution Instructions for Product Manager (Vindyan)
+## Step-by-Step Manual Execution Guide for Product Manager (Vindyan)
 
-1. Log into your project on the [Supabase Dashboard](https://supabase.com/dashboard).
-2. Navigate to **SQL Editor** in the left navigation sidebar.
-3. Open a new query tab and paste the contents of `01_initial_schema.sql`.
-4. Click **Run** and verify that all 6 tables and RLS are created.
-5. Open a second query tab and paste the contents of `02_rls_and_storage_policies.sql`.
-6. Click **Run** and verify that triggers, RLS policies, indexes, and storage bucket configuration are established.
-7. Confirm that the Guest Health Guide continues running independently in guest/demo mode without database dependency.
+1. **Log in:** Open your project dashboard at [supabase.com/dashboard](https://supabase.com/dashboard).
+2. **Navigate:** Click **SQL Editor** in the left navigation sidebar.
+3. **Step 1 — Create Tables & Base RLS:**
+   - Click **New query**.
+   - Copy and paste the entire content of [`supabase/sql/01_initial_schema.sql`](file:///c:/Projects/person/altrix-health-copilot/supabase/sql/01_initial_schema.sql).
+   - Click **Run** (Ctrl/Cmd + Enter).
+   - Confirm output displays `Success. No rows returned`.
+4. **Step 2 — Apply Triggers, RLS Policies, Indexes & Storage:**
+   - Click **New query**.
+   - Copy and paste the entire content of [`supabase/sql/02_rls_and_storage_policies.sql`](file:///c:/Projects/person/altrix-health-copilot/supabase/sql/02_rls_and_storage_policies.sql).
+   - Click **Run**.
+   - Confirm output displays `Success. No rows returned`.
+5. **Step 3 — Run Post-Migration Verification Queries:**
+   Run the following verification script in SQL Editor:
+   ```sql
+   -- Verify all 6 tables have RLS enabled
+   select tablename, rowsecurity
+   from pg_tables
+   where schemaname = 'public'
+   order by tablename;
+
+   -- Verify private storage bucket exists
+   select id, name, public, file_size_limit
+   from storage.buckets
+   where id = 'health_documents_vault';
+   ```
+   All 6 tables should show `rowsecurity = true`, and `health_documents_vault` should show `public = false`.
+
+6. **Guest Mode Integrity:**
+   - Confirm that the guest-accessible Copilot continues functioning completely independently without requiring a user login or active database connection.

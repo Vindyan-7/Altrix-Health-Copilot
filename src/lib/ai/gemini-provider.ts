@@ -38,9 +38,9 @@ export class GeminiProvider implements AIProvider {
 
     if (typeof process !== 'undefined' && process.env) {
       this.apiKey = process.env.GEMINI_API_KEY?.trim();
-      this.modelName = process.env.GEMINI_MODEL?.trim() || 'gemini-2.0-flash';
+      this.modelName = process.env.GEMINI_MODEL?.trim() || 'gemini-1.5-flash';
     } else {
-      this.modelName = 'gemini-2.0-flash';
+      this.modelName = 'gemini-1.5-flash';
     }
   }
 

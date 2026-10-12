@@ -326,12 +326,23 @@ Antigravity: inspect the current repository and environment, report findings, th
   - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
   - Production Build: Clean (`astro build` with `@astrojs/vercel`, 5 static routes prerendered + 2 serverless functions bundled in 6.64s).
 
-
-
-
-
-
-
-
-
-
+## 2026-10-12 — Final Pre-Migration Gate & Hardening (feat/guest-health-copilot-mvp)
+- **Supabase Migration Idempotency & RLS Verification:**
+  - Inspected `supabase/sql/01_initial_schema.sql` and `supabase/sql/02_rls_and_storage_policies.sql`.
+  - Added `DROP POLICY IF EXISTS "..." ON ...;` guards before all 16 RLS policies across `profiles`, `health_documents`, `extraction_runs`, `extracted_fields`, `observations`, and `storage.objects`. Both migration scripts are now 100% idempotent and safe to run or rerun on any clean or existing Supabase project.
+  - Confirmed `handle_new_user()` trigger function uses `SECURITY DEFINER`, sets `search_path = public`, and revokes execute from public/anon/authenticated roles.
+  - Confirmed `audit_events` table is genuinely append-only for authenticated users (SELECT and INSERT only; UPDATE and DELETE policies omitted with RLS default deny).
+  - Confirmed Storage bucket `health_documents_vault` is private and strictly enforces folder tenant isolation (`(storage.foldername(name))[1] = auth.uid()::text`).
+  - Confirmed synthetic demo records use `is_synthetic_demo = true` for strict separation from real user records.
+- **Explain Endpoint (`POST /api/copilot/explain`) Hardening:**
+  - Added request size ceiling (32 KB limit, returning `413 Payload Too Large`).
+  - Added in-memory rate limiting (max 10 requests per minute per IP, returning `429 Too Many Requests` with `Retry-After`).
+  - Strict Zod payload validation with length bounds on all string fields.
+  - Deterministic triage priority: Gate 1 (Emergency) and Gate 2 (Dosage) evaluate before model invocation.
+- **Model Configuration Standardization:**
+  - Standardized default model fallback to `gemini-1.5-flash` across `src/lib/ai/gemini-provider.ts`, `src/pages/api/health.json.ts`, `.env.example`, and `.env`.
+  - Avoided any unverified claims regarding Google AI Studio free-tier quotas or availability.
+- **Verification Quality Gates:**
+  - Vitest Unit Tests: **61/61 passing** across 5 test suites (+6 new tests in `tests/explain-api.test.ts`).
+  - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
+  - Production Build: Clean (`astro build` with `@astrojs/vercel`, 5 static routes prerendered + 2 serverless functions bundled in 5.27s).

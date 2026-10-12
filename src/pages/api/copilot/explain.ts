@@ -6,22 +6,82 @@ import type { ExplainEvidenceRequest } from '../../../lib/ai/provider';
 
 export const prerender = false;
 
+// 1. Abuse Control & Rate Limiting: Max 10 requests per minute per IP
+interface RateLimitBucket {
+  count: number;
+  resetAt: number;
+}
+const rateLimitMap = new Map<string, RateLimitBucket>();
+const MAX_REQUESTS_PER_MINUTE = 10;
+const WINDOW_MS = 60 * 1000;
+const MAX_PAYLOAD_BYTES = 32 * 1024; // 32 KB
+
+function checkRateLimit(clientIp: string): { allowed: boolean; retryAfterSeconds: number } {
+  const now = Date.now();
+  const bucket = rateLimitMap.get(clientIp);
+
+  if (!bucket || now > bucket.resetAt) {
+    rateLimitMap.set(clientIp, { count: 1, resetAt: now + WINDOW_MS });
+    return { allowed: true, retryAfterSeconds: 0 };
+  }
+
+  if (bucket.count >= MAX_REQUESTS_PER_MINUTE) {
+    const retryAfterSeconds = Math.ceil((bucket.resetAt - now) / 1000);
+    return { allowed: false, retryAfterSeconds };
+  }
+
+  bucket.count++;
+  return { allowed: true, retryAfterSeconds: 0 };
+}
+
+// 2. Strict Input Validation Schema
 const ExplainRequestBodySchema = z.object({
-  documentId: z.string().default('synthetic-report-001'),
+  documentId: z.string().max(100).default('synthetic-report-001'),
   fields: z.array(
     z.object({
       name: z.string().min(1).max(100),
-      value: z.union([z.string(), z.number()]),
-      unit: z.string().nullable().optional(),
-      interpretation: z.string().optional(),
-      referenceRangeText: z.string().nullable().optional(),
+      value: z.union([z.string().max(50), z.number()]),
+      unit: z.string().max(30).nullable().optional(),
+      interpretation: z.string().max(30).optional(),
+      referenceRangeText: z.string().max(100).nullable().optional(),
     })
   ).min(1).max(20),
   locale: z.enum(['en', 'te']).default('en'),
   patientConcern: z.string().max(300).optional(),
 });
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, clientAddress }) => {
+  // A. Request Size Validation (Prevent payload bombing)
+  const contentLengthHeader = request.headers.get('content-length');
+  if (contentLengthHeader && parseInt(contentLengthHeader, 10) > MAX_PAYLOAD_BYTES) {
+    return new Response(
+      JSON.stringify({
+        error: 'Payload Too Large. Maximum allowed request size is 32 KB.',
+        code: 'PAYLOAD_TOO_LARGE',
+      }),
+      { status: 413, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // B. Rate Limiting Check (Prevent automated scraping and quota exhaustion)
+  const clientIp = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown-client';
+  const rateLimit = checkRateLimit(clientIp);
+  if (!rateLimit.allowed) {
+    return new Response(
+      JSON.stringify({
+        error: 'Too Many Requests. Rate limit of 10 requests per minute exceeded.',
+        code: 'RATE_LIMIT_EXCEEDED',
+      }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': String(rateLimit.retryAfterSeconds),
+        },
+      }
+    );
+  }
+
   try {
     const rawBody = await request.json().catch(() => null);
     if (!rawBody) {
@@ -48,7 +108,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     const { documentId, fields, locale, patientConcern } = parseResult.data;
 
-    // Safety Gate: If user concern has emergency red flags or dosage requests, intercept deterministically!
+    // C. Safety Gate Precedence: Deterministic Emergency and Dosage Guardrails
     if (patientConcern) {
       const safetyCheck = routeGuestQuery(patientConcern, locale);
       if (safetyCheck.isEmergency) {

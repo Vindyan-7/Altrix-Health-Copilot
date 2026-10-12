@@ -60,6 +60,8 @@ const DOSING_AND_SAFETY_KEYWORDS = [
   'how much should i take',
   'how much can i take',
   'how much to take',
+  'how much should i give',
+  'how much can i give',
   'how many tablets',
   'how many pills',
   'what dose',

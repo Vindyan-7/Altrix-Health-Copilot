@@ -2,6 +2,7 @@
 -- Altrix Labs Health Copilot — Migration 02: RLS Policies, Triggers & Storage
 -- FOR MANUAL REVIEW AND EXECUTION ONLY BY PRODUCT MANAGER (Vindyan)
 -- DO NOT CONNECT OR RUN AUTOMATICALLY
+-- Idempotent script: Safe to execute on fresh projects or re-run without errors
 -- =============================================================================
 
 -- 1. Profile Creation Trigger on Supabase Auth Signup
@@ -37,36 +38,44 @@ create trigger on_auth_user_created
   for each row execute function public.handle_new_user();
 
 -- 2. Row Level Security Policies for Core Tables
+-- Drop existing policies first to guarantee idempotent re-runs
 
 -- Table: profiles
+drop policy if exists "Users can view own profile" on public.profiles;
 create policy "Users can view own profile"
   on public.profiles for select
   using (auth.uid() = id);
 
+drop policy if exists "Users can update own profile" on public.profiles;
 create policy "Users can update own profile"
   on public.profiles for update
   using (auth.uid() = id)
   with check (auth.uid() = id);
 
 -- Table: health_documents
+drop policy if exists "Users can view own health documents" on public.health_documents;
 create policy "Users can view own health documents"
   on public.health_documents for select
   using (auth.uid() = profile_id and deleted_at is null);
 
+drop policy if exists "Users can insert own health documents" on public.health_documents;
 create policy "Users can insert own health documents"
   on public.health_documents for insert
   with check (auth.uid() = profile_id and profile_id is not null);
 
+drop policy if exists "Users can update own health documents" on public.health_documents;
 create policy "Users can update own health documents"
   on public.health_documents for update
   using (auth.uid() = profile_id)
   with check (auth.uid() = profile_id);
 
+drop policy if exists "Users can delete own health documents" on public.health_documents;
 create policy "Users can delete own health documents"
   on public.health_documents for delete
   using (auth.uid() = profile_id);
 
 -- Table: extraction_runs (Scoped through parent health document)
+drop policy if exists "Users can view extraction runs for own documents" on public.extraction_runs;
 create policy "Users can view extraction runs for own documents"
   on public.extraction_runs for select
   using (
@@ -78,6 +87,7 @@ create policy "Users can view extraction runs for own documents"
     )
   );
 
+drop policy if exists "Users can insert extraction runs for own documents" on public.extraction_runs;
 create policy "Users can insert extraction runs for own documents"
   on public.extraction_runs for insert
   with check (
@@ -88,7 +98,26 @@ create policy "Users can insert extraction runs for own documents"
     )
   );
 
+drop policy if exists "Users can update extraction runs for own documents" on public.extraction_runs;
+create policy "Users can update extraction runs for own documents"
+  on public.extraction_runs for update
+  using (
+    exists (
+      select 1 from public.health_documents d
+      where d.id = extraction_runs.document_id
+      and d.profile_id = auth.uid()
+    )
+  )
+  with check (
+    exists (
+      select 1 from public.health_documents d
+      where d.id = extraction_runs.document_id
+      and d.profile_id = auth.uid()
+    )
+  );
+
 -- Table: extracted_fields (Scoped through parent health document)
+drop policy if exists "Users can view extracted fields for own documents" on public.extracted_fields;
 create policy "Users can view extracted fields for own documents"
   on public.extracted_fields for select
   using (
@@ -100,6 +129,7 @@ create policy "Users can view extracted fields for own documents"
     )
   );
 
+drop policy if exists "Users can insert extracted fields for own documents" on public.extracted_fields;
 create policy "Users can insert extracted fields for own documents"
   on public.extracted_fields for insert
   with check (
@@ -110,6 +140,7 @@ create policy "Users can insert extracted fields for own documents"
     )
   );
 
+drop policy if exists "Users can update review status on own extracted fields" on public.extracted_fields;
 create policy "Users can update review status on own extracted fields"
   on public.extracted_fields for update
   using (
@@ -128,6 +159,7 @@ create policy "Users can update review status on own extracted fields"
     and (reviewed_by is null or reviewed_by = auth.uid())
   );
 
+drop policy if exists "Users can delete extracted fields for own documents" on public.extracted_fields;
 create policy "Users can delete extracted fields for own documents"
   on public.extracted_fields for delete
   using (
@@ -139,28 +171,34 @@ create policy "Users can delete extracted fields for own documents"
   );
 
 -- Table: observations (Timeline & Trends: Scoped directly to profile_id)
+drop policy if exists "Users can view own observations" on public.observations;
 create policy "Users can view own observations"
   on public.observations for select
   using (auth.uid() = profile_id);
 
+drop policy if exists "Users can insert own observations" on public.observations;
 create policy "Users can insert own observations"
   on public.observations for insert
   with check (auth.uid() = profile_id and profile_id is not null);
 
+drop policy if exists "Users can update own observations" on public.observations;
 create policy "Users can update own observations"
   on public.observations for update
   using (auth.uid() = profile_id)
   with check (auth.uid() = profile_id);
 
+drop policy if exists "Users can delete own observations" on public.observations;
 create policy "Users can delete own observations"
   on public.observations for delete
   using (auth.uid() = profile_id);
 
 -- Table: audit_events (Append-only audit trail: No UPDATE or DELETE allowed)
+drop policy if exists "Users can view own audit events" on public.audit_events;
 create policy "Users can view own audit events"
   on public.audit_events for select
   using (auth.uid() = actor_id);
 
+drop policy if exists "Users can insert own audit events" on public.audit_events;
 create policy "Users can insert own audit events"
   on public.audit_events for insert
   with check (auth.uid() = actor_id and actor_id is not null);
@@ -198,6 +236,7 @@ on conflict (id) do update set
   allowed_mime_types = array['application/pdf', 'image/jpeg', 'image/png'];
 
 -- Storage Object RLS: Users can only manage files in their own folder: <profile_id>/<filename>
+drop policy if exists "Users can upload own health document files" on storage.objects;
 create policy "Users can upload own health document files"
   on storage.objects for insert
   with check (
@@ -206,6 +245,7 @@ create policy "Users can upload own health document files"
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
+drop policy if exists "Users can view own health document files" on storage.objects;
 create policy "Users can view own health document files"
   on storage.objects for select
   using (
@@ -214,6 +254,7 @@ create policy "Users can view own health document files"
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
+drop policy if exists "Users can update own health document files" on storage.objects;
 create policy "Users can update own health document files"
   on storage.objects for update
   using (
@@ -227,6 +268,7 @@ create policy "Users can update own health document files"
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
+drop policy if exists "Users can delete own health document files" on storage.objects;
 create policy "Users can delete own health document files"
   on storage.objects for delete
   using (

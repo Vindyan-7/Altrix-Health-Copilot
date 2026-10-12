@@ -39,18 +39,19 @@ Reviewed evidence determines what may be said; templates determine tone; AI may 
 10. Update this file and `docs/DEVELOPMENT_LOG.md` after each milestone with current status, test results, known issues, and the next exact task.
 
 ## Current implementation status
-Environment, Supabase and AI Foundation milestone completed on branch `feat/guest-health-copilot-mvp`:
+Pre-Migration Gate & Hardening milestone completed on branch `feat/guest-health-copilot-mvp`:
 - **Current Baseline:** `feat/guest-health-copilot-mvp` active; `develop`, `feat/timeline-iteration-3`, and `feat/review-page-iteration-2b` preserved intact.
-- **Foundation Deliverables:**
-  1. **Canonical Environment Setup:** Standardized `.env.example` with exact placeholders: `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `GEMINI_API_KEY`, `GEMINI_MODEL`.
+- **Pre-Migration Gate Deliverables:**
+  1. **Canonical Environment Setup:** Standardized `.env.example` with exact placeholders: `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `GEMINI_API_KEY`, `GEMINI_MODEL=gemini-1.5-flash`.
   2. **Vercel Runtime Architecture:** Configured official `@astrojs/vercel` adapter for Astro 5. Static UI pages remain 100% prerendered while API endpoints (`/api/health.json`, `/api/copilot/explain`) run serverless.
   3. **Supabase Client & Auth Prep:** Added `src/lib/supabase/client.ts` using strictly the publishable key. Service-role key prohibited. Guest mode operates without authentication requirement.
-  4. **Server-Side Gemini AI Provider:** Implemented `src/lib/ai/gemini-provider.ts` with strict Zod validation, 8s timeout, and automatic fallback to deterministic explanations. Safety gates execute ahead of model calls.
-  5. **Supabase SQL Hardened:** Migrations `01_initial_schema.sql` and `02_rls_and_storage_policies.sql` verified with RLS on all tables, `set search_path = public` on auth trigger, storage vault policies, and execution guide in `supabase/README.md`.
-- **Quality Gates:** 55/55 Vitest unit tests pass, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
+  4. **Server-Side Gemini AI Provider:** Implemented `src/lib/ai/gemini-provider.ts` configured for `gemini-1.5-flash`, with strict Zod validation, 8s timeout, and automatic fallback to deterministic explanations. Safety gates execute ahead of model calls.
+  5. **Supabase SQL Hardened & 100% Idempotent:** Migrations `01_initial_schema.sql` and `02_rls_and_storage_policies.sql` verified with RLS on all tables, `DROP POLICY IF EXISTS` guards on all 16 policies, `set search_path = public` on auth trigger, storage vault policies, and execution guide in `supabase/README.md`.
+  6. **Explain Endpoint Hardened:** Added 32 KB payload limit (`413 Payload Too Large`), in-memory rate limiting (max 10 requests per minute per IP, `429 Too Many Requests`), and deterministic triage priority for medical emergency red flags and dosage requests.
+- **Quality Gates:** 61/61 Vitest unit tests pass, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
 
 ## Current next task
-Commit and push `feat/guest-health-copilot-mvp` to origin, deliver the Environment, Supabase and AI Foundation report, and await CTO approval before enabling live report analysis or connecting production data.
+Deliver the CTO Pre-Migration Gate report, provide the exact manual SQL execution steps for the Product Manager (Vindyan), and await CTO authorization before executing database migrations or connecting live credentials.
 
 
 
