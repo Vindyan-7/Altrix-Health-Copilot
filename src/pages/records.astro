@@ -11,61 +11,103 @@ import {
   Pill,
   Activity,
   ArrowRight,
+  ShieldCheck,
+  FileText,
+  RotateCcw,
+  Info,
 } from '@lucide/astro';
 import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Medical Records" subtext="Upload and manage synthetic records">
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-    <!-- Page Header -->
-    <div class="space-y-2">
-      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-aura-surface-cream text-aura-text border border-black/5">
-        <FileUp class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
-        <span>Medical Records Intake</span>
-      </div>
-      <h1 class="text-2xl sm:text-3xl font-serif font-normal text-aura-text tracking-tight">
-        Upload Medical Documents
-      </h1>
-      <p class="text-aura-text-muted text-xs sm:text-sm max-w-3xl leading-relaxed">
-        Upload your lab reports, prescriptions, or clinical summaries in PDF, JPG, or PNG format.
-        Our structured extraction pipeline identifies clinical parameters, reference ranges, and source provenance for your review.
-      </p>
-    </div>
-
-    <!-- Quick Synthetic Seed Box -->
-    <div class="bg-aura-surface-cream rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-aura-card border border-black/5">
-      <div class="space-y-1">
-        <div class="font-bold text-aura-text text-sm flex items-center gap-2">
-          <Sparkles class="w-4 h-4 text-aura-accent-orange shrink-0" stroke-width={2} />
-          <span>Quick Demo: Sample CBC & Metabolic Lab Report</span>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
+    <!-- 1. Page Header & Session Context -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-2 border-b border-aura-border/30">
+      <div class="space-y-2 max-w-3xl">
+        <div class="flex flex-wrap items-center gap-2 text-xs text-aura-text-muted">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-aura-surface-cream text-aura-text text-[11px] font-semibold border border-black/5 shadow-2xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-aura-accent-orange animate-pulse"></span>
+            MEDICAL RECORDS INTAKE
+          </span>
+          <span class="hidden sm:inline">•</span>
+          <span class="font-medium text-aura-text-muted">Offline Mock Mode</span>
+          <span class="hidden sm:inline">•</span>
+          <span class="font-medium text-aura-text">Priya Sharma (34F)</span>
         </div>
-        <p class="text-xs text-aura-text-muted leading-relaxed">
-          Skip file selection and immediately explore a realistic synthetic blood panel with flagged parameters and review workflows.
+        <h1 class="text-3xl sm:text-4xl font-serif font-normal text-aura-text tracking-tight">
+          Upload Medical Documents
+        </h1>
+        <p class="text-xs sm:text-sm text-aura-text-muted leading-relaxed max-w-2xl">
+          Upload your laboratory reports, clinical prescriptions, or diagnostic summaries.
+          The extraction pipeline verifies reference ranges, flags optical uncertainties, and prepares parameters for your review.
         </p>
       </div>
-      <a
-        href="/review"
-        class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-aura-action hover:bg-aura-action-hover text-white font-semibold text-xs sm:text-sm shadow-xs transition shrink-0"
-      >
-        <span>Open Synthetic Report Fixture</span>
-        <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
-      </a>
+
+      <!-- Header status pill -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-aura-surface border border-aura-border/60 text-xs text-aura-text shrink-0 shadow-2xs self-start md:self-auto">
+        <ShieldCheck class="w-4 h-4 text-emerald-600" stroke-width={2} />
+        <span class="font-medium">Client-Side Validation Active</span>
+      </div>
     </div>
 
-    <!-- Main Upload Card -->
-    <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card p-6 sm:p-8 space-y-6">
-      <h2 class="text-base font-serif font-normal text-aura-text flex items-center gap-2">
-        <UploadCloud class="w-4 h-4 text-aura-accent-orange" stroke-width={2} />
-        <span>Select or Drop File</span>
-      </h2>
+    <!-- 2. Quick Demo: Verified Synthetic Report Hero Banner -->
+    <div class="bg-aura-surface-cream rounded-aura-panel p-6 sm:p-7 border border-black/5 shadow-aura-card flex flex-col md:flex-row md:items-center justify-between gap-6 transition hover:shadow-aura-float">
+      <div class="space-y-2 max-w-2xl">
+        <div class="flex items-center gap-2 text-aura-text">
+          <div class="w-8 h-8 rounded-full bg-white/60 flex items-center justify-center text-aura-accent-orange shadow-2xs shrink-0">
+            <Sparkles class="w-4 h-4" stroke-width={2} />
+          </div>
+          <span class="text-xs font-bold uppercase tracking-wider text-aura-text">
+            Quick Demo • Pre-Extracted Lab Fixture
+          </span>
+        </div>
+        <h2 class="text-lg sm:text-xl font-serif font-normal text-aura-text">
+          Explore Sample CBC & Metabolic Lab Panel
+        </h2>
+        <p class="text-xs sm:text-sm text-aura-text-muted leading-relaxed">
+          Skip file selection to immediately examine a realistic synthetic report with 8 clinical parameters, including low Hemoglobin, high Fasting Blood Sugar, and flagged TSH optical uncertainty.
+        </p>
+      </div>
+      <div class="shrink-0">
+        <a
+          href="/review"
+          class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-aura-action hover:bg-aura-action-hover text-white font-semibold text-xs sm:text-sm shadow-xs transition transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
+        >
+          <span>Open Synthetic Report Fixture</span>
+          <ArrowRight class="w-4 h-4" stroke-width={2} />
+        </a>
+      </div>
+    </div>
 
-      <!-- Dropzone -->
+    <!-- 3. Main Document Intake Panel -->
+    <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card p-6 sm:p-8 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-aura-border/30">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-aura-accent-peach/40 flex items-center justify-center text-aura-accent-orange">
+            <UploadCloud class="w-4 h-4" stroke-width={2} />
+          </div>
+          <div>
+            <h2 class="text-base font-serif font-normal text-aura-text">
+              Document Intake & Inspection
+            </h2>
+            <p class="text-xs text-aura-text-muted">
+              Select or drop your document for structured parsing
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-aura-text-subtle">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>Offline Mock Pipeline Ready</span>
+        </div>
+      </div>
+
+      <!-- Drag & Drop Dropzone -->
       <div
         id="dropzone"
         tabindex="0"
         role="button"
-        aria-label="Upload medical file dropzone. Click or drag PDF, JPG, or PNG files here."
-        class="border-2 border-dashed border-aura-border hover:border-aura-accent-orange focus:border-aura-accent-orange focus:ring-4 focus:ring-aura-accent-peach/50 rounded-2xl p-8 text-center transition cursor-pointer bg-aura-surface-blush/60 hover:bg-aura-surface-blush group"
+        aria-label="Upload medical file dropzone. Press Enter or Space to browse, or drag PDF, JPG, or PNG files here."
+        class="border-2 border-dashed border-aura-border hover:border-aura-accent-orange focus-visible:border-aura-accent-orange focus-visible:ring-4 focus-visible:ring-aura-accent-peach/50 rounded-2xl p-8 sm:p-12 text-center transition-all cursor-pointer bg-aura-surface-blush/60 hover:bg-aura-surface-blush group select-none"
       >
         <input
           type="file"
@@ -75,120 +117,283 @@ import Layout from '../layouts/Layout.astro';
           aria-hidden="true"
         />
 
-        <div class="max-w-md mx-auto space-y-4">
-          <div class="w-14 h-14 mx-auto rounded-2xl bg-aura-accent-peach/60 text-aura-accent-orange flex items-center justify-center group-hover:scale-105 transition">
-            <UploadCloud class="w-7 h-7" stroke-width={1.8} />
+        <div class="max-w-lg mx-auto space-y-5">
+          <!-- Central Icon Pill -->
+          <div class="w-16 h-16 mx-auto rounded-2xl bg-aura-accent-peach/60 text-aura-accent-orange flex items-center justify-center group-hover:scale-105 group-hover:bg-aura-accent-peach transition duration-300 shadow-2xs">
+            <UploadCloud class="w-8 h-8" stroke-width={1.8} />
           </div>
 
-          <div class="space-y-1">
-            <p class="text-sm font-semibold text-aura-text">
-              <span class="text-aura-accent-orange hover:underline font-bold">Click to browse</span> or drag and drop your document
+          <!-- Instruction Text -->
+          <div class="space-y-1.5">
+            <p class="text-sm sm:text-base font-semibold text-aura-text">
+              <span class="text-aura-accent-orange font-bold group-hover:underline">Click to browse</span> or drag and drop your document
             </p>
-            <p class="text-xs text-aura-text-muted">
-              Supported formats: PDF, JPG, PNG (Maximum file size: 10 MB)
+            <p class="text-xs sm:text-sm text-aura-text-muted">
+              Supported formats: <strong class="text-aura-text font-semibold">PDF, JPG, PNG</strong> (Maximum file size: <strong class="text-aura-text font-semibold">10 MB</strong>)
             </p>
           </div>
 
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-medium bg-white text-aura-text border border-aura-border/60">
-            <Lock class="w-3 h-3 text-aura-text-muted" stroke-width={2} />
-            <span>Confidential</span> • Client-validated • Untrusted input isolated
+          <!-- Feature & Security Badges -->
+          <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-white text-aura-text border border-aura-border/60 shadow-2xs">
+              <Lock class="w-3 h-3 text-aura-accent-orange" stroke-width={2} />
+              <span>Isolated Client Validation</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-white text-aura-text border border-aura-border/60 shadow-2xs">
+              <ShieldCheck class="w-3 h-3 text-emerald-600" stroke-width={2} />
+              <span>No Cloud PHI Transmission</span>
+            </span>
           </div>
         </div>
       </div>
 
-      <!-- State: Loading / Processing (Hidden by default) -->
-      <div id="state-loading" class="hidden bg-aura-surface-blush border border-aura-border rounded-xl p-5 space-y-3">
-        <div class="flex items-center justify-between text-xs font-semibold text-aura-text">
-          <span class="flex items-center gap-2">
-            <Loader2 class="w-4 h-4 text-aura-accent-orange animate-spin" stroke-width={2} />
-            <span>Extracting parameters via Mock AI Pipeline...</span>
+      <!-- State: Extraction Progress (Hidden by default) -->
+      <div
+        id="state-loading"
+        class="hidden bg-aura-surface-blush border border-aura-border/60 rounded-2xl p-6 sm:p-7 space-y-4 shadow-2xs"
+        aria-live="polite"
+      >
+        <div class="flex items-center justify-between gap-3 text-xs sm:text-sm font-semibold text-aura-text">
+          <div class="flex items-center gap-2.5">
+            <Loader2 class="w-5 h-5 text-aura-accent-orange animate-spin shrink-0" stroke-width={2} />
+            <span id="loading-stage-text">Validating file headers & structure...</span>
+          </div>
+          <span id="loading-percentage" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-white text-aura-text border border-aura-border/60 shadow-2xs">
+            15%
           </span>
-          <span id="loading-percentage">45%</span>
         </div>
-        <div class="w-full bg-aura-border rounded-full h-2 overflow-hidden">
-          <div id="loading-bar" class="bg-aura-accent-orange h-2 rounded-full transition-all duration-300 w-[45%]"></div>
+
+        <!-- Progress track -->
+        <div class="w-full bg-aura-border/50 rounded-full h-2.5 overflow-hidden">
+          <div
+            id="loading-bar"
+            class="bg-aura-accent-orange h-2.5 rounded-full transition-all duration-300 w-[15%]"
+          ></div>
         </div>
-        <p class="text-[11px] text-aura-text-muted">
-          Validating document headers, identifying laboratory reference ranges, and flagging uncertainty...
+
+        <!-- Step status progression pills -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px] text-aura-text-muted">
+          <div class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-aura-accent-orange"></span>
+            <span>1. File integrity & quarantine</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-aura-accent-orange/60"></span>
+            <span>2. Entity & range detection</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-aura-accent-orange/40"></span>
+            <span>3. Optical uncertainty check</span>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-aura-text-subtle border-t border-aura-border/30 pt-3">
+          Simulated offline extraction in progress via <code class="font-mono text-aura-text font-semibold">SyntheticOfflineMockProvider</code>. No data is stored externally.
         </p>
       </div>
 
-      <!-- State: Error (Hidden by default) -->
-      <div id="state-error" class="hidden bg-rose-50 border border-rose-200 rounded-xl p-5 space-y-3 text-rose-900">
+      <!-- State: Error State (Hidden by default) -->
+      <div
+        id="state-error"
+        class="hidden bg-rose-50/90 border border-rose-200 rounded-2xl p-6 space-y-4 text-rose-900 shadow-2xs"
+        role="alert"
+        aria-live="assertive"
+      >
         <div class="flex items-start justify-between gap-3">
-          <div class="flex items-center gap-2 text-sm font-bold text-rose-800">
-            <AlertCircle class="w-4 h-4 text-rose-600" stroke-width={2} />
-            <span>Validation Error</span>
+          <div class="flex items-center gap-2.5 text-sm sm:text-base font-bold text-rose-900">
+            <AlertCircle class="w-5 h-5 text-rose-600 shrink-0" stroke-width={2} />
+            <span id="error-title">Document Validation Error</span>
           </div>
-          <button id="btn-retry" class="text-xs font-semibold text-rose-700 hover:underline">
-            Dismiss & Try Again
+          <button
+            type="button"
+            id="btn-retry"
+            class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-white text-rose-800 border border-rose-200 hover:bg-rose-100 transition shadow-2xs cursor-pointer"
+          >
+            <RotateCcw class="w-3 h-3" stroke-width={2} />
+            <span>Dismiss & Try Again</span>
           </button>
         </div>
-        <p id="error-message" class="text-xs leading-relaxed text-rose-700">
+        <p id="error-message" class="text-xs sm:text-sm leading-relaxed text-rose-800">
           The selected file could not be processed.
         </p>
+        <div class="bg-white/80 rounded-xl p-3 text-xs text-rose-700 border border-rose-100 flex items-start gap-2">
+          <Info class="w-4 h-4 text-rose-500 shrink-0 mt-0.5" stroke-width={2} />
+          <span>Please verify that your file is an uncorrupted PDF, JPG, or PNG document and under the 10 MB maximum file size.</span>
+        </div>
       </div>
 
-      <!-- State: Success Ready (Hidden by default) -->
-      <div id="state-success" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-5 space-y-3 text-emerald-900">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2 text-sm font-bold text-emerald-800">
-            <CheckCircle2 class="w-4 h-4 text-emerald-600" stroke-width={2} />
-            <span>Document Successfully Extracted</span>
+      <!-- State: Success Ready State (Hidden by default) -->
+      <div
+        id="state-success"
+        class="hidden bg-white border border-emerald-200 rounded-2xl p-6 sm:p-7 space-y-5 shadow-aura-card"
+        role="region"
+        aria-live="polite"
+      >
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-emerald-100">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
+              <CheckCircle2 class="w-5 h-5" stroke-width={2} />
+            </div>
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-emerald-950">
+                Document Successfully Extracted (Offline Mock)
+              </h3>
+              <p class="text-xs text-emerald-800">
+                Parameters identified and staged for your clinical review
+              </p>
+            </div>
           </div>
-          <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-            8 Fields Identified
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-bold border border-emerald-200 shrink-0 self-start sm:self-auto">
+            <span>8 Parameters Extracted</span>
           </span>
         </div>
-        <div class="text-xs text-emerald-700 space-y-1">
-          <div id="success-file-name" class="font-medium text-emerald-900">File: report.pdf</div>
-          <div>Uncertainty detected in 2 fields. Please review values against source image before confirming.</div>
+
+        <!-- File Details Card -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-xl bg-aura-surface-blush/60 border border-aura-border/40 text-xs">
+          <div>
+            <span class="text-aura-text-subtle block text-[11px] font-medium uppercase tracking-wider">File Name</span>
+            <span id="success-file-name" class="font-bold text-aura-text break-all">report.pdf</span>
+          </div>
+          <div>
+            <span class="text-aura-text-subtle block text-[11px] font-medium uppercase tracking-wider">File Size</span>
+            <span id="success-file-size" class="font-medium text-aura-text">145 KB</span>
+          </div>
+          <div>
+            <span class="text-aura-text-subtle block text-[11px] font-medium uppercase tracking-wider">Extraction Engine</span>
+            <span class="font-medium text-aura-text">Synthetic Offline Provider</span>
+          </div>
         </div>
-        <div class="pt-2">
+
+        <!-- Uncertainty Guidance Alert -->
+        <div class="p-4 rounded-xl bg-amber-50/90 border border-amber-200/80 text-xs text-amber-900 space-y-1">
+          <div class="font-bold flex items-center gap-2 text-amber-950">
+            <AlertCircle class="w-4 h-4 text-amber-600 shrink-0" stroke-width={2} />
+            <span>Optical Uncertainty Detected in 2 Fields</span>
+          </div>
+          <p class="text-amber-800 leading-relaxed">
+            Values for <strong class="text-amber-950">Platelet Count</strong> and <strong class="text-amber-950">TSH (Thyroid Stimulating Hormone)</strong> had lower OCR confidence. Please verify these against the original document on the review screen.
+          </p>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-wrap items-center gap-3 pt-2">
           <a
             href="/review"
-            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-xs"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs sm:text-sm shadow-xs transition transform hover:-translate-y-0.5"
           >
-            <span>Proceed to Field Review Screen</span>
-            <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
+            <span>Proceed to Report Review Screen</span>
+            <ArrowRight class="w-4 h-4" stroke-width={2} />
           </a>
+          <button
+            type="button"
+            id="btn-upload-another"
+            class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-aura-surface-cream hover:bg-aura-surface-cream-light text-aura-text font-medium text-xs sm:text-sm border border-black/5 transition cursor-pointer"
+          >
+            <RotateCcw class="w-3.5 h-3.5 text-aura-text-muted" stroke-width={2} />
+            <span>Select Another Document</span>
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Supported Document Types Information -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-aura-surface p-5 rounded-aura-card border border-aura-border/40 shadow-aura-card space-y-2">
-        <div class="flex items-center gap-2 text-aura-accent-orange">
-          <FlaskConical class="w-4 h-4" stroke-width={2} />
-          <span class="text-xs font-bold uppercase tracking-wider text-aura-text-subtle">Type 1</span>
-        </div>
-        <h3 class="font-serif font-bold text-aura-text text-base">Laboratory Panels</h3>
-        <p class="text-xs text-aura-text-muted leading-relaxed">
-          Complete blood counts, metabolic profiles, renal panels, thyroid tests, lipid profiles.
-        </p>
+    <!-- 4. Supported Document Types Information Cards (3-Column) -->
+    <div class="space-y-3">
+      <div class="flex items-center gap-2 text-xs text-aura-text-subtle font-semibold uppercase tracking-wider">
+        <FileText class="w-4 h-4 text-aura-accent-orange" stroke-width={2} />
+        <span>Supported Document Categories</span>
       </div>
 
-      <div class="bg-aura-surface p-5 rounded-aura-card border border-aura-border/40 shadow-aura-card space-y-2">
-        <div class="flex items-center gap-2 text-aura-accent-orange">
-          <Pill class="w-4 h-4" stroke-width={2} />
-          <span class="text-xs font-bold uppercase tracking-wider text-aura-text-subtle">Type 2</span>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Card 1: Laboratory Panels -->
+        <div class="bg-aura-surface p-5 sm:p-6 rounded-aura-card border border-aura-border/40 shadow-aura-card space-y-3 flex flex-col justify-between">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="w-9 h-9 rounded-xl bg-aura-accent-peach/50 flex items-center justify-center text-aura-accent-orange">
+                <FlaskConical class="w-4.5 h-4.5" stroke-width={2} />
+              </div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-aura-text-subtle bg-white px-2.5 py-0.5 rounded-full border border-aura-border/40">
+                Panel
+              </span>
+            </div>
+            <h3 class="font-serif font-normal text-aura-text text-base sm:text-lg">
+              Laboratory Panels
+            </h3>
+            <p class="text-xs text-aura-text-muted leading-relaxed">
+              Complete blood counts (CBC), comprehensive metabolic profiles (CMP), lipid panels, thyroid panels, and HbA1c diabetic markers.
+            </p>
+          </div>
+          <div class="pt-2 text-[11px] font-medium text-aura-accent-orange flex items-center gap-1">
+            <span>Range comparison & unit extraction</span>
+          </div>
         </div>
-        <h3 class="font-serif font-bold text-aura-text text-base">Clinical Prescriptions</h3>
-        <p class="text-xs text-aura-text-muted leading-relaxed">
-          Medications recorded as written, preserving original dosage instructions without inference.
-        </p>
-      </div>
 
-      <div class="bg-aura-surface p-5 rounded-aura-card border border-aura-border/40 shadow-aura-card space-y-2">
-        <div class="flex items-center gap-2 text-aura-accent-orange">
-          <Activity class="w-4 h-4" stroke-width={2} />
-          <span class="text-xs font-bold uppercase tracking-wider text-aura-text-subtle">Type 3</span>
+        <!-- Card 2: Prescriptions -->
+        <div class="bg-aura-surface p-5 sm:p-6 rounded-aura-card border border-aura-border/40 shadow-aura-card space-y-3 flex flex-col justify-between">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="w-9 h-9 rounded-xl bg-aura-surface-cream flex items-center justify-center text-aura-action">
+                <Pill class="w-4.5 h-4.5" stroke-width={2} />
+              </div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-aura-text-subtle bg-white px-2.5 py-0.5 rounded-full border border-aura-border/40">
+                Rx
+              </span>
+            </div>
+            <h3 class="font-serif font-normal text-aura-text text-base sm:text-lg">
+              Clinical Prescriptions
+            </h3>
+            <p class="text-xs text-aura-text-muted leading-relaxed">
+              Medications recorded verbatim with dosage frequencies, intake timings, and doctor notes. Instructions are never modified.
+            </p>
+          </div>
+          <div class="pt-2 text-[11px] font-medium text-aura-action flex items-center gap-1">
+            <span>Verbatim extraction without dosing advice</span>
+          </div>
         </div>
-        <h3 class="font-serif font-bold text-aura-text text-base">Wellness & Diagnostic Logs</h3>
-        <p class="text-xs text-aura-text-muted leading-relaxed">
-          Home blood pressure logs, self-monitored fasting blood sugar, ultrasound summary impressions.
-        </p>
+
+        <!-- Card 3: Wellness & Diagnostic Logs -->
+        <div class="bg-aura-surface p-5 sm:p-6 rounded-aura-card border border-aura-border/40 shadow-aura-card space-y-3 flex flex-col justify-between">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="w-9 h-9 rounded-xl bg-aura-accent-peach/50 flex items-center justify-center text-aura-accent-orange">
+                <Activity class="w-4.5 h-4.5" stroke-width={2} />
+              </div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-aura-text-subtle bg-white px-2.5 py-0.5 rounded-full border border-aura-border/40">
+                Logs
+              </span>
+            </div>
+            <h3 class="font-serif font-normal text-aura-text text-base sm:text-lg">
+              Wellness & Diagnostic Logs
+            </h3>
+            <p class="text-xs text-aura-text-muted leading-relaxed">
+              Home blood pressure measurements, glucometer morning logs, ultrasound impressions, and hospital discharge summaries.
+            </p>
+          </div>
+          <div class="pt-2 text-[11px] font-medium text-aura-accent-orange flex items-center gap-1">
+            <span>Longitudinal timeline aggregation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. AI Safety & Privacy Notice Callout -->
+    <div class="bg-aura-surface-cream/50 rounded-aura-panel p-5 sm:p-6 border border-black/5 space-y-3">
+      <div class="flex items-center gap-2 text-aura-text font-bold text-xs uppercase tracking-wider">
+        <ShieldCheck class="w-4 h-4 text-emerald-700" stroke-width={2} />
+        <span>Privacy & Document Handling Architecture</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-aura-text-muted leading-relaxed">
+        <div>
+          <strong class="text-aura-text block mb-0.5">1. Local Client Isolation</strong>
+          Files are validated directly in your browser. Documents are never logged to public caches or third-party servers during demo mode.
+        </div>
+        <div>
+          <strong class="text-aura-text block mb-0.5">2. Mandatory Verification Step</strong>
+          AI extractions are suggestions, not clinical ground truth. You must review and confirm all fields before adding them to your timeline.
+        </div>
+        <div>
+          <strong class="text-aura-text block mb-0.5">3. Non-Diagnostic Purpose</strong>
+          Altrix assists in personal organization and doctor consultation preparation. It does not prescribe medicines or adjust dosages.
+        </div>
       </div>
     </div>
   </div>
@@ -201,10 +406,14 @@ import Layout from '../layouts/Layout.astro';
   const stateError = document.getElementById('state-error');
   const stateSuccess = document.getElementById('state-success');
   const errorMessage = document.getElementById('error-message');
+  const errorTitle = document.getElementById('error-title');
   const loadingBar = document.getElementById('loading-bar');
   const loadingPercentage = document.getElementById('loading-percentage');
+  const loadingStageText = document.getElementById('loading-stage-text');
   const successFileName = document.getElementById('success-file-name');
+  const successFileSize = document.getElementById('success-file-size');
   const btnRetry = document.getElementById('btn-retry');
+  const btnUploadAnother = document.getElementById('btn-upload-another');
 
   if (dropzone && fileInput) {
     dropzone.addEventListener('click', () => fileInput.click());
@@ -217,16 +426,16 @@ import Layout from '../layouts/Layout.astro';
 
     dropzone.addEventListener('dragover', (e) => {
       e.preventDefault();
-      dropzone.classList.add('border-aura-accent-orange', 'bg-aura-surface-blush');
+      dropzone.classList.add('border-aura-accent-orange', 'bg-aura-surface-blush', 'ring-4', 'ring-aura-accent-peach/30');
     });
 
     dropzone.addEventListener('dragleave', () => {
-      dropzone.classList.remove('border-aura-accent-orange', 'bg-aura-surface-blush');
+      dropzone.classList.remove('border-aura-accent-orange', 'bg-aura-surface-blush', 'ring-4', 'ring-aura-accent-peach/30');
     });
 
     dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
-      dropzone.classList.remove('border-aura-accent-orange', 'bg-aura-surface-blush');
+      dropzone.classList.remove('border-aura-accent-orange', 'bg-aura-surface-blush', 'ring-4', 'ring-aura-accent-peach/30');
       if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
         handleFileSelection(e.dataTransfer.files[0]);
       }
@@ -241,59 +450,100 @@ import Layout from '../layouts/Layout.astro';
 
   if (btnRetry) {
     btnRetry.addEventListener('click', () => {
-      stateError?.classList.add('hidden');
+      resetStates();
       if (fileInput) fileInput.value = '';
     });
   }
 
-  function handleFileSelection(file: File) {
-    // Reset states
+  if (btnUploadAnother) {
+    btnUploadAnother.addEventListener('click', () => {
+      resetStates();
+      if (fileInput) fileInput.value = '';
+      dropzone?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+
+  function resetStates() {
     stateError?.classList.add('hidden');
     stateSuccess?.classList.add('hidden');
+    stateLoading?.classList.add('hidden');
+  }
+
+  function formatBytes(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
+  function handleFileSelection(file: File) {
+    resetStates();
 
     const validExtensions = ['.pdf', '.jpg', '.jpeg', '.png'];
     const lowerName = file.name.toLowerCase();
     const isValidType = validExtensions.some((ext) => lowerName.endsWith(ext));
 
     if (!isValidType) {
-      showError(`Unsupported file format. Please upload a PDF, JPG, or PNG document (Received: "${file.name}").`);
+      showError(
+        'Unsupported Document Format',
+        `The file "${file.name}" is not supported. Please upload a medical document in PDF, JPG, or PNG format.`
+      );
       return;
     }
 
     const maxBytes = 10 * 1024 * 1024; // 10MB
     if (file.size > maxBytes) {
-      showError(`File exceeds the maximum 10 MB limit (${(file.size / (1024 * 1024)).toFixed(1)} MB).`);
+      showError(
+        'File Size Exceeded',
+        `The selected document (${formatBytes(file.size)}) exceeds the maximum allowed size of 10 MB. Please compress or optimize the file before uploading.`
+      );
       return;
     }
 
-    // Trigger synthetic loading sequence
-    simulateExtraction(file.name);
+    // Trigger synthetic mock extraction pipeline
+    simulateExtraction(file);
   }
 
-  function showError(msg: string) {
+  function showError(title: string, msg: string) {
+    if (errorTitle) errorTitle.textContent = title;
     if (errorMessage && stateError) {
       errorMessage.textContent = msg;
       stateError.classList.remove('hidden');
+      stateError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
 
-  function simulateExtraction(fileName: string) {
+  function simulateExtraction(file: File) {
     stateLoading?.classList.remove('hidden');
-    let progress = 10;
+    stateLoading?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    const stages = [
+      { progress: 25, label: 'Scanning file headers & verifying document integrity...' },
+      { progress: 60, label: 'Parsing laboratory entities, units, and reference ranges...' },
+      { progress: 85, label: 'Evaluating optical confidence & flagging uncertainties...' },
+      { progress: 100, label: 'Finalizing extraction results for review...' },
+    ];
+
+    let currentStage = 0;
 
     const interval = setInterval(() => {
-      progress += 25;
-      if (loadingBar) loadingBar.style.width = `${progress}%`;
-      if (loadingPercentage) loadingPercentage.textContent = `${progress}%`;
-
-      if (progress >= 100) {
+      if (currentStage < stages.length) {
+        const stage = stages[currentStage];
+        if (loadingBar) loadingBar.style.width = `${stage.progress}%`;
+        if (loadingPercentage) loadingPercentage.textContent = `${stage.progress}%`;
+        if (loadingStageText) loadingStageText.textContent = stage.label;
+        currentStage++;
+      } else {
         clearInterval(interval);
         setTimeout(() => {
           stateLoading?.classList.add('hidden');
-          if (successFileName) successFileName.textContent = `File: ${fileName}`;
+          if (successFileName) successFileName.textContent = file.name;
+          if (successFileSize) successFileSize.textContent = formatBytes(file.size);
           stateSuccess?.classList.remove('hidden');
-        }, 300);
+          stateSuccess?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 350);
       }
-    }, 200);
+    }, 280);
   }
 </script>

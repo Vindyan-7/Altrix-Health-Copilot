@@ -672,5 +672,7 @@ Do not connect Supabase, add Gemini API usage, execute SQL, or push to a remote 
 | 2026-10-12 | Develop interactively: app shell + Dashboard first, pause for local browser review, then move to the next page. | Implemented in Iteration 1; dev server running on http://localhost:4321/ |
 | 2026-10-12 | Keep Supabase/Gemini/SQL out of the initial design-alignment increment; preserve mock/offline mode. | Verified; offline mock fixtures active |
 | 2026-10-12 | Adopt `@lucide/astro` (v1.55.0) as the standardized icon system across all pages and components; replace UI emojis and ad-hoc SVGs with consistent Lucide stroke icons. | Implemented across all routes and components; smoke tested and verified |
+| 2026-10-12 | Iteration 2A: Align `/records` with warm aubergine/ivory tokens, interactive drag-and-drop dropzone, four-stage simulated extraction progress, format/size validation, and verified synthetic fixture loader. | Implemented on branch feat/records-page-iteration-2a; verified with tests, typecheck, build, and smoke tests |
+
 
 
