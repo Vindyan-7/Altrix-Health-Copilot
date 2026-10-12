@@ -37,7 +37,7 @@ const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
             MEDICAL RECORDS INTAKE
           </span>
           <span class="hidden sm:inline">•</span>
-          <span class="font-medium text-aura-text">Priya Sharma (34F)</span>
+          <span class="font-medium text-aura-text">Private Health Vault</span>
         </div>
         <h1 class="text-3xl sm:text-4xl font-serif font-normal text-aura-text tracking-tight">
           Upload Medical Documents
@@ -116,14 +116,10 @@ const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
             <div class="font-bold text-aura-text">Active Cloud Session:</div>
             <div id="vault-user-email" class="text-aura-text-muted font-mono text-[11px]">user@example.com</div>
           </div>
-          <button
-            id="btn-save-sample-record"
-            type="button"
-            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-aura-action text-white text-xs font-semibold hover:bg-black transition shadow-xs cursor-pointer shrink-0"
-          >
-            <Plus class="w-3.5 h-3.5" />
-            <span>+ Save Sample Synthetic CBC to Vault</span>
-          </button>
+          <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-200">
+            <ShieldCheck class="w-3.5 h-3.5 text-emerald-600" />
+            <span>PostgreSQL RLS Active</span>
+          </div>
         </div>
 
         <!-- Alert box for success / error messages -->
@@ -637,7 +633,6 @@ const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
   const vaultUserEmail = document.getElementById('vault-user-email');
   const vaultAlert = document.getElementById('vault-alert');
   const vaultDocumentsList = document.getElementById('vault-documents-list');
-  const btnSaveSampleRecord = document.getElementById('btn-save-sample-record');
 
   function showVaultAlert(msg: string, isError: boolean = false) {
     if (!vaultAlert) return;
@@ -671,8 +666,11 @@ const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
 
       if (docs.length === 0) {
         vaultDocumentsList.innerHTML = `
-          <div class="text-xs text-aura-text-muted p-4 text-center bg-aura-surface-cream/30 rounded-xl border border-aura-border/30">
-            No documents saved in your vault yet. Click "+ Save Sample Synthetic CBC to Vault" above to add your first record.
+          <div class="text-xs text-aura-text-muted p-5 text-center bg-aura-surface-cream/30 rounded-xl border border-aura-border/30 space-y-1.5">
+            <div class="font-bold text-aura-text text-sm">No Documents Stored in Your Vault Yet</div>
+            <div class="max-w-md mx-auto leading-relaxed">
+              Upload your medical reports using the intake panel below to store your first private records securely with PostgreSQL Row Level Security.
+            </div>
           </div>
         `;
         return;
@@ -757,51 +755,6 @@ const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
       } else {
         if (vaultAuthView) vaultAuthView.classList.add('hidden');
         if (vaultGuestView) vaultGuestView.classList.remove('hidden');
-      }
-    });
-  }
-
-  if (btnSaveSampleRecord) {
-    btnSaveSampleRecord.addEventListener('click', async () => {
-      const supabase = getSupabaseClient();
-      if (!supabase) return;
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        showVaultAlert('Please sign in to save records to your vault.', true);
-        return;
-      }
-
-      btnSaveSampleRecord.textContent = 'Saving to vault...';
-      try {
-        const res = await fetch('/api/vault/documents', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            document_type: 'lab_report',
-            storage_path: `vault/${session.user.id}/sample_cbc_panel_${Date.now()}.pdf`,
-            original_filename_sanitized: 'sample_cbc_metabolic_panel.pdf',
-            mime_type: 'application/pdf',
-            file_size_bytes: 148480,
-            document_date: '2026-10-12',
-            source_facility: 'Apollo Diagnostics (Synthetic Demo)',
-            is_synthetic_demo: true,
-          }),
-        });
-
-        const json = await res.json();
-        if (res.ok) {
-          showVaultAlert('Synthetic document successfully created in your private vault!');
-          await loadUserDocuments(session.access_token);
-        } else {
-          showVaultAlert(json.error || 'Failed to save document record.', true);
-        }
-      } catch {
-        showVaultAlert('Network error while saving document.', true);
-      } finally {
-        btnSaveSampleRecord.textContent = '+ Save Sample Synthetic CBC to Vault';
       }
     });
   }

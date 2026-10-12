@@ -86,17 +86,18 @@ import { UserCheck, LogIn, UserPlus, LogOut, ShieldCheck, Info, MessageSquare, A
         </div>
       </div>
 
-      <div class="pt-2 flex items-center justify-between gap-3">
+      <div class="pt-2 flex flex-wrap items-center justify-between gap-3">
         <a
-          href="/"
-          class="px-4 py-2 rounded-full bg-aura-sidebar-active text-aura-text text-xs font-semibold hover:bg-aura-surface-cream transition"
+          id="btn-signed-in-dashboard"
+          href="/dashboard"
+          class="px-5 py-2.5 rounded-full bg-aura-action text-white text-xs font-semibold hover:bg-black transition shadow-xs"
         >
-          Go to Dashboard
+          Go to Workspace Dashboard →
         </a>
         <button
           id="btn-sign-out"
           type="button"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-red-200 text-red-600 text-xs font-semibold hover:bg-red-50 transition cursor-pointer"
+          class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-white border border-red-200 text-red-600 text-xs font-semibold hover:bg-red-50 transition cursor-pointer"
         >
           <LogOut class="w-3.5 h-3.5" />
           <span>Sign Out</span>
@@ -328,6 +329,16 @@ import { UserCheck, LogIn, UserPlus, LogOut, ShieldCheck, Info, MessageSquare, A
     });
   }
 
+  function getSafeReturnTo(): string {
+    const params = new URLSearchParams(window.location.search);
+    const target = params.get('returnTo');
+    const allowed = ['/dashboard', '/records', '/review', '/timeline', '/copilot'];
+    if (target && allowed.some((a) => target === a || target.startsWith(a + '?') || target.startsWith(a + '/'))) {
+      return target;
+    }
+    return '/dashboard';
+  }
+
   // Handle Sign In submit
   if (formSignIn) {
     formSignIn.addEventListener('submit', async (e) => {
@@ -352,10 +363,11 @@ import { UserCheck, LogIn, UserPlus, LogOut, ShieldCheck, Info, MessageSquare, A
       if (result.error) {
         showAlert(result.error.message, true);
       } else {
-        showAlert('Signed in successfully. Redirecting...', false);
+        const dest = getSafeReturnTo();
+        showAlert(`Signed in successfully. Redirecting to ${dest}...`, false);
         setTimeout(() => {
-          window.location.href = '/';
-        }, 800);
+          window.location.href = dest;
+        }, 500);
       }
     });
   }
@@ -385,7 +397,7 @@ import { UserCheck, LogIn, UserPlus, LogOut, ShieldCheck, Info, MessageSquare, A
       if (result.error) {
         showAlert(result.error.message, true);
       } else {
-        showAlert('Account created successfully! Check your email or sign in.', false);
+        showAlert('Account created! If email confirmation is enabled in your Supabase project, check your inbox to confirm your account before signing in.', false);
         if (formSignIn && tabBtnSignIn) {
           tabBtnSignIn.click();
         }

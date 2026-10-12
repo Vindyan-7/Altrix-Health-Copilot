@@ -39,18 +39,19 @@ Reviewed evidence determines what may be said; templates determine tone; AI may 
 10. Update this file and `docs/DEVELOPMENT_LOG.md` after each milestone with current status, test results, known issues, and the next exact task.
 
 ## Current implementation status
-Phase 4B: General Health AI Chat, Dual-Mode Copilot & Synthetic Provenance Gate completed on branch `feat/guest-health-copilot-mvp`:
-- **Current Baseline:** `feat/guest-health-copilot-mvp` active; `develop`, `feat/timeline-iteration-3`, and `feat/review-page-iteration-2b` preserved intact.
-- **Phase 4B Deliverables:**
-  1. **Dual-Mode Copilot Experience:** `src/pages/copilot.astro` provides tabbed navigation between the deterministic 40-Scenario Guided Guide and the dynamic General Health AI Chat backed by Gemini 3.8-Flash.
-  2. **Dedicated General Health AI Chat API:** `POST /api/copilot/chat` with 16 KB payload ceiling, Zod validation, tiered rate limiting (5 req/10m guest, 20 req/10m auth, 60 req/min global), pre-model Emergency (Priority 1) and Dosage (Priority 2) interception, 8s timeout, and graceful offline fallback.
-  3. **Strict Synthetic Provenance Verification:** Hardened `POST /api/copilot/explain` to reject client spoofing. Documents must be in `TRUSTED_SYNTHETIC_FIXTURE_IDS` or confirmed as `is_synthetic_demo === true` in database via user JWT, else rejected with `403 FORBIDDEN_UNTRUSTED_PROVENANCE`.
-  4. **Landing Page & Navigation Shortcuts:** Updated `src/pages/index.astro` and `src/pages/copilot.astro` with deep query/mode linking, privacy warnings, loading pulse animations, and guided-to-AI handoffs.
-  5. **Bilingual & Disclaimer Support:** Preserved English/Telugu switcher with explicit indicators for untranslated content, non-diagnostic educational tone, and emergency 112/108 banners.
-- **Quality Gates:** 127/127 Vitest unit tests pass across 8 test suites, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
+Phase 4C: Landing Page, Authentication Flow and Demo Cleanup completed on branch `feat/guest-health-copilot-mvp`:
+- **Current Baseline:** `feat/guest-health-copilot-mvp` active; all other branches preserved intact.
+- **Phase 4C Deliverables:**
+  1. **Dedicated Public Landing Page:** `src/pages/index.astro` serves as the public entry point with Aura aesthetic, hero animation, feature overview, guided chat topic chips, and dynamic workspace CTA without forced login.
+  2. **Dedicated Authenticated Workspace:** `src/pages/dashboard.astro` displays authenticated user profile, real vault documents, honest empty states, and workspace actions without fake demo personas.
+  3. **Decoupled Auth & Safe Redirection:** `src/pages/auth.astro` provides clean Sign In/Sign Up tabs, safe internal-only redirection (`getSafeReturnTo`), and Supabase email confirmation documentation.
+  4. **Customer-Facing Demo Data Purge:** Removed all instances of "Priya Sharma (34F)", fake stats, sample-record generation buttons, and developer team credits from customer-facing views.
+  5. **Honest AI Fallback Engine:** Server and client return explicit unavailable status and direct users to the 40-scenario Guided Health Guide when AI is unconfigured or unavailable, preserving emergency/dosage safety gates.
+- **Quality Gates:** 137/137 Vitest unit tests pass across 9 test suites, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
 
 ## Current next task
-CTO Review and Sprint Acceptance of Phase 4B Master Implementation. Do not begin OCR, real document uploads, real-patient analysis, or production merging.
+CTO Review and Sprint Acceptance of Phase 4C Master Implementation. Do not begin OCR, real document uploads, real-patient analysis, or production merging.
+
 
 
 

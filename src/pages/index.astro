@@ -1,413 +1,314 @@
 ---
 import {
   MessageSquare,
-  Upload,
-  Files,
-  AlertCircle,
-  FlaskConical,
-  Clock,
+  ShieldCheck,
   ArrowRight,
+  Sparkles,
+  FileText,
   Activity,
-  Eye,
-  ShieldAlert,
+  AlertTriangle,
+  Lock,
+  CheckCircle2,
+  Globe,
+  Upload,
 } from '@lucide/astro';
 import Layout from '../layouts/Layout.astro';
-import { SYNTHETIC_PATIENT } from '../fixtures/synthetic-patient';
-import {
-  SYNTHETIC_LAB_REPORT_FIXTURE,
-  SYNTHETIC_REPORT_STATS,
-} from '../fixtures/synthetic-lab-report';
-
-const timeline = SYNTHETIC_PATIENT.timeline;
-const flaggedCount = SYNTHETIC_REPORT_STATS.outOfRangeCount; // 5 out-of-range observations
-const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount; // 2 uncertain OCR items (Platelets, TSH)
-const totalFieldsCount = SYNTHETIC_REPORT_STATS.totalFieldsCount; // 8 total fields in fixture
-
-// Formatted current date
-const formattedDate = new Intl.DateTimeFormat('en-US', {
-  weekday: 'long',
-  month: 'long',
-  day: 'numeric',
-  year: 'numeric',
-}).format(new Date());
 ---
 
-<Layout title="Dashboard" subtext="Priya Sharma (Synthetic Demo Session)">
-  <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
-    <!-- 1. Editorial Greeting / Introduction Section -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-2">
-      <div class="space-y-2 max-w-2xl">
-        <!-- Eyebrow row with live demo pill & date -->
-        <div class="flex flex-wrap items-center gap-2 text-xs text-aura-text-muted">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-aura-surface-cream text-aura-text text-[11px] font-semibold border border-black/5 shadow-2xs">
-            <span class="w-1.5 h-1.5 rounded-full bg-aura-accent-orange animate-pulse"></span>
-            SYNTHETIC HEALTH VAULT
-          </span>
-          <span class="hidden sm:inline">•</span>
-          <span class="font-medium text-aura-text-muted">{formattedDate}</span>
-          <span class="hidden sm:inline">•</span>
-          <span class="font-medium text-aura-text">Adult Demo Profile (34F)</span>
-        </div>
-
-        <!-- Headline in DM Serif Display -->
-        <h1 class="text-3xl sm:text-4xl lg:text-[40px] font-serif font-normal text-aura-text tracking-tight leading-[1.1]">
-          Good morning, <em class="italic font-normal">{SYNTHETIC_PATIENT.displayName.split(' ')[0]}</em>
-        </h1>
-
-        <!-- Short Personal Health Summary with Accurately Derived Counts -->
-        <p class="text-xs sm:text-sm text-aura-text-muted leading-relaxed max-w-xl">
-          Your personal health records are organized and up to date. <strong class="text-aura-text font-semibold">{timeline.length} records</strong> in your health vault, with <strong class="text-aura-text font-semibold">{uncertainCount} priority items flagged for optical verification</strong> and <strong class="text-aura-text font-semibold">{flaggedCount} out-of-range observations</strong> to discuss with your clinician.
-        </p>
+<Layout
+  title="Home"
+  description="Altrix Health Copilot — Understand your medical records with clarity, trace every parameter, and explore guided health topics."
+>
+  <div class="px-4 sm:px-6 lg:px-8 py-8 sm:py-12 max-w-7xl mx-auto space-y-12 sm:space-y-16">
+    <!-- 1. Hero Section with Fade-in Animation -->
+    <div class="hero-animate space-y-6 max-w-4xl mx-auto text-center pt-4 sm:pt-8">
+      <!-- Eyebrow Pill -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-aura-surface-cream text-aura-text text-xs font-semibold border border-black/5 shadow-2xs">
+        <span class="w-2 h-2 rounded-full bg-aura-accent-orange animate-pulse"></span>
+        <span>Aura Health Platform • HacXLerate 2026</span>
       </div>
 
-      <!-- Action Buttons (Right-aligned desktop) -->
-      <div class="flex flex-wrap items-center gap-3 shrink-0">
-        <!-- Schedule / Copilot action (Warm cream pill) -->
+      <!-- Main Heading -->
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-serif font-normal text-aura-text tracking-tight leading-[1.1]">
+        Altrix Health Copilot
+      </h1>
+
+      <!-- Tagline & Description -->
+      <p class="text-base sm:text-lg lg:text-xl text-aura-text-muted font-normal max-w-2xl mx-auto leading-relaxed">
+        Understand your medical records with clarity, trace every clinical parameter, and explore source-backed health guidance.
+      </p>
+
+      <p class="text-xs sm:text-sm text-aura-text-muted/80 max-w-xl mx-auto leading-relaxed">
+        An AI-powered personal health companion engineered to organize laboratory reports into plain-language insights grounded in reviewed evidence without inventing diagnoses or individual drug dosages.
+      </p>
+
+      <!-- Primary Call to Action Buttons -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+        <!-- Guest Guided Copilot CTA -->
         <a
           href="/copilot"
-          class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-aura-surface-cream hover:bg-aura-surface-cream-light text-aura-text text-xs sm:text-sm font-semibold shadow-xs transition transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-aura-sidebar border border-black/5"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-aura-action hover:bg-aura-action-hover text-white text-sm font-semibold shadow-xs transition transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
         >
-          <MessageSquare class="w-4 h-4 text-aura-text" stroke-width={2} />
-          <span>Open Health Copilot</span>
+          <MessageSquare class="w-4 h-4 text-aura-accent-orange" stroke-width={2} />
+          <span>Try Health Copilot (Guest Mode)</span>
+          <ArrowRight class="w-4 h-4" />
         </a>
 
-        <!-- Primary Action: + Upload Record (Espresso brown pill) -->
+        <!-- Continue to Workspace CTA -->
         <a
-          href="/records"
-          class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-aura-action hover:bg-aura-action-hover text-white text-xs sm:text-sm font-semibold shadow-xs transition transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
+          id="btn-workspace-link"
+          href="/dashboard"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-aura-surface-cream hover:bg-aura-surface-cream-light text-aura-text text-sm font-semibold shadow-xs transition border border-black/5"
         >
-          <Upload class="w-4 h-4 text-white" stroke-width={2} />
-          <span>+ Upload Record</span>
+          <ShieldCheck class="w-4 h-4 text-emerald-700" stroke-width={2} />
+          <span id="btn-workspace-text">Continue to Workspace</span>
         </a>
       </div>
-    </div>
 
-    <!-- 2. Four KPI / Metric Cards in a Single Row (Desktop) - Truthful Metrics without Fake Bars -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-      <!-- Card A: Records in Vault -->
-      <div class="bg-aura-surface rounded-aura-card p-5 shadow-aura-card border border-aura-border/40 flex flex-col justify-between min-h-[160px] space-y-4">
-        <div class="flex items-start justify-between">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle">Records in Vault</span>
-          <div class="w-8 h-8 rounded-full bg-aura-accent-pink flex items-center justify-center text-aura-sidebar shrink-0">
-            <Files class="w-4 h-4" stroke-width={1.8} />
-          </div>
-        </div>
-        <div>
-          <div class="text-3xl font-serif text-aura-text font-normal">{timeline.length}</div>
-          <div class="text-[11px] text-aura-text-muted mt-0.5">documents in vault</div>
-        </div>
-        <div class="pt-2 border-t border-aura-border/40 flex items-center justify-between text-[11px] text-aura-text-muted">
-          <span>1 lab, 1 wellness, 1 checkup, 1 Rx</span>
-          <span class="font-medium text-aura-text">All Indexed</span>
-        </div>
-      </div>
-
-      <!-- Card B: Items to Review -->
-      <div class="bg-aura-surface rounded-aura-card p-5 shadow-aura-card border border-aura-border/40 flex flex-col justify-between min-h-[160px] space-y-4">
-        <div class="flex items-start justify-between">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle">Items to Review</span>
-          <div class="w-8 h-8 rounded-full bg-aura-accent-peach flex items-center justify-center text-aura-accent-orange shrink-0">
-            <AlertCircle class="w-4 h-4" stroke-width={2} />
-          </div>
-        </div>
-        <div>
-          <div class="flex items-baseline gap-2">
-            <span class="text-3xl font-serif text-aura-text font-normal">{uncertainCount}</span>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-aura-accent-peach text-aura-text">
-              Optical Flags
-            </span>
-          </div>
-          <div class="text-[11px] text-aura-text-muted mt-0.5">Platelets & TSH uncertain OCR</div>
-        </div>
-        <div class="pt-2 border-t border-aura-border/40 flex items-center justify-between text-[11px]">
-          <span class="text-aura-text-muted">{uncertainCount} of {totalFieldsCount} fields flagged</span>
-          <a href="/review" class="text-aura-accent-orange font-bold hover:underline inline-flex items-center gap-0.5">
-            <span>Inspect</span>
-            <ArrowRight class="w-3 h-3" stroke-width={2} />
-          </a>
-        </div>
-      </div>
-
-      <!-- Card C: Out of Range Results -->
-      <div class="bg-aura-surface rounded-aura-card p-5 shadow-aura-card border border-aura-border/40 flex flex-col justify-between min-h-[160px] space-y-4">
-        <div class="flex items-start justify-between">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle">Out of Range</span>
-          <div class="w-8 h-8 rounded-full bg-aura-surface-cream-light flex items-center justify-center text-aura-success shrink-0">
-            <FlaskConical class="w-4 h-4" stroke-width={1.8} />
-          </div>
-        </div>
-        <div>
-          <div class="text-3xl font-serif text-aura-text font-normal">{flaggedCount}</div>
-          <div class="text-[11px] text-aura-text-muted mt-0.5">findings outside lab range</div>
-        </div>
-        <div class="pt-2 border-t border-aura-border/40 flex items-center justify-between text-[11px] text-aura-text-muted">
-          <span>Hemoglobin, Glucose, HbA1c, Platelets, TSH</span>
-          <span class="font-medium text-aura-success">Oct Panel</span>
-        </div>
-      </div>
-
-      <!-- Card D: Timeline Span -->
-      <div class="bg-aura-surface rounded-aura-card p-5 shadow-aura-card border border-aura-border/40 flex flex-col justify-between min-h-[160px] space-y-4">
-        <div class="flex items-start justify-between">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle">Health Timeline</span>
-          <div class="w-8 h-8 rounded-full bg-aura-accent-pink flex items-center justify-center text-aura-sidebar shrink-0">
-            <Clock class="w-4 h-4" stroke-width={1.8} />
-          </div>
-        </div>
-        <div>
-          <div class="text-3xl font-serif text-aura-text font-normal">4 Months</div>
-          <div class="text-[11px] text-aura-text-muted mt-0.5">longitudinal recorded span</div>
-        </div>
-        <div class="pt-2 border-t border-aura-border/40 flex items-center justify-between text-[11px] text-aura-text-muted">
-          <span>Jun 15 – Oct 10, 2026</span>
-          <span class="font-medium text-aura-sidebar">4 Visits</span>
-        </div>
+      <!-- Reassuring sub-badge -->
+      <div class="flex flex-wrap items-center justify-center gap-4 text-xs text-aura-text-muted pt-2">
+        <span class="inline-flex items-center gap-1.5">
+          <CheckCircle2 class="w-3.5 h-3.5 text-emerald-600" />
+          <span>No login required for health questions</span>
+        </span>
+        <span class="inline-flex items-center gap-1.5">
+          <CheckCircle2 class="w-3.5 h-3.5 text-emerald-600" />
+          <span>English & Telugu support</span>
+        </span>
+        <span class="inline-flex items-center gap-1.5">
+          <CheckCircle2 class="w-3.5 h-3.5 text-emerald-600" />
+          <span>Zero PHI data sharing</span>
+        </span>
       </div>
     </div>
 
-    <!-- 2.5 Guided Health Copilot Quick Access & Popular Topics -->
-    <div class="bg-aura-surface rounded-aura-card p-5 sm:p-6 shadow-aura-card border border-aura-border/40 space-y-4">
+    <!-- 2. Popular Guided Topic Shortcuts -->
+    <div class="bg-aura-surface rounded-aura-panel p-6 sm:p-8 shadow-aura-card border border-aura-border/40 space-y-4 max-w-5xl mx-auto">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-full bg-aura-sidebar text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
-            <MessageSquare class="w-4 h-4 text-aura-accent-orange" stroke-width={2} />
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h2 class="text-lg font-serif font-normal text-aura-text">Guided Health Copilot</h2>
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-aura-surface-cream text-aura-text border border-black/5">
-                40 Guided Scenarios • No Login Needed
-              </span>
-            </div>
-            <p class="text-xs text-aura-text-muted mt-0.5">
-              Immediate, source-backed answers for symptoms, safe medication principles, and emergency first aid.
-            </p>
-          </div>
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle">Instant Answers</span>
+          <h2 class="text-xl font-serif font-normal text-aura-text mt-0.5">
+            Explore Popular Clinical Topics
+          </h2>
+          <p class="text-xs text-aura-text-muted mt-0.5">
+            Tap any topic to launch the Guided Health Copilot immediately:
+          </p>
         </div>
         <a
           href="/copilot"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-aura-action hover:bg-aura-action-hover text-white text-xs font-semibold shadow-xs transition shrink-0"
+          class="inline-flex items-center gap-1.5 text-xs font-semibold text-aura-action hover:underline shrink-0"
         >
-          <span>Open Full Assistant</span>
+          <span>View all 40 scenarios</span>
           <ArrowRight class="w-3.5 h-3.5" />
         </a>
       </div>
 
-      <!-- Popular Topic Chips -->
-      <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-aura-border/40 text-xs">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-aura-text-subtle mr-1">Popular Topics:</span>
+      <!-- Chips Grid -->
+      <div class="flex flex-wrap items-center gap-2.5 pt-2">
         <a
           href="/copilot?query=I%20have%20a%20fever"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-aura-surface-cream hover:bg-white text-aura-text border border-aura-border/60 transition shadow-2xs font-medium"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-aura-surface-cream hover:bg-white text-aura-text border border-aura-border/60 text-xs font-medium transition shadow-2xs hover:shadow-xs"
         >
           <span>🌡 Fever Guidance</span>
         </a>
         <a
           href="/copilot?query=I%20have%20a%20headache"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-aura-surface-cream hover:bg-white text-aura-text border border-aura-border/60 transition shadow-2xs font-medium"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-aura-surface-cream hover:bg-white text-aura-text border border-aura-border/60 text-xs font-medium transition shadow-2xs hover:shadow-xs"
         >
           <span>🤕 Headache / Migraine</span>
         </a>
         <a
           href="/copilot?query=Can%20you%20explain%20my%20blood%20test%20report"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-aura-surface-cream hover:bg-white text-aura-text border border-aura-border/60 transition shadow-2xs font-medium"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-aura-surface-cream hover:bg-white text-aura-text border border-aura-border/60 text-xs font-medium transition shadow-2xs hover:shadow-xs"
         >
           <span>🧪 Explain Lab Report</span>
         </a>
         <a
           href="/copilot?query=Can%20you%20read%20my%20prescription"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-aura-surface-cream hover:bg-white text-aura-text border border-aura-border/60 transition shadow-2xs font-medium"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-aura-surface-cream hover:bg-white text-aura-text border border-aura-border/60 text-xs font-medium transition shadow-2xs hover:shadow-xs"
         >
           <span>💊 Safe Medicine Use</span>
         </a>
         <a
           href="/copilot?query=I%20have%20chest%20pain"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200 transition shadow-2xs font-semibold"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200 text-xs font-semibold transition shadow-2xs"
         >
           <span>🚨 Emergency Red Flags (112)</span>
         </a>
         <a
           href="/copilot?query=Explain%20my%20report%20in%20Telugu&locale=te"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 transition shadow-2xs font-medium"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-xs font-medium transition shadow-2xs"
         >
           <span>🌐 తెలుగు గైడ్ (Telugu)</span>
         </a>
         <a
           href="/copilot?mode=ai"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 transition shadow-2xs font-semibold"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-semibold transition shadow-2xs"
         >
           <span>✨ Ask General Health AI (Gemini)</span>
         </a>
       </div>
     </div>
 
-    <!-- 3. Lower Dashboard: Two Columns (Queue on Left, Alerts on Right) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      <!-- Left Column (~65% width = 8 cols): Recent Health Activity & Records -->
-      <div class="lg:col-span-8 bg-aura-surface rounded-aura-panel p-5 sm:p-6 shadow-aura-card border border-aura-border/40 space-y-5">
-        <!-- Container Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-aura-border/60">
-          <div>
-            <div class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle">Health Records Queue</div>
-            <h2 class="text-xl font-serif font-normal text-aura-text mt-0.5">
-              Recent Health Activity & Records
-            </h2>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-aura-accent-purple text-aura-accent-purple-strong">
-              {timeline.length} Synthetic Entries
-            </span>
-            <a
-              href="/timeline"
-              class="inline-flex items-center gap-1 text-xs font-semibold text-aura-text hover:text-aura-action transition p-1.5 rounded-lg hover:bg-aura-surface-blush"
-              title="View Complete Timeline"
-            >
-              <span>View Timeline</span>
-              <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
-            </a>
-          </div>
-        </div>
-
-        <!-- Activity Queue Items (Rows) -->
-        <div class="divide-y divide-aura-border/40">
-          {timeline.map((event) => (
-            <div class="py-4 first:pt-2 last:pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-aura-surface-blush/60 rounded-xl px-2 -mx-2 transition">
-              <div class="space-y-1 max-w-xl">
-                <!-- Meta pill + Date -->
-                <div class="flex items-center gap-2 text-xs">
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-aura-surface-cream text-aura-text border border-black/5 uppercase">
-                    {event.category.replace('_', ' ')}
-                  </span>
-                  <span class="text-aura-text-subtle font-mono text-[11px]">{event.date}</span>
-                  <span class="text-aura-text-subtle">•</span>
-                  <span class="text-aura-text-muted text-[11px]">{event.facility}</span>
-                </div>
-
-                <!-- Event Title -->
-                <div class="font-bold text-sm text-aura-text flex items-center gap-2">
-                  <span>{event.title}</span>
-                  {event.status === 'review_required' && (
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-aura-accent-peach text-aura-text">
-                      <span class="w-1.5 h-1.5 rounded-full bg-aura-accent-orange"></span>
-                      Review Ready
-                    </span>
-                  )}
-                </div>
-
-                <!-- Summary Description -->
-                <p class="text-xs text-aura-text-muted leading-relaxed line-clamp-2">
-                  {event.summary}
-                </p>
-              </div>
-
-              <!-- Action Link / Button -->
-              <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                {event.category === 'lab_report' ? (
-                  <a
-                    href="/review"
-                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-aura-action hover:bg-aura-action-hover text-white text-xs font-semibold shadow-2xs transition"
-                  >
-                    <span>Inspect</span>
-                    <ArrowRight class="w-3 h-3" stroke-width={2} />
-                  </a>
-                ) : (
-                  <a
-                    href="/timeline"
-                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white hover:bg-aura-surface-blush text-aura-text text-xs font-medium border border-aura-border shadow-2xs transition"
-                  >
-                    <span>Timeline</span>
-                  </a>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+    <!-- 3. Four Core Architectural Pillars -->
+    <div class="space-y-6 max-w-6xl mx-auto">
+      <div class="text-center space-y-1">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle">Core Principles</span>
+        <h2 class="text-2xl sm:text-3xl font-serif font-normal text-aura-text">
+          Engineered for Safety, Grounding, and Transparency
+        </h2>
       </div>
 
-      <!-- Right Column (~35% width = 4 cols): Priority Clinical Alerts & Topics -->
-      <div class="lg:col-span-4 bg-aura-surface-cream rounded-aura-panel p-5 sm:p-6 shadow-aura-card border border-black/5 space-y-4">
-        <!-- Container Header -->
-        <div class="flex items-center justify-between pb-3 border-b border-black/10">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-aura-accent-orange"></span>
-            <h2 class="text-lg font-serif font-normal text-aura-text">
-              Worth Reviewing
-            </h2>
-          </div>
-          <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-aura-action text-white">
-            2 Topics
-          </span>
-        </div>
-
-        <p class="text-xs text-aura-text-muted leading-relaxed">
-          Grounded observations from your records prepared to discuss with your healthcare provider:
-        </p>
-
-        <!-- Alert Card 1: Metabolic Out of Range -->
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-aura-border/50 space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-[9.5px] font-bold tracking-wider text-aura-accent-orange uppercase flex items-center gap-1">
-              <Activity class="w-3 h-3" stroke-width={2} />
-              <span>Out of Range Finding</span>
-            </span>
-            <span class="text-[10px] text-aura-text-subtle">From Oct 10 Panel</span>
-          </div>
-
-          <div class="space-y-1">
-            <h3 class="text-xs font-bold text-aura-text">Fasting Sugar (118 mg/dL) & HbA1c (6.2%)</h3>
-            <p class="text-[11.5px] text-aura-text-muted leading-relaxed">
-              Fasting blood sugar and glycated hemoglobin exceed standard baseline limits. Consider discussing dietary patterns and re-test timing with your clinician.
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- Pillar 1: 40 Guided Scenarios -->
+        <div class="bg-aura-surface rounded-aura-card p-6 shadow-aura-card border border-aura-border/40 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-aura-accent-peach/50 flex items-center justify-center text-aura-accent-orange">
+              <MessageSquare class="w-5 h-5" />
+            </div>
+            <h3 class="font-serif font-normal text-aura-text text-lg">40 Guided Scenarios</h3>
+            <p class="text-xs text-aura-text-muted leading-relaxed">
+              Curated clinical question catalogue with deterministic matching, quick replies, and authoritative citations (CDC, MedlinePlus, AHA).
             </p>
           </div>
-
-          <div class="pt-1">
-            <a
-              href="/copilot"
-              class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-aura-sidebar hover:bg-aura-sidebar-deep text-white text-xs font-semibold shadow-xs transition"
-            >
-              <span>Prepare Doctor Questions</span>
-              <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
-            </a>
-          </div>
+          <span class="text-[11px] font-semibold text-aura-accent-orange">Verified Sources</span>
         </div>
 
-        <!-- Alert Card 2: OCR Optical Clarity -->
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-aura-border/50 space-y-3">
-          <div class="flex items-center justify-between">
-            <span class="text-[9.5px] font-bold tracking-wider text-aura-sidebar uppercase flex items-center gap-1">
-              <Eye class="w-3 h-3" stroke-width={2} />
-              <span>Optical Reading Check</span>
-            </span>
-            <span class="text-[10px] text-aura-text-subtle">{uncertainCount} Fields Flagged</span>
-          </div>
-
-          <div class="space-y-1">
-            <h3 class="text-xs font-bold text-aura-text">Platelets (~145k) & TSH (5.4)</h3>
-            <p class="text-[11.5px] text-aura-text-muted leading-relaxed">
-              Extracted with lower confidence due to faint printing on the simulated lab slip. Unknown values remain unverified until user review.
+        <!-- Pillar 2: Traceable Extraction -->
+        <div class="bg-aura-surface rounded-aura-card p-6 shadow-aura-card border border-aura-border/40 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-aura-surface-cream flex items-center justify-center text-aura-text">
+              <FileText class="w-5 h-5" />
+            </div>
+            <h3 class="font-serif font-normal text-aura-text text-lg">Traceable Extraction</h3>
+            <p class="text-xs text-aura-text-muted leading-relaxed">
+              Medical document intake with structured reference range checking and optical uncertainty indicators for smudged or faint text.
             </p>
           </div>
-
-          <div class="pt-1">
-            <a
-              href="/review"
-              class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-aura-surface-blush hover:bg-aura-accent-purple text-aura-text text-xs font-semibold border border-aura-border transition"
-            >
-              <span>Verify in Review Screen</span>
-              <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
-            </a>
-          </div>
+          <span class="text-[11px] font-semibold text-aura-text">Zero Value Fabrication</span>
         </div>
 
-        <!-- Clinical Safety Box -->
-        <div class="bg-white/70 rounded-xl p-3 border border-black/5 text-[10.5px] text-aura-text-muted leading-relaxed flex items-start gap-2">
-          <ShieldAlert class="w-4 h-4 text-aura-accent-orange shrink-0 mt-0.5" stroke-width={2} />
-          <div>
-            <strong class="text-aura-text font-bold block mb-0.5">Clinical Boundary Notice:</strong>
-            These topics are educational highlights from your documents. Altrix does not diagnose conditions or prescribe medications.
+        <!-- Pillar 3: Deterministic Safety Gates -->
+        <div class="bg-aura-surface rounded-aura-card p-6 shadow-aura-card border border-aura-border/40 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-700">
+              <AlertTriangle class="w-5 h-5" />
+            </div>
+            <h3 class="font-serif font-normal text-aura-text text-lg">Safety Precedence</h3>
+            <p class="text-xs text-aura-text-muted leading-relaxed">
+              Life-threatening emergencies trigger immediate 112/108/911 escalation. Medication dosage queries receive strict clinical refusal.
+            </p>
           </div>
+          <span class="text-[11px] font-semibold text-rose-700">Pre-Model Interception</span>
         </div>
+
+        <!-- Pillar 4: Tenant-Isolated Vault -->
+        <div class="bg-aura-surface rounded-aura-card p-6 shadow-aura-card border border-aura-border/40 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-700">
+              <Lock class="w-5 h-5" />
+            </div>
+            <h3 class="font-serif font-normal text-aura-text text-lg">Private Cloud Vault</h3>
+            <p class="text-xs text-aura-text-muted leading-relaxed">
+              Optional cloud storage backed by PostgreSQL Row Level Security. Authenticated records are accessible only by their creator.
+            </p>
+          </div>
+          <span class="text-[11px] font-semibold text-emerald-700">Tenant-Isolated RLS</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. How It Works (3 Steps) -->
+    <div class="bg-aura-surface-cream/40 rounded-aura-panel p-6 sm:p-10 border border-black/5 max-w-5xl mx-auto space-y-6">
+      <div class="text-center space-y-1">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle">Simple Flow</span>
+        <h2 class="text-2xl font-serif font-normal text-aura-text">
+          How Altrix Health Copilot Works
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-aura-text-muted leading-relaxed">
+        <div class="bg-white rounded-2xl p-5 shadow-2xs border border-aura-border/50 space-y-2">
+          <div class="w-8 h-8 rounded-full bg-aura-surface-cream text-aura-text font-bold text-sm flex items-center justify-center">
+            1
+          </div>
+          <h3 class="font-bold text-aura-text text-sm">Ask or Upload</h3>
+          <p>
+            Explore 40 clinical topics in guest mode without creating an account, or sign in to save documents to your private health vault.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 shadow-2xs border border-aura-border/50 space-y-2">
+          <div class="w-8 h-8 rounded-full bg-aura-surface-cream text-aura-text font-bold text-sm flex items-center justify-center">
+            2
+          </div>
+          <h3 class="font-bold text-aura-text text-sm">Review & Verify</h3>
+          <p>
+            Verify extracted clinical parameters, check optical uncertainty flags, and confirm values against your original source report.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 shadow-2xs border border-aura-border/50 space-y-2">
+          <div class="w-8 h-8 rounded-full bg-aura-surface-cream text-aura-text font-bold text-sm flex items-center justify-center">
+            3
+          </div>
+          <h3 class="font-bold text-aura-text text-sm">Consult with Clarity</h3>
+          <p>
+            Use plain-language summaries and tailored doctor questions to have more productive, informed discussions with your healthcare provider.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Clinical Safety Disclaimer -->
+    <div class="bg-white rounded-2xl p-5 border border-aura-border shadow-2xs max-w-4xl mx-auto text-xs text-aura-text-muted leading-relaxed flex items-start gap-3">
+      <AlertTriangle class="w-5 h-5 text-aura-accent-orange shrink-0 mt-0.5" stroke-width={2} />
+      <div>
+        <strong class="text-aura-text font-bold block mb-0.5">Clinical & Educational Notice:</strong>
+        Altrix Health Copilot is an educational technology prototype. It is NOT a medical device, diagnostic engine, or clinical prescribing tool. It does not provide individualized medication dosages. In emergencies, immediately dial local emergency services (112, 108, or 911).
       </div>
     </div>
   </div>
 </Layout>
+
+<style>
+  @keyframes heroFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .hero-animate {
+    animation: heroFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-animate {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+</style>
+
+<script>
+  import { getSupabaseClient } from '../lib/supabase/client';
+
+  // Check if user is logged in to adjust hero workspace CTA
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const workspaceBtn = document.getElementById('btn-workspace-link');
+      const workspaceText = document.getElementById('btn-workspace-text');
+      if (session?.user && workspaceBtn && workspaceText) {
+        workspaceBtn.setAttribute('href', '/dashboard');
+        workspaceText.textContent = 'Go to My Workspace';
+      }
+    });
+  }
+</script>

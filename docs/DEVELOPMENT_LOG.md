@@ -455,6 +455,40 @@ Antigravity: inspect the current repository and environment, report findings, th
   - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
   - Production Build: Clean (`astro build` with `@astrojs/vercel`, 6 static routes prerendered + 5 serverless functions bundled in 7.19s).
 
+## 2026-10-13 — Phase 4C: Landing Page, Authentication Flow & Demo Cleanup (feat/guest-health-copilot-mvp)
+- **Public Landing Page Established (`src/pages/index.astro`):**
+  - Root `/` converted into a dedicated public entry point featuring Aura design styling, subtle CSS fade-in hero animation (`hero-animate` with `prefers-reduced-motion` compliance), clear product explanation, and four architectural pillars.
+  - Interactive guided health assistant shortcuts route directly to `/copilot?query=...`.
+  - Dynamic "Continue to Workspace" / "Get Started" buttons link directly to `/dashboard` or `/auth` without forcing login on initial arrival.
+- **Dedicated Authenticated Workspace (`src/pages/dashboard.astro`):**
+  - Relocated user workspace from `/` to `/dashboard`.
+  - Displays real authenticated user identity and dynamically loads user vault documents via `/api/vault/documents`.
+  - Zero fabricated patient names or metrics: displays honest empty states ("Your Health Vault is Empty") when zero records exist, with direct upload CTAs.
+  - Features quick-access workspace navigation cards (Copilot, Records, Review, Timeline) and an integrated sign-out button.
+  - Includes an unauthenticated gate state with clear "Sign In" and "Explore as Guest" actions if visited directly without a session.
+- **Authentication Separation & Safe Redirects (`src/pages/auth.astro`):**
+  - Restructured `/auth` as a focused authentication portal for Sign In and Sign Up.
+  - Implemented `getSafeReturnTo()` restricting redirects strictly to approved internal routes (`/dashboard`, `/records`, `/review`, `/timeline`, `/copilot`), blocking open-redirect vulnerabilities.
+  - Successful logins redirect to `/dashboard` by default.
+  - Added explicit user-facing notice explaining Supabase email confirmation settings and next steps.
+- **Customer-Facing Demo Data & Credits Purge:**
+  - Removed all instances of the hardcoded demo identity "Priya Sharma (34F)" from customer-facing views:
+    - `src/components/TopBar.astro`: Defaults to "Guest Visitor" / "GV" and updates dynamically upon session retrieval.
+    - `src/components/Sidebar.astro`: Updated links (`/` for Home, `/dashboard` for Workspace) and dynamic session listener.
+    - `src/components/Header.astro`, `src/pages/records.astro`, `src/pages/timeline.astro`: Cleared hardcoded patient names.
+  - Removed sample-record generation buttons (`+ Save Sample Synthetic CBC to Vault`) from records view.
+  - `src/components/Footer.astro`: Removed internal developer names ("Vindyan", "ChatGPT", "Antigravity"), replaced with neutral Altrix branding and standard links.
+  - Synthetic test fixtures (`src/fixtures/synthetic-lab-report.ts`) retained strictly for unit tests and the `/review` report inspection workflow.
+- **Honest AI Fallback Engine:**
+  - Updated `src/lib/ai/mock-provider.ts` and `src/lib/ai/provider.ts`: When Gemini is unconfigured, timed out, or rate-limited, the system returns `isUnavailable: true` (`provider: 'ServiceUnavailable'`). It does not fabricate pseudo-intelligent answers or pretend the AI is functioning.
+  - `src/pages/copilot.astro`: Renders an honest warning card ("⚠ AI Chat Temporarily Unavailable") with an immediate action button ("Explore Guided Health Guide") that cleanly switches to the deterministic 40-scenario mode.
+  - Emergency red flags (Priority 1) and medication dosage safety rules (Priority 2) remain fully active ahead of model invocation.
+- **Verification Quality Gates:**
+  - Vitest Unit Tests: **137/137 passing** across 9 test suites (+10 new tests in `tests/landing-and-auth-flow.test.ts` verifying open-redirect defense, honest fallback, and absence of fake demo data).
+  - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
+  - Production Build: Clean (`astro build` with `@astrojs/vercel`, 7 static routes prerendered including `/` and `/dashboard` + 5 serverless functions bundled in 7.79s).
+
+
 
 
 

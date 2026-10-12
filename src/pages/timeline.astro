@@ -14,7 +14,7 @@ import { SYNTHETIC_PATIENT } from '../fixtures/synthetic-patient';
 const timeline = SYNTHETIC_PATIENT.timeline;
 ---
 
-<Layout title="Health Timeline" subtext="Chronological synthetic health history">
+<Layout title="Health Timeline" subtext="Chronological longitudinal health history">
   <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
     <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -24,10 +24,10 @@ const timeline = SYNTHETIC_PATIENT.timeline;
           <span>Longitudinal Health History</span>
         </div>
         <h1 class="text-2xl sm:text-3xl font-serif font-normal text-aura-text tracking-tight">
-          Synthetic Health Timeline
+          Health Timeline
         </h1>
         <p class="text-aura-text-muted text-xs sm:text-sm max-w-2xl leading-relaxed">
-          Explore {SYNTHETIC_PATIENT.displayName}'s health journey over time. Comparable measurements with verified units are grouped for trend analysis.
+          Chronological record of lab tests, vital measurements, and clinical encounters. Comparable observations with matching units are grouped for trend analysis.
         </p>
       </div>
 

@@ -90,6 +90,7 @@ export interface GeneralChatRequest {
 export interface GeneralChatResponse {
   message: string;
   isMockFallback: boolean;
+  isUnavailable?: boolean;
   provider: string;
   disclaimer: string;
   suggestedQuestions?: string[];

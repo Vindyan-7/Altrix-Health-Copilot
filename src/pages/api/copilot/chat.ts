@@ -255,6 +255,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         isBlockedDosage: false,
         safetyLevel: 'routine',
         isMockFallback: aiResponse.isMockFallback,
+        isUnavailable: aiResponse.isUnavailable ?? aiResponse.isMockFallback,
         provider: aiResponse.provider,
         disclaimer: aiResponse.disclaimer,
         suggestedQuestions: aiResponse.suggestedQuestions || [],

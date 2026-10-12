@@ -96,30 +96,35 @@ export class MockExtractionProvider implements AIProvider {
 
   async generateChat(request: import('./provider').GeneralChatRequest): Promise<import('./provider').GeneralChatResponse> {
     const isTelugu = request.locale === 'te';
-    const lastUserMessage = [...request.messages].reverse().find((m) => m.role === 'user')?.content || 'General health information';
 
     let messageText = '';
     let suggestedQuestions: string[] = [];
 
     if (isTelugu) {
-      messageText = `మీ ప్రశ్న ("${lastUserMessage}") కు సమాధానంగా: ఇది ఒక సాధారణ విద్యాపరమైన సారాంశం. ఆరోగ్య సమస్యలకు సంబంధించి మరింత స్పష్టత కోసం మీ వైద్యుడిని లేదా సమీప క్లినిక్‌ను సంప్రదించండి. మేము వ్యక్తిగత మందుల మోతాదులను సూచించలేము.`;
-      suggestedQuestions = ['ల్యాబ్ నివేదిక వివరాలు తెలుసుకోవడం ఎలా?', 'వైద్యుడిని ఎప్పుడు సంప్రదించాలి?'];
-    } else {
-      messageText = `Regarding your health inquiry ("${lastUserMessage}"): This is an educational health overview. ` +
-        `General health and wellness involves monitoring symptom duration, maintaining adequate hydration and rest, and keeping a factual log of any changes. ` +
-        `If symptoms persist or significantly interfere with daily living, schedule an evaluation with a licensed physician.`;
+      messageText = `సాధారణ ఆరోగ్య AI చాట్ ప్రస్తుతం అందుబాటులో లేదు. దయచేసి క్రింద ఉన్న 40 నిర్దిష్ట అంశాల గైడెడ్ హెల్త్ కోపైలట్‌ను ఉపయోగించండి, ఇది ధృవీకరించబడిన ఆధారాలతో ఖచ్చితమైన విద్యా సమాచారాన్ని అందిస్తుంది. అత్యవసర పరిస్థితుల్లో వెంటనే 112 లేదా 108 కు కాల్ చేయండి.`;
       suggestedQuestions = [
-        'What red flags should I monitor for?',
-        'How can I prepare questions for my doctor?',
-        'Explain safe medicine practices',
+        'జ్వరం వచ్చినప్పుడు తీసుకోవలసిన జాగ్రత్తలు ఏమిటి?',
+        'ల్యాబ్ నివేదిక వివరాలు ఎలా అర్థం చేసుకోవాలి?',
+        'తీవ్ర తలనొప్పికి తీసుకోవలసిన జాగ్రత్తలు ఏమిటి?',
+      ];
+    } else {
+      messageText = `General health AI chat is temporarily unavailable because the AI service is unconfigured or temporarily unreachable. ` +
+        `Please use our curated Guided Health Copilot below, which provides source-backed guidance across 40 clinical scenarios without requiring AI connectivity. ` +
+        `For urgent medical symptoms, seek immediate evaluation or call emergency services (112 / 108 / 911).`;
+      suggestedQuestions = [
+        'I have a fever',
+        'I have a headache',
+        'Can you explain my blood test report',
+        'Safe medicine principles',
       ];
     }
 
     return {
       message: messageText,
       isMockFallback: true,
-      provider: this.name,
-      disclaimer: 'Educational guidance only. Not a medical diagnosis or prescription. Consult a licensed physician for personal care.',
+      isUnavailable: true,
+      provider: 'ServiceUnavailable',
+      disclaimer: 'Educational guidance only. Not a medical diagnosis or prescription. General AI chat is unavailable; guided catalogue remains fully operational.',
       suggestedQuestions,
     };
   }

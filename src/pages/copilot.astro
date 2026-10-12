@@ -575,6 +575,7 @@ import Layout from '../layouts/Layout.astro';
     const div = document.createElement('div');
     div.className = 'flex items-start gap-3';
 
+    const isUnavailable = data.isUnavailable || data.isMockFallback;
     let badgeClass = 'bg-indigo-50 text-indigo-900 border-indigo-200';
     let badgeLabel = '🤖 General AI Response';
     if (data.isEmergency) {
@@ -583,6 +584,9 @@ import Layout from '../layouts/Layout.astro';
     } else if (data.isBlockedDosage) {
       badgeClass = 'bg-amber-100 text-amber-900 border-amber-300 font-semibold';
       badgeLabel = '⚠ Caution / Dosage Safety';
+    } else if (isUnavailable) {
+      badgeClass = 'bg-amber-100 text-amber-900 border-amber-300 font-semibold';
+      badgeLabel = '⚠ AI Chat Temporarily Unavailable';
     }
 
     const formattedMessage = escapeHtml(data.message)
@@ -591,16 +595,16 @@ import Layout from '../layouts/Layout.astro';
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
     div.innerHTML = `
-      <div class="w-8 h-8 rounded-full bg-aura-sidebar text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
-        AI
+      <div class="w-8 h-8 rounded-full ${isUnavailable && !data.isEmergency && !data.isBlockedDosage ? 'bg-amber-600' : 'bg-aura-sidebar'} text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
+        ${isUnavailable && !data.isEmergency && !data.isBlockedDosage ? '!' : 'AI'}
       </div>
-      <div class="bg-white rounded-2xl rounded-tl-xs p-4 sm:p-5 max-w-xl text-xs sm:text-sm text-aura-text space-y-3 leading-relaxed border border-aura-border/60 shadow-2xs">
+      <div class="bg-white rounded-2xl rounded-tl-xs p-4 sm:p-5 max-w-xl text-xs sm:text-sm text-aura-text space-y-3 leading-relaxed border ${isUnavailable && !data.isEmergency && !data.isBlockedDosage ? 'border-amber-200 bg-amber-50/30' : 'border-aura-border/60'} shadow-2xs">
         <div class="flex items-center justify-between gap-2">
           <span class="px-2 py-0.5 rounded-full text-[10px] border ${badgeClass}">
             ${badgeLabel}
           </span>
           <span class="text-[10px] text-aura-text-muted font-mono">
-            ${data.isMockFallback ? 'Offline Demo Fallback' : escapeHtml(data.provider)}
+            ${isUnavailable ? 'Curated Catalogue Available' : escapeHtml(data.provider)}
           </span>
         </div>
 
@@ -609,10 +613,28 @@ import Layout from '../layouts/Layout.astro';
         </div>
 
         ${
+          isUnavailable && !data.isEmergency && !data.isBlockedDosage
+            ? `
+          <div class="pt-2 border-t border-amber-200/60">
+            <button
+              type="button"
+              class="btn-switch-to-guided inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-aura-sidebar text-white text-xs font-semibold hover:bg-black transition shadow-xs cursor-pointer"
+            >
+              <span>Explore Guided Health Guide (40 Scenarios)</span>
+              <span>→</span>
+            </button>
+          </div>
+        `
+            : ''
+        }
+
+        ${
           data.suggestedQuestions && data.suggestedQuestions.length > 0
             ? `
           <div class="pt-2 border-t border-aura-border/40 space-y-1.5">
-            <div class="text-[10.5px] font-bold uppercase tracking-wider text-aura-text-subtle">Suggested Questions:</div>
+            <div class="text-[10.5px] font-bold uppercase tracking-wider text-aura-text-subtle">
+              ${isUnavailable ? 'Available Guided Topics:' : 'Suggested Questions:'}
+            </div>
             <div class="flex flex-wrap gap-1.5">
               ${data.suggestedQuestions
                 .map(
@@ -638,10 +660,19 @@ import Layout from '../layouts/Layout.astro';
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
+    div.querySelector('.btn-switch-to-guided')?.addEventListener('click', () => {
+      setMode('guided');
+    });
+
     div.querySelectorAll('.quick-reply-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
         const reply = btn.getAttribute('data-reply');
-        if (reply) handleUserQuery(reply);
+        if (reply) {
+          if (isUnavailable) {
+            setMode('guided');
+          }
+          handleUserQuery(reply);
+        }
       });
     });
   }

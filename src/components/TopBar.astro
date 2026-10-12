@@ -1,6 +1,5 @@
 ---
 import { Menu, Search, Globe, Bell } from '@lucide/astro';
-import { SYNTHETIC_PATIENT } from '../fixtures/synthetic-patient';
 import { SYNTHETIC_REPORT_STATS } from '../fixtures/synthetic-lab-report';
 
 const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
@@ -28,7 +27,7 @@ const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
         <input
           id="global-search"
           type="search"
-          placeholder="Demo search: Glucose, Hemoglobin, HbA1c..."
+          placeholder="Search health topics: Fever, Glucose, Thyroid, Prescriptions..."
           class="w-full h-10 pl-10 pr-4 rounded-full bg-white border-0 shadow-aura-card text-xs text-aura-text placeholder-aura-text-subtle focus:outline-none focus:ring-2 focus:ring-aura-sidebar-active transition"
         />
       </div>
@@ -43,7 +42,7 @@ const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
         title="Session language: English (Telugu available in Copilot)"
       >
         <Globe class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
-        <span class="hidden md:inline font-semibold">Vault:</span>
+        <span class="hidden md:inline font-semibold">Language:</span>
         <span>English (Telugu in Copilot)</span>
       </a>
 
@@ -51,13 +50,10 @@ const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
       <a
         href="/review"
         class="relative p-2 sm:p-2.5 rounded-full bg-white hover:bg-aura-surface-blush text-aura-text shadow-aura-card transition focus:outline-none focus:ring-2 focus:ring-aura-sidebar-active border border-aura-border/40"
-        aria-label={`${uncertainCount} items require your review (Platelets & TSH)`}
-        title={`${uncertainCount} items require your review (Platelets & TSH)`}
+        aria-label="Report review and optical checks"
+        title="Report review and optical checks"
       >
         <Bell class="w-4 h-4" stroke-width={1.8} />
-        {uncertainCount > 0 && (
-          <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-aura-accent-orange"></span>
-        )}
       </a>
 
       <!-- User Profile chip (links to /auth) -->
@@ -69,14 +65,14 @@ const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
       >
         <div class="hidden sm:flex flex-col text-right">
           <span id="topbar-user-name" class="text-xs font-bold text-aura-text leading-tight group-hover:text-aura-action transition">
-            {SYNTHETIC_PATIENT.displayName}
+            Guest Visitor
           </span>
           <span id="topbar-user-role" class="text-[10.5px] text-aura-text-muted leading-tight">
-            Guest / Demo (34F)
+            Public Session
           </span>
         </div>
-        <div id="topbar-user-avatar" class="w-8 h-8 rounded-full bg-aura-accent-purple text-aura-accent-purple-strong font-bold text-xs flex items-center justify-center border border-aura-border shadow-xs group-hover:border-aura-action transition">
-          PS
+        <div id="topbar-user-avatar" class="w-8 h-8 rounded-full bg-aura-accent-peach text-aura-text font-bold text-xs flex items-center justify-center border border-aura-border shadow-xs group-hover:border-aura-action transition">
+          GV
         </div>
       </a>
     </div>
