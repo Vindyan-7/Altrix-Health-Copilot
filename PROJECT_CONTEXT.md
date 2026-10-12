@@ -39,20 +39,20 @@ Reviewed evidence determines what may be said; templates determine tone; AI may 
 10. Update this file and `docs/DEVELOPMENT_LOG.md` after each milestone with current status, test results, known issues, and the next exact task.
 
 ## Current implementation status
-Phase 3: Controlled AI Explanation & Safety Guardrails completed on branch `feat/guest-health-copilot-mvp`:
+Phase 4A: 40-Scenario Engine & Guided Chatbot completed on branch `feat/guest-health-copilot-mvp`:
 - **Current Baseline:** `feat/guest-health-copilot-mvp` active; `develop`, `feat/timeline-iteration-3`, and `feat/review-page-iteration-2b` preserved intact.
-- **Phase 3 Deliverables:**
-  1. **Configurable Model Default:** Updated Gemini default model to `gemini-3.8-flash` across provider and configuration files while keeping it runtime-configurable via `GEMINI_MODEL`.
-  2. **Gate 0 Synthetic PHI Guardrail:** Hardened `/api/copilot/explain` and `GeminiProvider.explainEvidence` to reject any non-synthetic requests or real patient document identifiers with `403 Forbidden` (`REAL_PHI_DISALLOWED`).
-  3. **Deterministic Safety Priority:** Emergency Red Flag detection (Gate 1) and Medication Dosage Refusal (Gate 2) precede any model invocation.
-  4. **Quota Controls & Rate Limits:** 32 KB request size ceiling, 10 req/min per-IP rate limiting with dynamic pruning, and a global quota governor (60 req/min) returning RFC-compliant headers.
-  5. **Deterministic Offline Fallbacks:** 8-second request timeout, graceful fallback on missing API keys, upstream 429 quota exhaustion, network timeouts, and candidate JSON malformations.
-  6. **Zero Browser Secret Exposure:** API keys and sensitive tokens remain strictly server-side in API routes.
-  7. **Preserved Guest Mode:** Guest Health Guide (`/copilot`) remains 100% operational offline without authentication or API keys.
-- **Quality Gates:** 89/89 Vitest unit tests pass across 6 test suites, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
+- **Phase 4A Deliverables:**
+  1. **Typed Scenario Registry:** Parsed 40 clinical scenarios from root `health_copilot_40_chatbot_scenarios.md` into `src/data/healthChatScenarios.ts` and `src/types/healthChat.ts`. Preserved canonical IDs, triggers, quick replies, and exact responses.
+  2. **Deterministic Matching Engine:** Word-boundary input normalization, confidence scoring, multi-topic disambiguation, and context retention for quick replies and short follow-ups.
+  3. **Safety Priority:** Priority 1 emergency red flags (chest pain, stroke, breathing distress, severe bleeding) and Priority 2 medication dosage refusal precede routine matching.
+  4. **Session Management & Guest Budget:** 6-turn guest session budget with emergency bypass; Guest-to-AI handoff CTA to Sign In/Sign Up; session reset.
+  5. **Authenticated Mode Integration:** Detects active Supabase session via `getCurrentUser()` unlocking unlimited turns and direct deep AI explanation via `/api/copilot/explain` with `gemini-3.8-flash`.
+  6. **Aura UI Alignment & Landing Entry:** Rendered safety badges, quick-reply chips, disambiguation buttons, and verified citations in `src/pages/copilot.astro`. Added Guided Copilot quick access card and popular topic chips on `src/pages/index.astro`.
+  7. **Preserved Multilingual Support:** Bilingual English/Telugu switcher with honest notice for untranslated content.
+- **Quality Gates:** 116/116 Vitest unit tests pass across 7 test suites, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
 
 ## Current next task
-Deliver the Phase 3 report with automated test breakdown and live verification procedures, and await CTO review before proceeding to document upload and OCR.
+Deliver the Phase 4A report and guided-flow preview for CTO review. Do not begin OCR, real document uploads, real-patient analysis, or production merging.
 
 
 

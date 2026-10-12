@@ -165,6 +165,76 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
       </div>
     </div>
 
+    <!-- 2.5 Guided Health Copilot Quick Access & Popular Topics -->
+    <div class="bg-aura-surface rounded-aura-card p-5 sm:p-6 shadow-aura-card border border-aura-border/40 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-aura-sidebar text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+            <MessageSquare class="w-4 h-4 text-aura-accent-orange" stroke-width={2} />
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-serif font-normal text-aura-text">Guided Health Copilot</h2>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-aura-surface-cream text-aura-text border border-black/5">
+                40 Guided Scenarios • No Login Needed
+              </span>
+            </div>
+            <p class="text-xs text-aura-text-muted mt-0.5">
+              Immediate, source-backed answers for symptoms, safe medication principles, and emergency first aid.
+            </p>
+          </div>
+        </div>
+        <a
+          href="/copilot"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-aura-action hover:bg-aura-action-hover text-white text-xs font-semibold shadow-xs transition shrink-0"
+        >
+          <span>Open Full Assistant</span>
+          <ArrowRight class="w-3.5 h-3.5" />
+        </a>
+      </div>
+
+      <!-- Popular Topic Chips -->
+      <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-aura-border/40 text-xs">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-aura-text-subtle mr-1">Popular Topics:</span>
+        <a
+          href="/copilot?query=I%20have%20a%20fever"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-aura-surface-cream hover:bg-white text-aura-text border border-aura-border/60 transition shadow-2xs font-medium"
+        >
+          <span>🌡 Fever Guidance</span>
+        </a>
+        <a
+          href="/copilot?query=I%20have%20a%20headache"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-aura-surface-cream hover:bg-white text-aura-text border border-aura-border/60 transition shadow-2xs font-medium"
+        >
+          <span>🤕 Headache / Migraine</span>
+        </a>
+        <a
+          href="/copilot?query=Can%20you%20explain%20my%20blood%20test%20report"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-aura-surface-cream hover:bg-white text-aura-text border border-aura-border/60 transition shadow-2xs font-medium"
+        >
+          <span>🧪 Explain Lab Report</span>
+        </a>
+        <a
+          href="/copilot?query=Can%20you%20read%20my%20prescription"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-aura-surface-cream hover:bg-white text-aura-text border border-aura-border/60 transition shadow-2xs font-medium"
+        >
+          <span>💊 Safe Medicine Use</span>
+        </a>
+        <a
+          href="/copilot?query=I%20have%20chest%20pain"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200 transition shadow-2xs font-semibold"
+        >
+          <span>🚨 Emergency Red Flags (112)</span>
+        </a>
+        <a
+          href="/copilot?query=Explain%20my%20report%20in%20Telugu&locale=te"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 transition shadow-2xs font-medium"
+        >
+          <span>🌐 తెలుగు గైడ్ (Telugu)</span>
+        </a>
+      </div>
+    </div>
+
     <!-- 3. Lower Dashboard: Two Columns (Queue on Left, Alerts on Right) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       <!-- Left Column (~65% width = 8 cols): Recent Health Activity & Records -->

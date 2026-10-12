@@ -404,4 +404,28 @@ Antigravity: inspect the current repository and environment, report findings, th
   - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
   - Production Build: Clean (`astro build` with `@astrojs/vercel`, 6 static routes prerendered + 4 serverless functions bundled in 7.01s).
 
+## 2026-10-13 — Phase 4A: 40-Scenario Engine & Guided Chatbot (feat/guest-health-copilot-mvp)
+- **Typed Scenario Registry (`src/types/healthChat.ts`, `src/data/healthChatScenarios.ts`):**
+  - Parsed all 40 predefined scenarios directly from root [`health_copilot_40_chatbot_scenarios.md`](file:///c:/Projects/person/altrix-health-copilot/health_copilot_40_chatbot_scenarios.md).
+  - Preserved canonical IDs (`scenario-01` to `scenario-40`), titles, trigger lists, quick replies, and exact predefined responses.
+  - Classified clinical safety levels (`urgent` for 21-25; `caution` for 33-36; `routine` for others).
+  - Flagged source citation completeness (`verified` vs `unspecified_in_source`) and language availability (`hasTeluguTranslation`).
+- **Deterministic Intent Matcher & Safety Engine (`src/lib/chatbot/`):**
+  - `normalizeInput.ts`: Normalizes lowercase, trims punctuation, collapses spaces, and tests regex word boundaries (`\btrigger\b`).
+  - `routeEmergency.ts` (Priority 1): Intercepts life-threatening emergencies (chest pain, stroke symptoms, respiratory distress, uncontrolled bleeding, anaphylaxis) before routine matching.
+  - `safetyRules.ts` (Priority 2): Intercepts individualized medication dosage inquiries with deterministic refusal.
+  - `matchIntent.ts`: Word-boundary scoring, context retention for active scenario follow-ups (e.g. "3 days", quick replies), and disambiguation prompting when multiple topics match with close scores.
+  - `conversationEngine.ts`: Manages session state, tracks 6 guest turns, allows emergency bypass at all times, and handles resets.
+- **UI Enhancements (`src/pages/copilot.astro`, `src/pages/index.astro`):**
+  - Updated Copilot chat interface in Aura theme with safety badges (`🚨 Urgent Emergency`, `⚠ Caution`, `ℹ Educational Guidance`), quick reply action buttons, disambiguation buttons, verified citation links, and educational disclaimer.
+  - Preserved guest mode with 6-turn budget counter and seamless Guest-to-AI handoff CTA to Sign In/Sign Up when budget is reached.
+  - Integrated session detection (`getCurrentUser()`) unlocking unlimited turns in member mode.
+  - Added landing-page quick access card and popular topic chips on dashboard (`/`) linking directly into `/copilot?query=...`.
+  - Preserved English/Telugu switcher with honest notices for untranslated content.
+- **Verification Quality Gates:**
+  - Vitest Unit Tests: **116/116 passing** across 7 test suites (+27 new tests in `tests/scenario-engine.test.ts`).
+  - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
+  - Production Build: Clean (`astro build` with `@astrojs/vercel`, 6 static routes prerendered + 4 serverless functions bundled in 6.83s).
+
+
 

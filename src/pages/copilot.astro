@@ -19,29 +19,36 @@ import {
   Clock,
   Sparkle,
   ShieldCheck,
+  User,
+  LogIn,
 } from '@lucide/astro';
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Guest Health Guide" subtext="Source-backed health education & emergency first aid">
+<Layout title="Guided Health Copilot" subtext="Source-backed health education & 40 guided scenarios">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
     <!-- Header -->
     <div class="space-y-2 pb-2 border-b border-aura-border/30">
       <nav class="flex items-center gap-2 text-xs text-aura-text-muted mb-1.5">
         <a href="/" class="hover:text-aura-text transition">Dashboard</a>
         <span>/</span>
-        <span class="text-aura-text font-semibold">Guest Health Guide</span>
+        <span class="text-aura-text font-semibold">Guided Health Copilot</span>
       </nav>
-      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-aura-surface-cream text-aura-text border border-black/5 shadow-2xs">
-        <Bot class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
-        <span>Guest Mode • No Login or Records Required</span>
+      <div class="flex flex-wrap items-center gap-2">
+        <div id="session-mode-pill" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-aura-surface-cream text-aura-text border border-black/5 shadow-2xs">
+          <Bot class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
+          <span id="session-mode-text">Guest Mode • 40 Guided Scenarios Available</span>
+        </div>
+        <div id="auth-status-container" class="hidden sm:inline-flex items-center gap-1.5 text-xs text-aura-text-muted">
+          <span>•</span>
+          <a id="auth-link-text" href="/auth" class="hover:text-aura-text hover:underline">Sign In for Vault Storage & Deep AI</a>
+        </div>
       </div>
       <h1 class="text-2xl sm:text-3xl font-serif font-normal text-aura-text tracking-tight">
-        Altrix Guest Health Guide
+        Altrix Guided Health Copilot
       </h1>
       <p class="text-aura-text-muted text-xs sm:text-sm max-w-2xl leading-relaxed">
-        Immediate, source-backed medical knowledge for common symptoms, medicine safety principles, and emergency first aid.
-        Operates securely without AI keys, personal data, or sign-up.
+        Immediate, deterministic answers for 40 clinical topics covering acute symptoms, medication safety, laboratory reports, and urgent first aid.
       </p>
     </div>
 
@@ -63,7 +70,7 @@ import Layout from '../layouts/Layout.astro';
     </div>
 
     <!-- Main Copilot Chat Shell -->
-    <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card overflow-hidden flex flex-col min-h-[620px]">
+    <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card overflow-hidden flex flex-col min-h-[640px]">
       <!-- Shell Header: Status, Turns Counter, Language Switcher -->
       <div class="bg-aura-surface-blush border-b border-aura-border px-5 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
@@ -72,23 +79,23 @@ import Layout from '../layouts/Layout.astro';
           </div>
           <div>
             <div class="font-bold text-aura-text text-xs sm:text-sm flex items-center gap-1.5">
-              <span>Altrix Health Guide</span>
+              <span>Altrix Health Copilot</span>
               <span class="px-2 py-0.2 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
-                Verified Local Knowledge
+                40-Scenario Engine
               </span>
             </div>
             <div class="text-[11px] text-aura-text-muted flex items-center gap-1">
-              <span>CDC • MedlinePlus • AHA Sourced</span>
+              <span>CDC • MedlinePlus • AHA Knowledge</span>
             </div>
           </div>
         </div>
 
         <div class="flex items-center gap-3">
-          <!-- Transient Guest Turn Budget Counter -->
+          <!-- Session Turns Counter -->
           <div
             id="turn-counter-badge"
             class="px-2.5 py-1 rounded-full text-[11px] font-medium bg-white text-aura-text-muted border border-aura-border shadow-2xs"
-            title="Normal guest conversations allow 6 turns. Emergencies bypass this limit."
+            title="Guest conversations allow 6 turns. Emergencies bypass this limit."
           >
             Session: <strong id="remaining-turns-text" class="text-aura-text font-bold">6 turns remaining</strong>
           </div>
@@ -122,11 +129,11 @@ import Layout from '../layouts/Layout.astro';
           </div>
           <div class="bg-white rounded-2xl rounded-tl-xs p-4 sm:p-5 max-w-xl text-xs sm:text-sm text-aura-text space-y-3 leading-relaxed border border-aura-border/60 shadow-2xs">
             <p id="welcome-message" class="font-medium">
-              Hello! I am your <strong>Altrix Guest Health Guide</strong>. You can freely ask about common symptoms, safe medicine use principles, or emergency first aid below without logging in.
+              Hello! I am your <strong>Altrix Guided Health Copilot</strong>. You can freely ask about 40 health topics including fever, headaches, laboratory reports, safe medicine principles, and emergency first aid below.
             </p>
             <div class="p-3 rounded-xl bg-aura-surface-blush border border-aura-border/60 text-[11.5px] text-aura-text-muted space-y-1">
               <strong class="text-aura-text block">Clinical Boundary Notice:</strong>
-              I provide curated educational information from authoritative sources (CDC, MedlinePlus, AHA). I cannot diagnose, provide personal doses, or replace clinical consultations.
+              I provide curated educational information from authoritative sources. I cannot diagnose, provide personal doses, or replace clinical consultations.
             </div>
           </div>
         </div>
@@ -135,94 +142,99 @@ import Layout from '../layouts/Layout.astro';
       <!-- Categorized Quick-Reply Topic Dock -->
       <div class="p-4 bg-aura-surface-blush/80 border-t border-aura-border space-y-3">
         <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-aura-text-subtle">
-          <span id="topic-dock-title">Guided Health Topics • Tap to explore:</span>
-          <span class="text-[10px] lowercase font-normal">no records needed</span>
+          <span id="topic-dock-title">Popular Guided Topics • Tap to explore:</span>
+          <span class="text-[10px] lowercase font-normal">no records required</span>
         </div>
 
-        <!-- 5 Curated Categories Grid -->
+        <!-- Curated Topic Chips Grid -->
         <div class="flex flex-wrap gap-2 text-xs">
           <!-- 1. Symptoms -->
           <button
             type="button"
             class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
-            data-guide="fever"
+            data-query="I have a fever."
           >
             <Flame class="w-3.5 h-3.5 text-aura-accent-orange" />
-            <span class="topic-chip-label">Fever Guidance</span>
+            <span>Fever Guidance</span>
           </button>
           <button
             type="button"
             class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
-            data-guide="cold-cough"
-          >
-            <Wind class="w-3.5 h-3.5 text-aura-accent-orange" />
-            <span class="topic-chip-label">Cold & Cough</span>
-          </button>
-          <button
-            type="button"
-            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
-            data-guide="headache"
+            data-query="I have a headache."
           >
             <Stethoscope class="w-3.5 h-3.5 text-aura-accent-orange" />
-            <span class="topic-chip-label">Headache / Migraine</span>
+            <span>Headache / Migraine</span>
           </button>
           <button
             type="button"
             class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
-            data-guide="stomach-pain"
+            data-query="I have a cough."
+          >
+            <Wind class="w-3.5 h-3.5 text-aura-accent-orange" />
+            <span>Cough Evaluation</span>
+          </button>
+          <button
+            type="button"
+            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
+            data-query="My stomach hurts."
           >
             <HeartPulse class="w-3.5 h-3.5 text-aura-accent-orange" />
-            <span class="topic-chip-label">Stomach Pain</span>
+            <span>Stomach Pain</span>
           </button>
 
-          <!-- 2. Medicine Information -->
+          <!-- 2. Lab Reports -->
           <button
             type="button"
             class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
-            data-guide="medicine-info"
+            data-query="Can you explain my blood test report?"
           >
-            <Pill class="w-3.5 h-3.5 text-indigo-600" />
-            <span class="topic-chip-label">Safe Medicine Use</span>
+            <BookOpen class="w-3.5 h-3.5 text-teal-600" />
+            <span>Explain Lab Report</span>
+          </button>
+          <button
+            type="button"
+            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
+            data-query="My HbA1c is elevated."
+          >
+            <Sparkle class="w-3.5 h-3.5 text-amber-600" />
+            <span>High HbA1c Results</span>
           </button>
 
-          <!-- 3. Emergency Signs -->
+          <!-- 3. Medicine Information -->
+          <button
+            type="button"
+            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
+            data-query="Can you read my prescription?"
+          >
+            <Pill class="w-3.5 h-3.5 text-indigo-600" />
+            <span>Read Prescription</span>
+          </button>
+          <button
+            type="button"
+            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
+            data-query="I missed my medicine dose."
+          >
+            <Clock class="w-3.5 h-3.5 text-indigo-600" />
+            <span>Missed Dose</span>
+          </button>
+
+          <!-- 4. Emergency Signs -->
           <button
             type="button"
             class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-50 border border-rose-300 hover:border-rose-500 text-rose-900 font-semibold shadow-2xs transition cursor-pointer"
-            data-guide="emergency-signs"
+            data-query="I have chest pain."
           >
             <AlertTriangle class="w-3.5 h-3.5 text-rose-600" />
-            <span class="topic-chip-label">Heart Attack & Stroke Signs (112)</span>
+            <span>Chest Pain / Emergency (112)</span>
           </button>
 
-          <!-- 4. First Aid -->
+          <!-- 5. Telugu Support -->
           <button
             type="button"
-            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 hover:border-emerald-600 text-emerald-900 font-semibold shadow-2xs transition cursor-pointer"
-            data-guide="cpr"
+            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 hover:border-indigo-400 text-indigo-900 font-medium shadow-2xs transition cursor-pointer"
+            data-query="Explain my report in Telugu."
           >
-            <HeartPulse class="w-3.5 h-3.5 text-emerald-700" />
-            <span class="topic-chip-label">Hands-Only CPR Steps</span>
-          </button>
-
-          <!-- 5. Bleeding & Wound Care -->
-          <button
-            type="button"
-            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
-            data-guide="bleeding-first-aid"
-          >
-            <ShieldCheck class="w-3.5 h-3.5 text-aura-accent-orange" />
-            <span class="topic-chip-label">Bleeding & Wound Care</span>
-          </button>
-
-          <!-- 6. General Wellness -->
-          <button
-            type="button"
-            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
-            data-guide="wellness"
-          >
-            <Sparkle class="w-3.5 h-3.5 text-aura-accent-orange" />
-            <span class="topic-chip-label">Preventive Wellness</span>
+            <span>🌐 తెలుగు గైడ్ (Telugu)</span>
           </button>
         </div>
       </div>
@@ -233,7 +245,7 @@ import Layout from '../layouts/Layout.astro';
           <input
             id="chat-input"
             type="text"
-            placeholder="Type a health question, e.g. 'What are warning signs of high fever?'"
+            placeholder="Ask any of the 40 health topics, e.g. 'Can you explain my cholesterol results?'"
             class="flex-grow px-4 py-2.5 rounded-full border border-aura-border text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-aura-sidebar placeholder:text-aura-text-subtle bg-white"
             aria-label="Ask health question"
           />
@@ -249,13 +261,17 @@ import Layout from '../layouts/Layout.astro';
 
         <div class="flex items-center justify-between text-[11px] text-aura-text-subtle mt-2 px-1">
           <span>Sources: MedlinePlus, CDC, American Heart Association</span>
-          <button
-            type="button"
-            id="btn-restart-chat"
-            class="hover:text-aura-text underline cursor-pointer"
-          >
-            Restart Session
-          </button>
+          <div class="flex items-center gap-3">
+            <a href="/auth" class="hover:text-aura-text underline">Sign In / Sign Up</a>
+            <span>•</span>
+            <button
+              type="button"
+              id="btn-restart-chat"
+              class="hover:text-aura-text underline cursor-pointer"
+            >
+              Restart Session
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -263,27 +279,55 @@ import Layout from '../layouts/Layout.astro';
 </Layout>
 
 <script>
-  import { routeGuestQuery, getGuideById } from '../lib/ai/guest-router';
-  import type { SupportedLocale, HealthGuide } from '../data/health-guide-types';
+  import { ConversationEngine } from '../lib/chatbot/conversationEngine';
+  import { getCurrentUser } from '../lib/supabase/auth';
+  import type { ChatIntentMatch } from '../types/healthChat';
 
-  let currentLocale: SupportedLocale = 'en';
-  let guestTurnsUsed = 0;
-  const MAX_GUEST_TURNS = 6;
+  let engine = new ConversationEngine({ locale: 'en' });
+  let currentLocale: 'en' | 'te' = 'en';
 
   const chatMessages = document.getElementById('chat-messages');
   const chatForm = document.getElementById('chat-form') as HTMLFormElement | null;
   const chatInput = document.getElementById('chat-input') as HTMLInputElement | null;
-  const chatSubmit = document.getElementById('chat-submit') as HTMLButtonElement | null;
   const langBtnEn = document.getElementById('lang-btn-en');
   const langBtnTe = document.getElementById('lang-btn-te');
   const welcomeMessage = document.getElementById('welcome-message');
   const remainingTurnsText = document.getElementById('remaining-turns-text');
   const btnRestartChat = document.getElementById('btn-restart-chat');
+  const sessionModeText = document.getElementById('session-mode-text');
+  const authStatusContainer = document.getElementById('auth-status-container');
   const topicChips = document.querySelectorAll('.topic-chip');
+
+  // Check auth session
+  async function initAuth() {
+    try {
+      const user = await getCurrentUser();
+      if (user) {
+        engine.setAuthenticated(true);
+        if (sessionModeText) {
+          sessionModeText.textContent = `Signed In: ${user.email || 'User'} • Vault Mode`;
+        }
+        if (authStatusContainer) {
+          authStatusContainer.innerHTML = `<span>•</span> <span class="font-medium text-emerald-800">Authenticated (Unlimited Turns)</span>`;
+        }
+        updateTurnsDisplay();
+      }
+    } catch {
+      // Keep guest mode
+    }
+  }
 
   function updateTurnsDisplay() {
     if (!remainingTurnsText) return;
-    const remaining = Math.max(0, MAX_GUEST_TURNS - guestTurnsUsed);
+    const state = engine.getSessionState();
+
+    if (state.isAuthenticated) {
+      remainingTurnsText.textContent = 'Unlimited (Member)';
+      remainingTurnsText.classList.remove('text-amber-700');
+      return;
+    }
+
+    const remaining = state.remainingTurns;
     remainingTurnsText.textContent = `${remaining} turn${remaining === 1 ? '' : 's'} remaining`;
 
     if (remaining === 0) {
@@ -302,110 +346,135 @@ import Layout from '../layouts/Layout.astro';
         ${escapeHtml(text)}
       </div>
       <div class="w-7 h-7 rounded-full bg-aura-accent-purple text-aura-accent-purple-strong flex items-center justify-center font-bold text-xs shrink-0 mt-1 border border-aura-border">
-        G
+        U
       </div>
     `;
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  function appendGuideBubble(guide: HealthGuide, isAlert = false) {
+  function appendIntentBubble(match: ChatIntentMatch) {
     if (!chatMessages) return;
     const div = document.createElement('div');
     div.className = 'flex items-start gap-3';
-    const bgClass = isAlert
-      ? 'bg-rose-50 border-rose-300 text-rose-950 shadow-md'
-      : 'bg-white border-aura-border text-aura-text shadow-2xs';
 
-    const warningHtml = guide.warningSigns && guide.warningSigns.length > 0
-      ? `
-        <div class="p-3 rounded-xl ${isAlert ? 'bg-rose-100/80 border-rose-300 text-rose-950 font-medium' : 'bg-amber-50 border-amber-200 text-amber-950'} border text-[11.5px] space-y-1">
-          <strong class="flex items-center gap-1.5 font-bold text-xs ${isAlert ? 'text-rose-900' : 'text-amber-900'}">
-            <span>⚠ Warning Signs:</span>
-          </strong>
-          <ul class="list-disc pl-4 space-y-0.5">
-            ${guide.warningSigns.map((w) => `<li>${escapeHtml(w)}</li>`).join('')}
-          </ul>
-        </div>
-      `
-      : '';
+    // Safety badge config
+    let badgeClass = 'bg-emerald-50 text-emerald-800 border-emerald-200';
+    let badgeLabel = 'ℹ Educational Guidance';
+    let iconSymbol = '+';
+    let iconBg = 'bg-aura-sidebar';
 
-    const detailsHtml = guide.details && guide.details.length > 0
-      ? `
-        <div class="space-y-1 text-xs sm:text-[13px] text-aura-text-muted">
-          <strong class="text-aura-text block font-semibold text-xs">Self-Care & Important Considerations:</strong>
-          <ul class="list-disc pl-4 space-y-1">
-            ${guide.details.map((d) => `<li>${escapeHtml(d)}</li>`).join('')}
-          </ul>
-        </div>
-      `
-      : '';
+    if (match.safetyLevel === 'urgent' || match.isEmergency) {
+      badgeClass = 'bg-rose-100 text-rose-900 border-rose-300 font-bold';
+      badgeLabel = '🚨 Urgent Emergency Priority';
+      iconSymbol = '!';
+      iconBg = 'bg-rose-600';
+    } else if (match.safetyLevel === 'caution') {
+      badgeClass = 'bg-amber-100 text-amber-900 border-amber-300 font-semibold';
+      badgeLabel = '⚠ Caution / Medication Safety';
+      iconSymbol = '⚠';
+      iconBg = 'bg-amber-600';
+    }
 
-    const nextStepsHtml = guide.nextSteps && guide.nextSteps.length > 0
-      ? `
-        <div class="space-y-1 text-xs sm:text-[13px]">
-          <strong class="text-aura-text block font-semibold text-xs">Recommended Next Steps:</strong>
-          <ul class="list-disc pl-4 space-y-0.5 text-aura-text-muted">
-            ${guide.nextSteps.map((s) => `<li>${escapeHtml(s)}</li>`).join('')}
-          </ul>
+    // Quick replies chips
+    let quickRepliesHtml = '';
+    if (match.quickReplies && match.quickReplies.length > 0) {
+      quickRepliesHtml = `
+        <div class="pt-2 border-t border-aura-border/40 space-y-1.5">
+          <div class="text-[10.5px] font-bold uppercase tracking-wider text-aura-text-subtle">
+            ${match.type === 'disambiguation' ? 'Select specific topic:' : 'Follow-up exploration:'}
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            ${match.quickReplies
+              .map(
+                (qr) => `
+              <button
+                type="button"
+                class="quick-reply-btn px-3 py-1 rounded-full text-xs font-medium bg-aura-surface-cream hover:bg-white text-aura-text border border-aura-border transition shadow-2xs cursor-pointer"
+                data-reply="${escapeHtml(qr)}"
+              >
+                ${escapeHtml(qr)}
+              </button>
+            `
+              )
+              .join('')}
+          </div>
         </div>
-      `
-      : '';
+      `;
+    }
+
+    // Citations
+    let citationsHtml = '';
+    if (match.citations && match.citations.length > 0) {
+      citationsHtml = `
+        <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-aura-border/40 text-[10.5px] text-aura-text-subtle">
+          <span class="font-semibold">Source Citations:</span>
+          ${match.citations
+            .map(
+              (c) => `
+            <a href="${escapeHtml(c.url)}" target="_blank" rel="noopener noreferrer" class="text-aura-accent-orange font-bold hover:underline inline-flex items-center gap-0.5">
+              ${escapeHtml(c.organization)} (${escapeHtml(c.title)}) ↗
+            </a>
+          `
+            )
+            .join(' • ')}
+        </div>
+      `;
+    }
+
+    // Paragraph formatting
+    const formattedMessage = escapeHtml(match.message)
+      .replace(/\n\n/g, '<br/><br/>')
+      .replace(/\n•/g, '<br/>•')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
     div.innerHTML = `
-      <div class="w-8 h-8 rounded-full ${isAlert ? 'bg-rose-600' : 'bg-aura-sidebar'} text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
-        ${isAlert ? '!' : '+'}
+      <div class="w-8 h-8 rounded-full ${iconBg} text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
+        ${iconSymbol}
       </div>
-      <div class="${bgClass} rounded-2xl rounded-tl-xs p-4 sm:p-5 max-w-xl space-y-3 leading-relaxed border">
-        <div>
-          <h3 class="font-serif font-bold text-base sm:text-lg text-aura-text">${escapeHtml(guide.title)}</h3>
-          <p class="text-xs sm:text-[13px] text-aura-text-muted mt-1 leading-relaxed">${escapeHtml(guide.summary)}</p>
+      <div class="bg-white rounded-2xl rounded-tl-xs p-4 sm:p-5 max-w-xl text-xs sm:text-sm text-aura-text space-y-3 leading-relaxed border border-aura-border/60 shadow-2xs">
+        <div class="flex items-center justify-between gap-2">
+          <span class="px-2 py-0.5 rounded-full text-[10px] border ${badgeClass}">
+            ${badgeLabel}
+          </span>
+          ${match.scenario ? `<span class="text-[10px] text-aura-text-muted font-mono">Scenario #${match.scenario.scenarioNumber}</span>` : ''}
         </div>
 
-        ${warningHtml}
-        ${detailsHtml}
-        ${nextStepsHtml}
-
-        <div class="pt-2.5 border-t border-aura-border/60 flex flex-wrap items-center justify-between gap-2 text-[10.5px] text-aura-text-subtle">
-          <span>Source: <a href="${guide.sourceUrl}" target="_blank" rel="noopener noreferrer" class="text-aura-accent-orange font-bold hover:underline inline-flex items-center gap-0.5">${escapeHtml(guide.sourceName)}</a></span>
-          <span>Reviewed: ${guide.reviewedDate}</span>
+        <div class="leading-relaxed">
+          ${formattedMessage}
         </div>
+
+        ${quickRepliesHtml}
+        ${citationsHtml}
 
         <div class="p-2 rounded-lg bg-aura-surface-blush text-[10.5px] text-aura-text-subtle leading-tight">
-          ${escapeHtml(guide.clinicalDisclaimer)}
+          ${escapeHtml(match.disclaimer)}
         </div>
       </div>
     `;
 
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
 
-  function appendCustomAssistantBubble(htmlContent: string, sourceMeta: string, isAlert = false) {
-    if (!chatMessages) return;
-    const div = document.createElement('div');
-    div.className = 'flex items-start gap-3';
-    const bgClass = isAlert
-      ? 'bg-rose-50 border-rose-300 text-rose-950'
-      : 'bg-white border-aura-border text-aura-text shadow-2xs';
-
-    div.innerHTML = `
-      <div class="w-8 h-8 rounded-full ${isAlert ? 'bg-rose-600' : 'bg-aura-sidebar'} text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
-        ${isAlert ? '!' : '+'}
-      </div>
-      <div class="${bgClass} rounded-2xl rounded-tl-xs p-4 sm:p-5 max-w-xl text-xs sm:text-sm space-y-2.5 leading-relaxed border">
-        <div>${htmlContent}</div>
-        <div class="text-[11px] text-aura-text-subtle pt-2 border-t border-aura-border/60">
-          ${sourceMeta}
-        </div>
-      </div>
-    `;
-
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    // Attach click listeners to freshly rendered quick replies
+    div.querySelectorAll('.quick-reply-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const reply = btn.getAttribute('data-reply');
+        if (reply) {
+          if (reply === 'Sign In / Sign Up') {
+            window.location.href = '/auth';
+          } else if (reply === 'Restart Session') {
+            btnRestartChat?.click();
+          } else {
+            handleUserQuery(reply);
+          }
+        }
+      });
+    });
   }
 
   function escapeHtml(str: string) {
+    if (!str) return '';
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
@@ -416,137 +485,45 @@ import Layout from '../layouts/Layout.astro';
     appendUserBubble(trimmed);
     if (chatInput) chatInput.value = '';
 
-    // Route message through deterministic safety engine
-    const result = routeGuestQuery(trimmed, currentLocale);
-
-    // Emergency queries ALWAYS bypass turn counter limit
-    if (result.isEmergency) {
-      if (result.guide) {
-        appendGuideBubble(result.guide, true);
-      } else {
-        appendCustomAssistantBubble(
-          `<strong>Critical Emergency Medical Notice:</strong><br/><br/>
-           Your symptoms suggest an urgent emergency. Please call <strong>112 / 108</strong> (India) or <strong>911</strong> (US) immediately or proceed to the nearest hospital emergency department.
-           Do not wait to see if symptoms improve on their own.`,
-          'American Heart Association & Emergency Response Guidelines',
-          true
-        );
-      }
-      return;
-    }
-
-    // Check normal guest turn limit
-    if (guestTurnsUsed >= MAX_GUEST_TURNS) {
-      appendCustomAssistantBubble(
-        `<div class="space-y-2">
-           <strong class="font-bold text-aura-text block">Guest Session Limit Reached:</strong>
-           <p class="text-xs text-aura-text-muted leading-relaxed">
-             You have reached the 6-turn guest consultation limit for this browser session. 
-             You can tap <strong>Restart Session</strong> below to begin a new health guide topic, or sign in when account services become available.
-           </p>
-           <div class="pt-2">
-             <button type="button" onclick="document.getElementById('btn-restart-chat')?.click()" class="px-4 py-2 rounded-full text-xs font-semibold bg-aura-action text-white hover:bg-aura-action-hover cursor-pointer">
-               Restart Session
-             </button>
-           </div>
-         </div>`,
-        'Session Governance: 6-turn guest budget completed',
-        false
-      );
-      return;
-    }
-
-    // Increment budget
-    guestTurnsUsed++;
+    const match = engine.processMessage(trimmed);
     updateTurnsDisplay();
-
-    // Blocked dosage requests & ambiguous medication safety
-    if (result.intent === 'blocked_dosage_request') {
-      const dosageNotice = currentLocale === 'te'
-        ? `<strong>క్లినికల్ భద్రతా విధానం — వ్యక్తిగత మోతాదు & భద్రతా హామీలు నిషిద్ధం:</strong><br/><br/>
-           నేను లక్షణాల ఆధారంగా వ్యక్తిగత మందుల మోతాదు (డైలీ డోస్), మోతాదుల పెంపు/మార్పులు లేదా డ్రగ్ కాంబినేషన్లను నిర్ణయించలేను. అలాగే ఏ ఔషధమూ అందరికీ 100% సురక్షితం కాదు (వయస్సు, గర్భధారణ, కాలేయం/కిడ్నీ సమస్యలు ప్రభావితం చేస్తాయి).<br/><br/>
-           దయచేసి మీ ప్రిస్క్రిప్షన్ లేదా మందుల ప్యాకేజీపై ఉన్న అధికారిక తయారీదారుల సూచనలను మాత్రమే పాటించండి. సందేహాలు ఉంటే మీ డాక్టర్ లేదా ఫార్మసిస్ట్‌ను సంప్రదించండి.`
-        : `<strong>Clinical Safety Policy — No Individualized Dosing or Universal Safety Guarantees:</strong><br/><br/>
-           "I want to help you use reliable information safely. I cannot recommend a specific dose for you, calculate pediatric amounts, or approve medication combinations.<br/><br/>
-           Additionally, <strong>no medication is universally 100% safe for everyone</strong>: individual medical history, allergies, pregnancy, and liver or kidney health significantly affect suitability. Please check the official package insert or speak directly with a licensed physician or pharmacist."`;
-
-      appendCustomAssistantBubble(
-        dosageNotice,
-        'Safety Guardrail: assistant-boundaries.md • Sourced Medication Guidance'
-      );
-
-      if (result.guide) {
-        appendGuideBubble(result.guide);
-      }
-      return;
-    }
-
-    // Curated guide matched
-    if (result.matched && result.guide) {
-      appendGuideBubble(result.guide);
-      return;
-    }
-
-    // Unsupported query
-    const unsupportedNotice = currentLocale === 'te'
-      ? `<p>మీరు అడిగిన ప్రశ్న (<em>"${escapeHtml(trimmed)}"</em>) మా వద్ద ఉన్న ప్రామాణిక ఆరోగ్య మార్గదర్శకాలలో అందుబాటులో లేదు.</p>
-         <p class="text-xs text-aura-text-muted mt-1.5">క్లినికల్ భద్రత దృష్ట్యా, మేము తప్పుడు లేదా నిరూపించబడని సమాచారాన్ని అందించము. దయచేసి క్రింది టాపిక్ బటన్ల నుండి ఒకదాన్ని ఎంచుకోండి లేదా వైద్యుడిని సంప్రదించండి.</p>`
-      : `<p>I have received your query regarding <em>"${escapeHtml(trimmed)}"</em>. This topic is not covered in our current curated medical guide catalogue.</p>
-         <p class="text-xs text-aura-text-muted mt-1.5">To preserve clinical accuracy, Altrix never fabricates unsupported medical guidance. Please explore one of our verified guides below or consult your licensed healthcare professional.</p>`;
-
-    appendCustomAssistantBubble(
-      unsupportedNotice,
-      'Altrix Curated Knowledge Gateway • Strict Evidence Boundary'
-    );
+    appendIntentBubble(match);
   }
 
-  // Language buttons
+  // Language switcher
   langBtnEn?.addEventListener('click', () => {
     currentLocale = 'en';
+    engine.setLocale('en');
     langBtnEn.classList.add('bg-aura-sidebar', 'text-white', 'shadow-2xs');
     langBtnEn.classList.remove('text-aura-text-muted');
     langBtnTe?.classList.remove('bg-aura-sidebar', 'text-white', 'shadow-2xs');
     langBtnTe?.classList.add('text-aura-text-muted');
     if (welcomeMessage) {
-      welcomeMessage.innerHTML = 'Hello! I am your <strong>Altrix Guest Health Guide</strong>. You can freely ask about common symptoms, safe medicine use principles, or emergency first aid below without logging in.';
+      welcomeMessage.innerHTML = 'Hello! I am your <strong>Altrix Guided Health Copilot</strong>. You can freely ask about 40 health topics including fever, headaches, laboratory reports, safe medicine principles, and emergency first aid below.';
     }
   });
 
   langBtnTe?.addEventListener('click', () => {
     currentLocale = 'te';
+    engine.setLocale('te');
     langBtnTe.classList.add('bg-aura-sidebar', 'text-white', 'shadow-2xs');
     langBtnTe.classList.remove('text-aura-text-muted');
     langBtnEn?.classList.remove('bg-aura-sidebar', 'text-white', 'shadow-2xs');
     langBtnEn?.classList.add('text-aura-text-muted');
     if (welcomeMessage) {
-      welcomeMessage.innerHTML = 'నమస్కారం! నేను మీ <strong>ఆల్ట్రిక్స్ హెల్త్ గైడ్</strong>. లాగిన్ లేకుండానే సాధారణ లక్షణాలు, మందుల భద్రత మరియు అత్యవసర ప్రథమ చికిత్స సమాచారాన్ని ఇక్కడ తెలుసుకోవచ్చు.';
+      welcomeMessage.innerHTML = 'నమస్కారం! నేను మీ <strong>ఆల్ట్రిక్స్ గైడెడ్ హెల్త్ కోపైలట్</strong>. లాగిన్ అవసరం లేకుండానే 40 ఆరోగ్య అంశాలపై క్లినికల్ సమాచారాన్ని ఇక్కడ తెలుసుకోవచ్చు.';
     }
   });
 
-  // Topic chip click handlers
+  // Topic chips in dock
   topicChips.forEach((chip) => {
     chip.addEventListener('click', () => {
-      const guideId = chip.getAttribute('data-guide');
-      if (!guideId) return;
-
-      const guide = getGuideById(guideId, currentLocale);
-      if (!guide) return;
-
-      appendUserBubble(guide.title);
-
-      if (guide.category === 'emergency') {
-        appendGuideBubble(guide, true);
-      } else {
-        if (guestTurnsUsed < MAX_GUEST_TURNS) {
-          guestTurnsUsed++;
-          updateTurnsDisplay();
-        }
-        appendGuideBubble(guide, false);
-      }
+      const q = chip.getAttribute('data-query');
+      if (q) handleUserQuery(q);
     });
   });
 
-  // Form submit
+  // Chat form submit
   chatForm?.addEventListener('submit', (e) => {
     e.preventDefault();
     if (chatInput) {
@@ -556,7 +533,7 @@ import Layout from '../layouts/Layout.astro';
 
   // Restart chat
   btnRestartChat?.addEventListener('click', () => {
-    guestTurnsUsed = 0;
+    engine.reset();
     updateTurnsDisplay();
     if (chatMessages) {
       chatMessages.innerHTML = '';
@@ -568,7 +545,7 @@ import Layout from '../layouts/Layout.astro';
         </div>
         <div class="bg-white rounded-2xl rounded-tl-xs p-4 sm:p-5 max-w-xl text-xs sm:text-sm text-aura-text space-y-2 leading-relaxed border border-aura-border/60 shadow-2xs">
           <p class="font-medium">
-            Session refreshed. You have 6 turns available. Select any guided topic below or type your question.
+            Session refreshed. 6 guest turns available. Tap any popular topic below or type your health question.
           </p>
         </div>
       `;
@@ -576,6 +553,23 @@ import Layout from '../layouts/Layout.astro';
     }
   });
 
-  // Initialize turns counter
+  // Handle URL query params
+  function checkUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const localeParam = params.get('locale');
+    if (localeParam === 'te') {
+      langBtnTe?.click();
+    }
+    const queryParam = params.get('query');
+    if (queryParam) {
+      setTimeout(() => {
+        handleUserQuery(queryParam);
+      }, 100);
+    }
+  }
+
+  // Initialize
+  initAuth();
   updateTurnsDisplay();
+  checkUrlParams();
 </script>
