@@ -177,8 +177,35 @@ Antigravity: inspect the current repository and environment, report findings, th
   - Preserved distinct badges: "Confirmed" (emerald), "Corrected" (indigo), and "Unreviewed" (neutral).
 - **Unit Testing & Verification:**
   - Expanded Vitest suite from 16 to 19 passing tests in `tests/extraction-schema.test.ts`.
-  - Added tests for optical uncertainty preservation upon confirmation, individual field isolation during confirm, bulk confirmation handling, and baseline reset integrity.
-  - All quality gates pass: `npm test` (19/19), `tsc --noEmit` (0 errors), `astro build` (5 static pages built cleanly).
+## 2026-10-12 — Integration Checkpoint 1: Parallel Frontend & OCR Preparation (feat/review-page-iteration-2b)
+- **Repository Audit:**
+  - Latest approved baseline: Commit `9eff6ec` (`fix(review): correct confirmation semantics, preserve optical uncertainty, and add bulk confirm dialog`).
+  - Working tree: Clean, on branch `feat/review-page-iteration-2b`, fully synchronized with `origin/feat/review-page-iteration-2b`.
+  - Quality Gates verified: 19/19 Vitest tests passing, `tsc --noEmit` clean with 0 errors, `astro build` passes generating 5 static routes and `/api/health.json`.
+  - Dev server operational on `http://localhost:4321/`.
+- **Contract Review & Shared Schemas:**
+  - Audited `src/schemas/extraction.ts`, `src/lib/ai/provider.ts`, and `src/fixtures/synthetic-lab-report.ts`.
+  - Identified minimum non-breaking changes required for real OCR:
+    1. Relax `isSyntheticDemo` from `z.literal(true)` to `z.boolean().default(true)` on `ExtractedDocumentSchema` and `ExplanationResult`.
+    2. Add optional processing/run metadata (`processingTimeMs`, `modelId`, `pageCount`, `extractionWarnings`) to `ExtractedDocumentSchema`.
+    3. Ensure `SourceProvenanceSchema` bounding box remains optional relative coordinates (`0-100%`) with fallback to raw snippet text.
+    4. Keep `isUncertain` strictly distinct from `reviewStatus` (`unreviewed`, `confirmed`, `corrected`) and clinical `interpretation` (`normal`, `low`, `high`, `critical`, `unspecified`).
+- **Integration Boundary & Parallel Workflow:**
+  - **Shared Files (Locked to Review/Approval):**
+    - `src/schemas/extraction.ts` (Zod schemas)
+    - `src/lib/ai/provider.ts` (Provider interfaces and errors)
+    - `src/fixtures/synthetic-lab-report.ts` (Baseline test fixtures)
+  - **Frontend Ownership (Vindyan / Antigravity):**
+    - `src/pages/*` (`review.astro`, `records.astro`, `timeline.astro`, `index.astro`, `copilot.astro`)
+    - `src/components/*` and layouts.
+  - **OCR Developer Ownership (Parallel Feature Branch):**
+    - `src/lib/ai/real-ocr-provider.ts` (New Gemini/Vision OCR provider implementation)
+    - `src/pages/api/documents/extract.ts` (Server-side extraction endpoint)
+    - `tests/real-ocr-provider.test.ts` (Mocked integration unit tests)
+- **Recommended Branch & Merge Strategy:**
+  - Baseline integration branch: `main` or merge `feat/review-page-iteration-2b` into `main` after CTO/PM approval.
+  - OCR work develops in isolated branch `feat/ocr-extraction-pipeline` branched from approved baseline.
+  - Frontend work continues in `feat/timeline-iteration-3` or `main`.
 
 
 

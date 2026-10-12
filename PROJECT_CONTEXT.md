@@ -39,20 +39,14 @@ Reviewed evidence determines what may be said; templates determine tone; AI may 
 10. Update this file and `docs/DEVELOPMENT_LOG.md` after each milestone with current status, test results, known issues, and the next exact task.
 
 ## Current implementation status
-Iteration 2B (Report Review Deep Alignment) implemented and verified on branch `feat/review-page-iteration-2b`. Key deliverables:
-- **Hierarchy & Visual Streamlining:** Extracted clinical parameters elevated to primary focus with a compact document summary strip. Interactive filter chips (`All Fields (8)`, `Optical Flags (2)`, `Out of Range (5)`) allow immediate quick filtering without visual alarmism.
-- **Multi-Modal Provenance:** Source Document Provenance Inspector updates synchronously via mouse click, touch tap, and keyboard navigation (`Tab` + `Enter`/`Space`) without requiring hover. Mobile cards include inline expandable snippet drawers.
-- **Accessible Edit Modal Dialog:** Enhanced with explicit labels, original value reminder chip, client-side validation against empty/invalid values, and full keyboard trapping (`Escape` to close).
-- **Audit Logging & Dynamic Progress:** User corrections log audit metadata (`FieldCorrectionSchema`), update review status to `Corrected` with distinct indigo badges, re-evaluate reference ranges (`evaluateRange`), and update review progress dynamically.
-- **Reset & Confirmation State Machine:** Clear distinction between individual field confirmation, bulk confirmation (`Confirm All Verified`), and baseline fixture restoration (`Reset to Original`).
-- **Confirmation Semantics & Integrity:** Bulk confirmation action updated to `Confirm All Fields` with an accessible modal dialog explaining that all unreviewed fields will be marked as reviewed by user against the source document.
-- **Optical Uncertainty Preservation:** Confirming a field (individually or in bulk) strictly PRESERVES optical flags (`isUncertain: true`, `uncertaintyReason`) on degraded print items (Platelet Count, TSH).
-- **Language & Safety Standard:** Replaced claims of "verified" with "Reviewed by User" / "User Confirmed" / "User Corrected", avoiding false claims of clinical laboratory verification.
-- **Correction Audit & Integrity:** Retains original extracted values separately in `correction.originalValue`, validates numerical formats, records audit timestamps and reasons, and deterministically recalculates reference ranges with `evaluateRange`.
-- All 19 unit tests, strict typecheck, and production build pass with 0 errors. Dev server active on `http://localhost:4321/review`.
+Iteration 2B & Review Workflow Integrity Fix completed, and Integration Checkpoint 1 audited on branch `feat/review-page-iteration-2b`:
+- **Current Integration Baseline:** Commit `9eff6ec` on branch `feat/review-page-iteration-2b` (up to date with remote origin, working tree clean).
+- **All Quality Gates Verified:** 19/19 Vitest unit tests pass, TypeScript strict mode passes (`tsc --noEmit`), and Astro production build succeeds cleanly (5 static pages + 1 API endpoint).
+- **Integration Boundary Identified:** Defined the mock-to-real OCR integration boundary across `src/schemas/extraction.ts`, `src/lib/ai/provider.ts`, and proposed endpoint `POST /api/documents/extract`.
+- **Contract Compatibility:** Zod schemas audited for backwards-compatible extensions (`isSyntheticDemo: boolean`, optional bounding box, processing metadata, error codes) without breaking current UI fixtures.
 
 ## Current next task
-STOP for Product Manager (Vindyan) and CTO (ChatGPT) review of `/review` at http://localhost:4321/review and the branch `feat/review-page-iteration-2b`. Do not start Iteration 3 until approved.
+STOP for Product Manager (Vindyan) and CTO (ChatGPT) review of Integration Checkpoint 1 contract review and branch merge plan before modifying shared schemas or implementing real OCR.
 
 
 
