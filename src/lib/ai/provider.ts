@@ -28,6 +28,7 @@ export interface ProviderHealth {
  */
 export interface ExplainEvidenceRequest {
   documentId: string;
+  isSynthetic?: boolean;
   fields: Array<{
     name: string;
     value: string | number;
@@ -64,7 +65,8 @@ export class AIProviderError extends Error {
       | 'UNSUPPORTED_TYPE'
       | 'QUOTA_EXCEEDED'
       | 'TIMEOUT'
-      | 'VALIDATION_FAILED',
+      | 'VALIDATION_FAILED'
+      | 'REAL_PHI_DISALLOWED',
     public statusCode: number = 500
   ) {
     super(message);

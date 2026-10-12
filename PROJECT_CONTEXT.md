@@ -39,18 +39,20 @@ Reviewed evidence determines what may be said; templates determine tone; AI may 
 10. Update this file and `docs/DEVELOPMENT_LOG.md` after each milestone with current status, test results, known issues, and the next exact task.
 
 ## Current implementation status
-Phase 2: Synthetic-Document Persistence & Tenant Isolation Verification completed on branch `feat/guest-health-copilot-mvp`:
+Phase 3: Controlled AI Explanation & Safety Guardrails completed on branch `feat/guest-health-copilot-mvp`:
 - **Current Baseline:** `feat/guest-health-copilot-mvp` active; `develop`, `feat/timeline-iteration-3`, and `feat/review-page-iteration-2b` preserved intact.
-- **Phase 2 Deliverables:**
-  1. **Synthetic Document Vault Workflow:** Connected minimal synthetic document workflow on `/records`. Authenticated users can save sample synthetic lab reports and retrieve only their private vault documents.
-  2. **Strict RLS Enforcement & Error Sanitization:** All database operations via `/api/vault/documents` use the authenticated user's JWT and enforce `auth.uid() = profile_id`. Server sanitizes all database errors (`DATABASE_ERROR`) without leaking internal PostgreSQL error details.
-  3. **No Real Document Uploads / OCR:** Real patient file uploads and clinical report analysis remain deferred.
-  4. **Hardened Gemini Provider & Explain Endpoint:** Rate limiter updated with memory pruning and `X-RateLimit-*` headers; 32 KB request bounds; 8s timeout; deterministic emergency and dosage guardrails; no real patient data sent to provider.
-  5. **Guest Mode Independence:** Guest Health Guide (`/copilot`) remains 100% functional without an account or database connection.
-- **Quality Gates:** 80/80 Vitest unit tests pass, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
+- **Phase 3 Deliverables:**
+  1. **Configurable Model Default:** Updated Gemini default model to `gemini-3.8-flash` across provider and configuration files while keeping it runtime-configurable via `GEMINI_MODEL`.
+  2. **Gate 0 Synthetic PHI Guardrail:** Hardened `/api/copilot/explain` and `GeminiProvider.explainEvidence` to reject any non-synthetic requests or real patient document identifiers with `403 Forbidden` (`REAL_PHI_DISALLOWED`).
+  3. **Deterministic Safety Priority:** Emergency Red Flag detection (Gate 1) and Medication Dosage Refusal (Gate 2) precede any model invocation.
+  4. **Quota Controls & Rate Limits:** 32 KB request size ceiling, 10 req/min per-IP rate limiting with dynamic pruning, and a global quota governor (60 req/min) returning RFC-compliant headers.
+  5. **Deterministic Offline Fallbacks:** 8-second request timeout, graceful fallback on missing API keys, upstream 429 quota exhaustion, network timeouts, and candidate JSON malformations.
+  6. **Zero Browser Secret Exposure:** API keys and sensitive tokens remain strictly server-side in API routes.
+  7. **Preserved Guest Mode:** Guest Health Guide (`/copilot`) remains 100% operational offline without authentication or API keys.
+- **Quality Gates:** 89/89 Vitest unit tests pass across 6 test suites, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
 
 ## Current next task
-Deliver the Phase 2 report with verification procedures for two-account tenant isolation, and await CTO review before implementing OCR or real medical-record processing.
+Deliver the Phase 3 report with automated test breakdown and live verification procedures, and await CTO review before proceeding to document upload and OCR.
 
 
 

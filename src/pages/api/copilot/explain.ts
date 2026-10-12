@@ -47,9 +47,32 @@ function checkRateLimit(clientIp: string): { allowed: boolean; remaining: number
   return { allowed: true, remaining: MAX_REQUESTS_PER_MINUTE - bucket.count, retryAfterSeconds: 0, resetAt: bucket.resetAt };
 }
 
-// 2. Strict Input Validation Schema
+// 2. Instance-Wide Global Quota Control (Protects upstream API bill & rate limits)
+let globalRequestCount = 0;
+let globalResetAt = Date.now() + WINDOW_MS;
+const MAX_GLOBAL_REQUESTS_PER_MINUTE = 60;
+
+function checkGlobalQuota(): { allowed: boolean; remaining: number; retryAfterSeconds: number } {
+  const now = Date.now();
+  if (now > globalResetAt) {
+    globalRequestCount = 1;
+    globalResetAt = now + WINDOW_MS;
+    return { allowed: true, remaining: MAX_GLOBAL_REQUESTS_PER_MINUTE - 1, retryAfterSeconds: 0 };
+  }
+
+  if (globalRequestCount >= MAX_GLOBAL_REQUESTS_PER_MINUTE) {
+    const retryAfterSeconds = Math.ceil((globalResetAt - now) / 1000);
+    return { allowed: false, remaining: 0, retryAfterSeconds };
+  }
+
+  globalRequestCount++;
+  return { allowed: true, remaining: MAX_GLOBAL_REQUESTS_PER_MINUTE - globalRequestCount, retryAfterSeconds: 0 };
+}
+
+// 3. Strict Input Validation Schema
 const ExplainRequestBodySchema = z.object({
   documentId: z.string().max(100).default('synthetic-report-001'),
+  isSynthetic: z.boolean().default(true),
   fields: z.array(
     z.object({
       name: z.string().min(1).max(100),
@@ -82,6 +105,29 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     request.headers.get('x-real-ip')?.trim() ||
     clientAddress ||
     'unknown-client';
+
+  // 1. Instance-wide global quota check
+  const globalQuota = checkGlobalQuota();
+  if (!globalQuota.allowed) {
+    return new Response(
+      JSON.stringify({
+        error: 'Too Many Requests. Instance-wide explanation capacity reached. Please retry shortly.',
+        code: 'GLOBAL_QUOTA_EXCEEDED',
+      }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': String(globalQuota.retryAfterSeconds),
+          'X-RateLimit-Limit': String(MAX_REQUESTS_PER_MINUTE),
+          'X-RateLimit-Remaining': '0',
+          'X-GlobalQuota-Remaining': '0',
+        },
+      }
+    );
+  }
+
+  // 2. Per-client sliding window rate limiter
   const rateLimit = checkRateLimit(clientIp);
   if (!rateLimit.allowed) {
     return new Response(
@@ -97,6 +143,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
           'X-RateLimit-Limit': String(MAX_REQUESTS_PER_MINUTE),
           'X-RateLimit-Remaining': '0',
           'X-RateLimit-Reset': String(rateLimit.resetAt),
+          'X-GlobalQuota-Remaining': String(globalQuota.remaining),
         },
       }
     );
@@ -126,9 +173,21 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       );
     }
 
-    const { documentId, fields, locale, patientConcern } = parseResult.data;
+    const { documentId, isSynthetic, fields, locale, patientConcern } = parseResult.data;
 
-    // C. Safety Gate Precedence: Deterministic Emergency and Dosage Guardrails
+    // C. Gate 0: Strict Synthetic-Only Restriction (PHI Protection)
+    // External AI models are strictly blocked from receiving real patient records
+    if (!isSynthetic || documentId.toLowerCase().includes('real_patient')) {
+      return new Response(
+        JSON.stringify({
+          error: 'Forbidden: External AI explanation is restricted exclusively to synthetic demo records. Sending real patient PHI to external models is prohibited.',
+          code: 'REAL_PHI_DISALLOWED',
+        }),
+        { status: 403, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // D. Safety Gate Precedence: Deterministic Emergency and Dosage Guardrails
     if (patientConcern) {
       const safetyCheck = routeGuestQuery(patientConcern, locale);
       if (safetyCheck.isEmergency) {
@@ -176,6 +235,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
     const explainRequest: ExplainEvidenceRequest = {
       documentId,
+      isSynthetic,
       fields: fields.map((f) => ({
         name: f.name,
         value: f.value,
@@ -200,6 +260,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
           'X-RateLimit-Limit': String(MAX_REQUESTS_PER_MINUTE),
           'X-RateLimit-Remaining': String(rateLimit.remaining),
           'X-RateLimit-Reset': String(rateLimit.resetAt),
+          'X-GlobalQuota-Remaining': String(globalQuota.remaining),
         },
       }
     );

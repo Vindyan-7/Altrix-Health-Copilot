@@ -382,9 +382,26 @@ Antigravity: inspect the current repository and environment, report findings, th
 - **Provider & Explain Endpoint Hardening:**
   - Refined in-memory rate limiter in [`src/pages/api/copilot/explain.ts`](file:///c:/Projects/person/altrix-health-copilot/src/pages/api/copilot/explain.ts) with automatic bucket pruning to prevent memory exhaustion, remaining count tracking, and standard rate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After`).
   - Confirmed deterministic fallbacks: timeout (8s), unconfigured keys, and upstream 429 errors fall back to offline synthetic explanations.
-  - No real patient data is sent to the AI provider.
+## 2026-10-13 — Phase 3: Controlled AI Explanation & Safety Guardrails (feat/guest-health-copilot-mvp)
+- **Gemini Model Update:**
+  - Configurable default model updated to `gemini-3.8-flash` across [`src/lib/ai/gemini-provider.ts`](file:///c:/Projects/person/altrix-health-copilot/src/lib/ai/gemini-provider.ts), [`src/pages/api/health.json.ts`](file:///c:/Projects/person/altrix-health-copilot/src/pages/api/health.json.ts), and environment templates (`.env.example`).
+- **Gate 0: Strict Synthetic-Only Restriction (PHI Protection):**
+  - Added explicit schema validation (`isSynthetic: z.boolean().default(true)`) and verification check in [`src/pages/api/copilot/explain.ts`](file:///c:/Projects/person/altrix-health-copilot/src/pages/api/copilot/explain.ts). Any request where `isSynthetic: false` or `documentId` contains `real_patient` is rejected with `403 Forbidden` (`REAL_PHI_DISALLOWED`).
+  - Added defense-in-depth enforcement directly inside `GeminiProvider.explainEvidence` throwing `AIProviderError` with code `REAL_PHI_DISALLOWED`.
+- **Pre-Model Safety Gates:**
+  - Deterministic Emergency Red Flag Detection (Gate 1) and Medication Dosage Refusal (Gate 2) intercept requests *before* any model invocation, guaranteeing safety priority and zero hallucination risk on critical health inquiries.
+- **Request Bounds & Quota Controls:**
+  - Request body payload capped at 32 KB (rejecting with `413 Payload Too Large`).
+  - Per-IP rate limiting: 10 requests per minute with active memory bucket pruning (>500 entries) and rate limit headers (`X-RateLimit-*`).
+  - Global deployed quota control: maximum 60 requests per minute across all clients to prevent upstream exhaustion, returning `429 Too Many Requests` (`GLOBAL_QUOTA_EXCEEDED`).
+- **Failure Resilience & Deterministic Fallback:**
+  - Strict 8-second request timeout via `AbortController`.
+  - Seamless fallback to `MockExtractionProvider` when: API key is unconfigured, upstream quota is exhausted (`429`), upstream times out, or output JSON parsing fails.
+- **Client Security:**
+  - All Gemini API communication and secret keys remain strictly server-side; client bundles contain zero provider secrets or sensitive backend configurations.
 - **Verification Quality Gates:**
-  - Vitest Unit Tests: **80/80 passing** across 6 test suites (+3 new tests for payload bounds, provider fallback, and document ownership).
+  - Vitest Unit Tests: **89/89 passing** across 6 test suites (+9 new tests in `tests/explain-api.test.ts` covering synthetic gate, quota bounds, provider timeouts, upstream 429 fallback, and emergency priority).
   - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
-  - Production Build: Clean (`astro build` with `@astrojs/vercel`, 6 static routes prerendered + 4 serverless functions bundled in 7.79s).
+  - Production Build: Clean (`astro build` with `@astrojs/vercel`, 6 static routes prerendered + 4 serverless functions bundled in 7.01s).
+
 

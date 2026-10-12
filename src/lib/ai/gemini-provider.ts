@@ -38,9 +38,9 @@ export class GeminiProvider implements AIProvider {
 
     if (typeof process !== 'undefined' && process.env) {
       this.apiKey = process.env.GEMINI_API_KEY?.trim();
-      this.modelName = process.env.GEMINI_MODEL?.trim() || 'gemini-1.5-flash';
+      this.modelName = process.env.GEMINI_MODEL?.trim() || 'gemini-3.8-flash';
     } else {
-      this.modelName = 'gemini-1.5-flash';
+      this.modelName = 'gemini-3.8-flash';
     }
   }
 
@@ -86,6 +86,15 @@ export class GeminiProvider implements AIProvider {
         'At least one laboratory field is required for explanation.',
         'VALIDATION_FAILED',
         400
+      );
+    }
+
+    // Strict Synthetic-Only Restriction: Real patient data is never sent to external AI
+    if (request.isSynthetic === false) {
+      throw new AIProviderError(
+        'REAL_PHI_DISALLOWED: Sending real patient data to external AI providers is prohibited. Only synthetic demo records are permitted.',
+        'REAL_PHI_DISALLOWED',
+        403
       );
     }
 

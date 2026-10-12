@@ -13,7 +13,7 @@ export const GET: APIRoute = async () => {
 
   // Inspect configuration presence strictly as booleans (NEVER expose values)
   const hasGeminiKey = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim().length > 0);
-  const geminiModel = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+  const geminiModel = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
   const hasSupabaseUrl = Boolean(process.env.PUBLIC_SUPABASE_URL && process.env.PUBLIC_SUPABASE_URL.trim().length > 0);
   const hasSupabaseKey = Boolean(process.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY && process.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY.trim().length > 0);
 
