@@ -39,14 +39,20 @@ Reviewed evidence determines what may be said; templates determine tone; AI may 
 10. Update this file and `docs/DEVELOPMENT_LOG.md` after each milestone with current status, test results, known issues, and the next exact task.
 
 ## Current implementation status
-Iteration 2B & Review Workflow Integrity Fix completed, and Integration Checkpoint 1 audited on branch `feat/review-page-iteration-2b`:
-- **Current Integration Baseline:** Commit `9eff6ec` on branch `feat/review-page-iteration-2b` (up to date with remote origin, working tree clean).
-- **All Quality Gates Verified:** 19/19 Vitest unit tests pass, TypeScript strict mode passes (`tsc --noEmit`), and Astro production build succeeds cleanly (5 static pages + 1 API endpoint).
-- **Integration Boundary Identified:** Defined the mock-to-real OCR integration boundary across `src/schemas/extraction.ts`, `src/lib/ai/provider.ts`, and proposed endpoint `POST /api/documents/extract`.
-- **Contract Compatibility:** Zod schemas audited for backwards-compatible extensions (`isSyntheticDemo: boolean`, optional bounding box, processing metadata, error codes) without breaking current UI fixtures.
+Iteration 2B & Review Workflow Integrity Fix completed; Checkpoint 3 established on branch `develop` (base commit `9eff6ec` + docs commit `6f6380a`):
+- **Current Baseline:** `develop` is synchronized with `origin/develop` and preserves all prior feature branches.
+- **Approved Extraction Contract Rules:**
+  1. **Explicit Identity:** Documents must explicitly report `isSyntheticDemo: false` for real extractions; synthetic fixtures remain `isSyntheticDemo: true`.
+  2. **Confidence vs Optical Uncertainty:** `confidence` (0 to 1 score) is distinct from `isUncertain` (boolean flag for degraded print/faint ink/smudges).
+  3. **Uncertainty vs Review Status:** Optical uncertainty flags are strictly separated from user `reviewStatus` (`unreviewed`, `confirmed`, `corrected`). User review does NOT erase optical warnings.
+  4. **Source Provenance Integrity:** Every extracted field must link to `rawSnippet`, `page`, and relative bounding box coordinates (`0-100%`). OCR must never fabricate missing provenance.
+  5. **No Invented Reference Ranges:** If a lab report omits reference intervals, `referenceRange` is omitted/null and interpretation evaluates to `unspecified`. OCR must never infer biological normalcy without source ranges.
+  6. **Typed Errors & No Silent Fallbacks:** Real extraction failures (quota, timeout, invalid format) throw typed `AIProviderError` with structured status codes. Silent substitution of synthetic fixtures is strictly prohibited.
+- **Server Runtime Status:** Current Astro config remains static (`output: 'static'`). Static builds alone cannot host the dynamic `POST /api/documents/extract` endpoint in production without a server adapter. Adapter selection is deferred until the deployment target is confirmed.
+- **Quality Gates:** 19/19 Vitest unit tests pass, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly.
 
 ## Current next task
-STOP for Product Manager (Vindyan) and CTO (ChatGPT) review of Integration Checkpoint 1 contract review and branch merge plan before modifying shared schemas or implementing real OCR.
+Await CTO (ChatGPT) and Product Manager (Vindyan) sign-off on the proposed TypeScript/Zod contract diff before editing shared files or branching into `feat/timeline-iteration-3`.
 
 
 

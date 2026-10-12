@@ -207,6 +207,26 @@ Antigravity: inspect the current repository and environment, report findings, th
   - OCR work develops in isolated branch `feat/ocr-extraction-pipeline` branched from approved baseline.
   - Frontend work continues in `feat/timeline-iteration-3` or `main`.
 
+## 2026-10-12 — Checkpoint 3: Extraction Contract Finalization & Parallel Governance (develop)
+- **Baseline Confirmed:**
+  - `develop` established on base commit `9eff6ec` + docs commit `6f6380a`, synchronized with `origin/develop`.
+  - Preserved all prior branches (`feat/review-page-iteration-2b`, `feat/records-page-iteration-2a`, `feat/lucide-icons-iteration-1`).
+- **Approved Extraction Contract Principles:**
+  - Explicit synthetic/real document identity (`isSyntheticDemo: false` for real OCR).
+  - Quantitative OCR extraction confidence (`0.0` - `1.0`) distinct from physical optical degradation flag (`isUncertain: boolean`).
+  - Strict independence between optical degradation flags and human review status (`reviewStatus: 'unreviewed' | 'confirmed' | 'corrected'`).
+  - Verbatim provenance required (`rawSnippet`, `page`, relative percentage `boundingBox`).
+  - Prohibition of invented reference ranges; fallback to `interpretation: 'unspecified'` when missing.
+  - Typed `AIProviderError` hierarchy with HTTP status codes; strict prohibition of silent synthetic fallback upon provider failure.
+- **Server Runtime Audit:**
+  - Current Astro config remains `output: 'static'` without an adapter.
+  - While Astro dev server processes dynamic endpoints in memory, production static builds cannot execute runtime dynamic file upload endpoints (`POST /api/documents/extract`) without a server adapter.
+  - Adapter selection is safely deferred until deployment target is decided; OCR provider unit tests proceed via Vitest independently.
+- **Parallel Work Streams Ready:**
+  - Frontend: `feat/timeline-iteration-3` (Vindyan / Antigravity)
+  - OCR Pipeline: `feat/ocr-extraction-pipeline` (Team member)
+  - Copilot: `feat/copilot-workflow` (Vindyan)
+
 
 
 
