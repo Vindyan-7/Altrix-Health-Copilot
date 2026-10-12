@@ -39,17 +39,18 @@ Reviewed evidence determines what may be said; templates determine tone; AI may 
 10. Update this file and `docs/DEVELOPMENT_LOG.md` after each milestone with current status, test results, known issues, and the next exact task.
 
 ## Current implementation status
-Guest Health Guide MVP Acceptance Checkpoint completed on branch `feat/guest-health-copilot-mvp`:
+Environment, Supabase and AI Foundation milestone completed on branch `feat/guest-health-copilot-mvp`:
 - **Current Baseline:** `feat/guest-health-copilot-mvp` active; `develop`, `feat/timeline-iteration-3`, and `feat/review-page-iteration-2b` preserved intact.
-- **Safety Polish & Acceptance Results:**
-  1. **Telugu Bleeding Nuance:** Differentiated severe/uncontrolled bleeding (`తీవ్ర రక్తస్రావం`, `ఆగని రక్తస్రావం`) from minor bleeding (`రక్తస్రావం`, `గాయం`), adding dedicated bilingual `bleeding-first-aid` guide with clarifying triage questions (American Red Cross / CDC).
-  2. **Ambiguous Medication Safety Refusal:** Expanded Gate 2 interception to catch universal safety questions (`100% safe`), pregnancy questions, and drug combinations, enforcing explicit clinical disclaimer.
-  3. **Emergency Priority:** Emergency queries bypass the turn limit and execute unconditionally.
-  4. **Supabase Foundation Prepared:** Migrations `01_initial_schema.sql` and `02_rls_and_storage_policies.sql` with full RLS, triggers, indexes, and private vault bucket ready for manual execution via Supabase SQL Editor by PM.
-- **Quality Gates:** 46/46 Vitest unit tests pass, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
+- **Foundation Deliverables:**
+  1. **Canonical Environment Setup:** Standardized `.env.example` with exact placeholders: `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `GEMINI_API_KEY`, `GEMINI_MODEL`.
+  2. **Vercel Runtime Architecture:** Configured official `@astrojs/vercel` adapter for Astro 5. Static UI pages remain 100% prerendered while API endpoints (`/api/health.json`, `/api/copilot/explain`) run serverless.
+  3. **Supabase Client & Auth Prep:** Added `src/lib/supabase/client.ts` using strictly the publishable key. Service-role key prohibited. Guest mode operates without authentication requirement.
+  4. **Server-Side Gemini AI Provider:** Implemented `src/lib/ai/gemini-provider.ts` with strict Zod validation, 8s timeout, and automatic fallback to deterministic explanations. Safety gates execute ahead of model calls.
+  5. **Supabase SQL Hardened:** Migrations `01_initial_schema.sql` and `02_rls_and_storage_policies.sql` verified with RLS on all tables, `set search_path = public` on auth trigger, storage vault policies, and execution guide in `supabase/README.md`.
+- **Quality Gates:** 55/55 Vitest unit tests pass, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
 
 ## Current next task
-Push `feat/guest-health-copilot-mvp` to origin, await live demo acceptance from Product Manager (Vindyan), and prepare for manual execution of Supabase migrations when ready.
+Commit and push `feat/guest-health-copilot-mvp` to origin, deliver the Environment, Supabase and AI Foundation report, and await CTO approval before enabling live report analysis or connecting production data.
 
 
 

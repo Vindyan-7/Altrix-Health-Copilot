@@ -298,6 +298,35 @@ Antigravity: inspect the current repository and environment, report findings, th
   - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
   - Production Build: Clean (`astro build`, 5 static pages + 1 API route in 6.01s).
 
+## 2026-10-12 — Environment, Supabase and AI Foundation (feat/guest-health-copilot-mvp)
+- **Environment & Secret Hygiene:**
+  - Standardized `.env.example` with exact canonical placeholders: `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `GEMINI_API_KEY`, `GEMINI_MODEL`.
+  - Confirmed Git history is completely clean: zero past leaks of Google AI keys or JWT secrets.
+  - Hardened `.gitignore` to include `.vercel/` build artifacts alongside `.env` and `.env.*`.
+- **Vercel Runtime Architecture:**
+  - Installed `@astrojs/vercel@^8.2.11` matching Astro 5.
+  - Maintained hybrid architecture: all existing UI routes (`/`, `/records`, `/review`, `/timeline`, `/copilot`) remain 100% prerendered static HTML files in `.vercel/output/static`.
+  - Server-side runtime configured for dynamic endpoints with `export const prerender = false;`:
+    - `GET /api/health.json`: Safe configuration readiness probe exposing boolean presence only (never secret values).
+    - `POST /api/copilot/explain`: Secure serverless explanation endpoint with strict timeout (8s) and Zod payload validation.
+- **Supabase Client & Auth Foundation:**
+  - Installed `@supabase/supabase-js`.
+  - Implemented `src/lib/supabase/client.ts`: Browser-safe client singleton restricted strictly to `PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+  - Service-role key is prohibited; all user operations will rely strictly on user JWT and Row Level Security.
+  - Safe unconfigured fallback: returns `null` client if environment variables are absent without crashing the guest application.
+- **Server-Only Gemini AI Provider Integration:**
+  - Implemented `src/lib/ai/gemini-provider.ts` satisfying `AIProvider` contract:
+    - Server-side only; never bundled into browser code.
+    - Strict input bounds (clamped to 15 fields).
+    - 8-second timeout (`AbortSignal.timeout(8000)`).
+    - Deterministic fallback: Falls back to `MockExtractionProvider` automatically if API key is missing, network times out, or quota is exceeded.
+    - Safety Gate Priority: Server explanation endpoint checks emergency red flags and medication dosage ahead of model invocation; model output can never override safety guardrails.
+- **Verification Quality Gates:**
+  - Vitest Unit Tests: **55/55 passing** (+9 new tests in `tests/environment-and-providers.test.ts`).
+  - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
+  - Production Build: Clean (`astro build` with `@astrojs/vercel`, 5 static routes prerendered + 2 serverless functions bundled in 6.64s).
+
+
 
 
 
