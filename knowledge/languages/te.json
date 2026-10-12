@@ -1,0 +1,9 @@
+{
+  "locale": "te",
+  "welcome": "మీ ఆరోగ్య సమాచారాన్ని అర్థం చేసుకోవడంలో నేను సహాయం చేస్తాను.",
+  "upload": "రిపోర్ట్‌ను అప్‌లోడ్ చేయండి",
+  "review": "సేకరించిన వివరాలను పరిశీలించండి",
+  "timeline": "ఆరోగ్య కాలక్రమం",
+  "disclaimer": "ఈ సాధనం ఆరోగ్య సమాచారాన్ని అర్థం చేసుకోవడానికి సహాయపడుతుంది; ఇది వైద్య నిపుణుడికి ప్రత్యామ్నాయం కాదు.",
+  "note": "Starter translation only. Have a fluent Telugu speaker review all user-facing and safety-critical wording before release."
+}

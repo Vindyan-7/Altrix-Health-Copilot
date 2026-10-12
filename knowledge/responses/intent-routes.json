@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "routes": [
+    {
+      "id": "my_reports",
+      "label_en": "My reports",
+      "label_te": "నా రిపోర్టులు",
+      "handler": "navigation",
+      "llm": false
+    },
+    {
+      "id": "medicine_information",
+      "label_en": "Medicine information",
+      "label_te": "మందుల సమాచారం",
+      "handler": "knowledge_lookup",
+      "llm": false
+    },
+    {
+      "id": "health_concern",
+      "label_en": "A health concern",
+      "label_te": "ఆరోగ్య సమస్య",
+      "handler": "safety_then_guided_flow",
+      "llm": "conditional"
+    },
+    {
+      "id": "health_history",
+      "label_en": "My health history",
+      "label_te": "నా ఆరోగ్య చరిత్ర",
+      "handler": "timeline_query",
+      "llm": false
+    },
+    {
+      "id": "find_healthcare",
+      "label_en": "Find healthcare",
+      "label_te": "వైద్య సహాయం కనుగొనండి",
+      "handler": "consent_then_verified_search",
+      "llm": false
+    }
+  ],
+  "notes": [
+    "Labels are starter copy and should be reviewed by a fluent Telugu speaker.",
+    "Emergency detection precedes normal routing.",
+    "No route may prescribe, diagnose, or invent facts."
+  ]
+}

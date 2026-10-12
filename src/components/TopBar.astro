@@ -1,0 +1,81 @@
+---
+import { Menu, Search, Globe, Bell } from '@lucide/astro';
+import { SYNTHETIC_PATIENT } from '../fixtures/synthetic-patient';
+---
+
+<header class="w-full bg-aura-canvas py-3 px-4 sm:px-6 lg:px-8 border-b border-aura-border/60">
+  <div class="flex items-center justify-between gap-3 sm:gap-4 max-w-7xl mx-auto">
+    <!-- Mobile hamburger button -->
+    <button
+      id="btn-open-drawer"
+      type="button"
+      class="lg:hidden p-2 rounded-xl bg-white border border-aura-border text-aura-text hover:bg-aura-surface-blush focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
+      aria-label="Open navigation drawer"
+    >
+      <Menu class="w-5 h-5" stroke-width={2} />
+    </button>
+
+    <!-- Global Search -->
+    <div class="flex-grow max-w-md relative hidden sm:block">
+      <label for="global-search" class="sr-only">Search health records, lab tests, and medications</label>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-aura-text-subtle">
+          <Search class="w-4 h-4" stroke-width={2} />
+        </div>
+        <input
+          id="global-search"
+          type="search"
+          placeholder="Search health records, lab tests, medications..."
+          class="w-full h-10 pl-10 pr-4 rounded-full bg-white border-0 shadow-aura-card text-xs text-aura-text placeholder-aura-text-subtle focus:outline-none focus:ring-2 focus:ring-aura-sidebar-active transition"
+        />
+      </div>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="flex items-center gap-2 sm:gap-3 ml-auto">
+      <!-- Session / Language Pill (Cream surface) -->
+      <a
+        href="/copilot"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-aura-surface-cream hover:bg-aura-surface-cream-light text-aura-text text-xs font-medium shadow-xs transition border border-black/5"
+        title="Session language: English (Telugu available in Copilot)"
+      >
+        <Globe class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
+        <span class="hidden md:inline font-semibold">Demo Vault:</span>
+        <span>English (EN)</span>
+      </a>
+
+      <!-- Notification bell with badge -->
+      <a
+        href="/review"
+        class="relative p-2 sm:p-2.5 rounded-full bg-white hover:bg-aura-surface-blush text-aura-text shadow-aura-card transition focus:outline-none focus:ring-2 focus:ring-aura-sidebar-active border border-aura-border/40"
+        aria-label="2 items require your review"
+        title="2 items require your review"
+      >
+        <Bell class="w-4 h-4" stroke-width={1.8} />
+        <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-aura-accent-orange"></span>
+      </a>
+
+      <!-- User Profile chip -->
+      <div class="flex items-center gap-2.5 pl-1 sm:pl-2">
+        <div class="hidden sm:flex flex-col text-right">
+          <span class="text-xs font-bold text-aura-text leading-tight">{SYNTHETIC_PATIENT.displayName}</span>
+          <span class="text-[10.5px] text-aura-text-muted leading-tight">Synthetic Adult (34F)</span>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-aura-accent-purple text-aura-accent-purple-strong font-bold text-xs flex items-center justify-center border border-aura-border shadow-xs">
+          PS
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  const btnOpenDrawer = document.getElementById('btn-open-drawer');
+  const drawer = document.getElementById('mobile-drawer');
+
+  if (btnOpenDrawer && drawer) {
+    btnOpenDrawer.addEventListener('click', () => {
+      drawer.classList.remove('hidden');
+    });
+  }
+</script>

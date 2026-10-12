@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "medlineplus-drug-information",
+      "title": "MedlinePlus Drug Information",
+      "publisher": "U.S. National Library of Medicine",
+      "url": "https://medlineplus.gov/druginformation.html",
+      "intended_use": "General educational medicine information; check jurisdiction and source date",
+      "status": "candidate-source",
+      "last_verified_at": null
+    },
+    {
+      "id": "cdsco",
+      "title": "Central Drugs Standard Control Organisation",
+      "publisher": "Government of India",
+      "url": "https://cdsco.gov.in/",
+      "intended_use": "Indian regulatory information and official drug-related resources",
+      "status": "candidate-source",
+      "last_verified_at": null
+    },
+    {
+      "id": "abdm-fhir",
+      "title": "ABDM FHIR implementation resources",
+      "publisher": "National Health Authority / ABDM ecosystem",
+      "url": "https://www.snomedctnrc.in/preview/ndhm/fhir/r4/downloads.html",
+      "intended_use": "Investigate applicable FHIR profiles; verify current official guidance before implementation",
+      "status": "candidate-source",
+      "last_verified_at": null
+    }
+  ],
+  "warning": "Candidate sources only. Verify current content, applicable jurisdiction, and licensing before importing or summarizing material. No medical entries are clinically reviewed yet."
+}

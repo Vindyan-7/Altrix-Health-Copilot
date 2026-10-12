@@ -1,0 +1,358 @@
+---
+import {
+  MessageSquare,
+  Upload,
+  Files,
+  AlertCircle,
+  FlaskConical,
+  Clock,
+  ArrowRight,
+  Activity,
+  Eye,
+  ShieldAlert,
+} from '@lucide/astro';
+import Layout from '../layouts/Layout.astro';
+import { SYNTHETIC_PATIENT } from '../fixtures/synthetic-patient';
+import { SYNTHETIC_LAB_REPORT_FIXTURE } from '../fixtures/synthetic-lab-report';
+
+const flaggedCount = SYNTHETIC_LAB_REPORT_FIXTURE.fields.filter(
+  (f) => f.interpretation === 'low' || f.interpretation === 'high'
+).length;
+
+const uncertainCount = SYNTHETIC_LAB_REPORT_FIXTURE.fields.filter(
+  (f) => f.isUncertain
+).length;
+
+const timeline = SYNTHETIC_PATIENT.timeline;
+
+// Formatted current date
+const formattedDate = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long',
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+}).format(new Date());
+---
+
+<Layout title="Dashboard" subtext="Priya Sharma (Synthetic Demo Session)">
+  <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
+    <!-- 1. Editorial Greeting / Introduction Section -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-2">
+      <div class="space-y-2 max-w-2xl">
+        <!-- Eyebrow row with live demo pill & date -->
+        <div class="flex flex-wrap items-center gap-2 text-xs text-aura-text-muted">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-aura-surface-cream text-aura-text text-[11px] font-semibold border border-black/5 shadow-2xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-aura-accent-orange animate-pulse"></span>
+            SYNTHETIC HEALTH VAULT
+          </span>
+          <span class="hidden sm:inline">•</span>
+          <span class="font-medium text-aura-text-muted">{formattedDate}</span>
+          <span class="hidden sm:inline">•</span>
+          <span class="font-medium text-aura-text">Adult Demo Profile (34F)</span>
+        </div>
+
+        <!-- Headline in DM Serif Display -->
+        <h1 class="text-3xl sm:text-4xl lg:text-[40px] font-serif font-normal text-aura-text tracking-tight leading-[1.1]">
+          Good morning, <em class="italic font-normal">{SYNTHETIC_PATIENT.displayName.split(' ')[0]}</em>
+        </h1>
+
+        <!-- Short Personal Health Summary -->
+        <p class="text-xs sm:text-sm text-aura-text-muted leading-relaxed max-w-xl">
+          Your personal health records are organized and up to date. <strong class="text-aura-text font-semibold">{timeline.length} records</strong> in your health vault, with <strong class="text-aura-text font-semibold">{uncertainCount} items flagged for review</strong> before your next physician consultation.
+        </p>
+      </div>
+
+      <!-- Action Buttons (Right-aligned desktop) -->
+      <div class="flex flex-wrap items-center gap-3 shrink-0">
+        <!-- Schedule / Copilot action (Warm cream pill) -->
+        <a
+          href="/copilot"
+          class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-aura-surface-cream hover:bg-aura-surface-cream-light text-aura-text text-xs sm:text-sm font-semibold shadow-xs transition transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-aura-sidebar border border-black/5"
+        >
+          <MessageSquare class="w-4 h-4 text-aura-text" stroke-width={2} />
+          <span>Open Health Copilot</span>
+        </a>
+
+        <!-- Primary Action: + Upload Record (Espresso brown pill) -->
+        <a
+          href="/records"
+          class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-aura-action hover:bg-aura-action-hover text-white text-xs sm:text-sm font-semibold shadow-xs transition transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
+        >
+          <Upload class="w-4 h-4 text-white" stroke-width={2} />
+          <span>+ Upload Record</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 2. Four KPI / Metric Cards in a Single Row (Desktop) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      <!-- Card A: Records in Vault -->
+      <div class="bg-aura-surface rounded-aura-card p-5 shadow-aura-card border border-aura-border/40 flex flex-col justify-between min-h-[160px] space-y-4">
+        <div class="flex items-start justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle">Records in Vault</span>
+          <div class="w-8 h-8 rounded-full bg-aura-accent-pink flex items-center justify-center text-aura-sidebar shrink-0">
+            <Files class="w-4 h-4" stroke-width={1.8} />
+          </div>
+        </div>
+        <div>
+          <div class="text-3xl font-serif text-aura-text font-normal">{timeline.length}</div>
+          <div class="text-[11px] text-aura-text-muted mt-0.5">documents processed</div>
+        </div>
+        <div>
+          <div class="flex justify-between text-[10px] text-aura-text-subtle mb-1">
+            <span>1 lab, 1 wellness, 1 Rx, 1 checkup</span>
+            <span class="font-medium text-aura-text">100% indexed</span>
+          </div>
+          <div class="w-full bg-aura-accent-pink rounded-full h-1.5 overflow-hidden">
+            <div class="bg-aura-sidebar h-1.5 rounded-full w-[100%]"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card B: Items to Review -->
+      <div class="bg-aura-surface rounded-aura-card p-5 shadow-aura-card border border-aura-border/40 flex flex-col justify-between min-h-[160px] space-y-4">
+        <div class="flex items-start justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle">Items to Review</span>
+          <div class="w-8 h-8 rounded-full bg-aura-accent-peach flex items-center justify-center text-aura-accent-orange shrink-0">
+            <AlertCircle class="w-4 h-4" stroke-width={2} />
+          </div>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-serif text-aura-text font-normal">{uncertainCount}</span>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-aura-accent-peach text-aura-text">
+              Review Needed
+            </span>
+          </div>
+          <div class="text-[11px] text-aura-text-muted mt-0.5">Platelets & TSH uncertain OCR</div>
+        </div>
+        <div>
+          <div class="flex justify-between items-center text-[10px] mb-1">
+            <span class="text-aura-text-muted">Uncertain extraction flags</span>
+            <a href="/review" class="text-aura-accent-orange font-bold hover:underline inline-flex items-center gap-0.5">
+              <span>Inspect & Review</span>
+              <ArrowRight class="w-3 h-3" stroke-width={2} />
+            </a>
+          </div>
+          <div class="w-full bg-aura-accent-peach rounded-full h-1.5 overflow-hidden">
+            <div class="bg-aura-accent-orange h-1.5 rounded-full w-[60%]"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card C: Out of Range Results -->
+      <div class="bg-aura-surface rounded-aura-card p-5 shadow-aura-card border border-aura-border/40 flex flex-col justify-between min-h-[160px] space-y-4">
+        <div class="flex items-start justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle">Out of Range</span>
+          <div class="w-8 h-8 rounded-full bg-aura-surface-cream-light flex items-center justify-center text-aura-success shrink-0">
+            <FlaskConical class="w-4 h-4" stroke-width={1.8} />
+          </div>
+        </div>
+        <div>
+          <div class="text-3xl font-serif text-aura-text font-normal">{flaggedCount}</div>
+          <div class="text-[11px] text-aura-text-muted mt-0.5">findings outside lab range</div>
+        </div>
+        <div>
+          <div class="flex justify-between text-[10px] text-aura-text-subtle mb-1">
+            <span>Hemoglobin, Glucose, HbA1c</span>
+            <span class="font-medium text-aura-success">Lab baseline</span>
+          </div>
+          <div class="w-full bg-aura-border rounded-full h-1.5 overflow-hidden">
+            <div class="bg-aura-success h-1.5 rounded-full w-[75%]"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card D: Timeline Span -->
+      <div class="bg-aura-surface rounded-aura-card p-5 shadow-aura-card border border-aura-border/40 flex flex-col justify-between min-h-[160px] space-y-4">
+        <div class="flex items-start justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle">Health Timeline</span>
+          <div class="w-8 h-8 rounded-full bg-aura-accent-pink flex items-center justify-center text-aura-sidebar shrink-0">
+            <Clock class="w-4 h-4" stroke-width={1.8} />
+          </div>
+        </div>
+        <div>
+          <div class="text-3xl font-serif text-aura-text font-normal">Oct 2026</div>
+          <div class="text-[11px] text-aura-text-muted mt-0.5">latest recorded checkup</div>
+        </div>
+        <div>
+          <div class="flex justify-between text-[10px] text-aura-text-subtle mb-1">
+            <span>Longitudinal span: 5 months</span>
+            <span class="font-medium text-aura-sidebar">Tier 1 data</span>
+          </div>
+          <div class="w-full bg-aura-accent-pink rounded-full h-1.5 overflow-hidden">
+            <div class="bg-aura-sidebar h-1.5 rounded-full w-[85%]"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Lower Dashboard: Two Columns (Queue on Left, Alerts on Right) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Left Column (~65% width = 8 cols): Recent Health Activity & Records -->
+      <div class="lg:col-span-8 bg-aura-surface rounded-aura-panel p-5 sm:p-6 shadow-aura-card border border-aura-border/40 space-y-5">
+        <!-- Container Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-aura-border/60">
+          <div>
+            <div class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle">Health Records Queue</div>
+            <h2 class="text-xl font-serif font-normal text-aura-text mt-0.5">
+              Recent Health Activity & Records
+            </h2>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-aura-accent-purple text-aura-accent-purple-strong">
+              {timeline.length} Synthetic Entries
+            </span>
+            <a
+              href="/timeline"
+              class="inline-flex items-center gap-1 text-xs font-semibold text-aura-text hover:text-aura-action transition p-1.5 rounded-lg hover:bg-aura-surface-blush"
+              title="View Complete Timeline"
+            >
+              <span>View Timeline</span>
+              <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
+            </a>
+          </div>
+        </div>
+
+        <!-- Vertically Stacked Record Rows -->
+        <div class="space-y-3">
+          {timeline.map((evt) => (
+            <div class="bg-aura-surface-blush rounded-2xl p-3.5 sm:p-4 border border-aura-border/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:shadow-xs transition">
+              <!-- Left: Time/Date Badge + Details -->
+              <div class="flex items-start gap-3.5 min-w-0">
+                <!-- Date Badge Pill (44x44 target) -->
+                <div class="w-11 h-11 rounded-xl bg-aura-surface-cream text-aura-text flex flex-col items-center justify-center shrink-0 border border-black/5 shadow-2xs">
+                  <span class="text-[10px] font-bold uppercase leading-none">{evt.date.split('-')[1]}</span>
+                  <span class="text-xs font-mono font-extrabold leading-none mt-0.5">{evt.date.split('-')[2]}</span>
+                </div>
+
+                <div class="min-w-0 space-y-1">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="text-xs sm:text-sm font-bold text-aura-text truncate">{evt.title}</h3>
+                    <span class={`text-[9.5px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                      evt.status === 'review_required'
+                        ? 'bg-aura-accent-peach text-aura-text'
+                        : 'bg-aura-surface-cream text-aura-text'
+                    }`}>
+                      {evt.status === 'review_required' ? 'Review Needed' : 'Documented'}
+                    </span>
+                  </div>
+                  <p class="text-xs text-aura-text-muted leading-relaxed line-clamp-1">{evt.summary}</p>
+                  <div class="text-[11px] text-aura-text-subtle">
+                    Source: {evt.facility}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right: Row Action Button -->
+              <div class="shrink-0 sm:self-center pt-2 sm:pt-0 border-t sm:border-t-0 border-aura-border/40">
+                {evt.category === 'lab_report' ? (
+                  <a
+                    href="/review"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-aura-accent-purple-strong hover:bg-aura-sidebar text-white text-xs font-semibold shadow-xs transition"
+                  >
+                    <span>Review Findings</span>
+                    <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
+                  </a>
+                ) : (
+                  <a
+                    href="/timeline"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white hover:bg-aura-surface-cream-light text-aura-text text-xs font-medium border border-aura-border transition"
+                  >
+                    <span>View Record</span>
+                    <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
+                  </a>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Right Column (~35% width = 4 cols): Priority Clinical Alerts & Topics -->
+      <div class="lg:col-span-4 bg-aura-surface-cream rounded-aura-panel p-5 sm:p-6 shadow-aura-card border border-black/5 space-y-4">
+        <!-- Container Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-black/10">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-aura-accent-orange"></span>
+            <h2 class="text-lg font-serif font-normal text-aura-text">
+              Worth Reviewing
+            </h2>
+          </div>
+          <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-aura-action text-white">
+            2 Topics
+          </span>
+        </div>
+
+        <p class="text-xs text-aura-text-muted leading-relaxed">
+          Grounded observations from your records prepared to discuss with your healthcare provider:
+        </p>
+
+        <!-- Alert Card 1: Metabolic Out of Range -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-aura-border/50 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-[9.5px] font-bold tracking-wider text-aura-accent-orange uppercase flex items-center gap-1">
+              <Activity class="w-3 h-3" stroke-width={2} />
+              <span>Out of Range Finding</span>
+            </span>
+            <span class="text-[10px] text-aura-text-subtle">From Oct 10 Panel</span>
+          </div>
+
+          <div class="space-y-1">
+            <h3 class="text-xs font-bold text-aura-text">Fasting Sugar (118 mg/dL) & HbA1c (6.2%)</h3>
+            <p class="text-[11.5px] text-aura-text-muted leading-relaxed">
+              Fasting blood sugar and glycated hemoglobin exceed standard baseline limits. Consider discussing dietary patterns and re-test timing with your clinician.
+            </p>
+          </div>
+
+          <div class="pt-1">
+            <a
+              href="/copilot"
+              class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-aura-sidebar hover:bg-aura-sidebar-deep text-white text-xs font-semibold shadow-xs transition"
+            >
+              <span>Prepare Doctor Questions</span>
+              <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
+            </a>
+          </div>
+        </div>
+
+        <!-- Alert Card 2: OCR Optical Clarity -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-aura-border/50 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-[9.5px] font-bold tracking-wider text-aura-sidebar uppercase flex items-center gap-1">
+              <Eye class="w-3 h-3" stroke-width={2} />
+              <span>Optical Reading Check</span>
+            </span>
+            <span class="text-[10px] text-aura-text-subtle">Pending User Check</span>
+          </div>
+
+          <div class="space-y-1">
+            <h3 class="text-xs font-bold text-aura-text">Platelets (~145k) & TSH (5.4)</h3>
+            <p class="text-[11.5px] text-aura-text-muted leading-relaxed">
+              Extracted with lower confidence due to faint printing on the simulated lab slip. Unknown values remain unverified until user review.
+            </p>
+          </div>
+
+          <div class="pt-1">
+            <a
+              href="/review"
+              class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-full bg-aura-surface-blush hover:bg-aura-accent-purple text-aura-text text-xs font-semibold border border-aura-border transition"
+            >
+              <span>Verify in Review Screen</span>
+              <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
+            </a>
+          </div>
+        </div>
+
+        <!-- Clinical Safety Box -->
+        <div class="bg-white/70 rounded-xl p-3 border border-black/5 text-[10.5px] text-aura-text-muted leading-relaxed flex items-start gap-2">
+          <ShieldAlert class="w-4 h-4 text-aura-accent-orange shrink-0 mt-0.5" stroke-width={2} />
+          <div>
+            <strong class="text-aura-text font-bold block mb-0.5">Clinical Boundary Notice:</strong>
+            These topics are educational highlights from your documents. Altrix does not diagnose conditions or prescribe medications.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

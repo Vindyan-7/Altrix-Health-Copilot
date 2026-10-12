@@ -1,0 +1,134 @@
+---
+import Sidebar from '../components/Sidebar.astro';
+import TopBar from '../components/TopBar.astro';
+import Footer from '../components/Footer.astro';
+import SyntheticBanner from '../components/SyntheticBanner.astro';
+
+export interface Props {
+  title: string;
+  description?: string;
+  subtext?: string;
+}
+
+const {
+  title,
+  description = 'Altrix Health Copilot — Personal health records companion and guided health assistant.',
+  subtext,
+} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en" class="h-full bg-aura-canvas antialiased">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <title>{title} | Altrix Health Copilot</title>
+
+    <!-- Google Fonts: DM Serif Display & DM Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="min-h-full bg-aura-canvas text-aura-text font-sans selection:bg-aura-accent-peach selection:text-aura-text flex flex-col">
+    <!-- Accessible skip link -->
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-aura-action focus:text-white focus:rounded-md focus:shadow-lg text-xs font-semibold"
+    >
+      Skip to main content
+    </a>
+
+    <!-- Top Demo Banner -->
+    <SyntheticBanner subtext={subtext} />
+
+    <!-- App Shell Frame: Sidebar + Main Content -->
+    <div class="flex-grow flex w-full">
+      <!-- Full-Height Left Navigation Rail -->
+      <Sidebar activePath={currentPath} />
+
+      <!-- Main Scrollable Column -->
+      <div class="flex-grow flex flex-col min-w-0 bg-aura-canvas">
+        <!-- Top Utility Bar -->
+        <TopBar />
+
+        <!-- Main Viewport -->
+        <main id="main-content" class="flex-grow min-w-0">
+          <slot />
+        </main>
+
+        <!-- Footer -->
+        <Footer />
+      </div>
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    color-scheme: light;
+
+    --color-sidebar: #381840;
+    --color-sidebar-deep: #200028;
+    --color-sidebar-text: #BCA5C2;
+    --color-sidebar-active: #F0E0C0;
+
+    --color-canvas: #FFF8FA;
+    --color-surface: #FFFFFF;
+    --color-surface-blush: #FFF5FA;
+    --color-surface-cream: #F0E0C0;
+    --color-surface-cream-light: #F8EEDC;
+
+    --color-text: #28152D;
+    --color-text-muted: #827783;
+    --color-text-subtle: #A59AA5;
+
+    --color-action: #300D05;
+    --color-action-hover: #451A10;
+    --color-accent-purple: #EEDCF3;
+    --color-accent-purple-strong: #4A2054;
+    --color-accent-peach: #F9D8C9;
+    --color-accent-orange: #E9865D;
+    --color-accent-pink: #FBE6F5;
+    --color-success: #6F7860;
+    --color-border: #F0E9EF;
+
+    --font-ui: "DM Sans", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-display: "DM Serif Display", Georgia, serif;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-7: 32px;
+    --space-8: 40px;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-card: 17px;
+    --radius-panel: 20px;
+    --radius-pill: 999px;
+
+    --shadow-card: 0 5px 18px rgba(47, 20, 45, 0.045);
+    --shadow-float: 0 8px 24px rgba(47, 20, 45, 0.08);
+  }
+
+  body {
+    font-family: var(--font-ui);
+    color: var(--color-text);
+    background-color: var(--color-canvas);
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: var(--font-display);
+  }
+</style>

@@ -1,0 +1,299 @@
+---
+import {
+  FileUp,
+  Sparkles,
+  UploadCloud,
+  Lock,
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  FlaskConical,
+  Pill,
+  Activity,
+  ArrowRight,
+} from '@lucide/astro';
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Medical Records" subtext="Upload and manage synthetic records">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <!-- Page Header -->
+    <div class="space-y-2">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-aura-surface-cream text-aura-text border border-black/5">
+        <FileUp class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
+        <span>Medical Records Intake</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-serif font-normal text-aura-text tracking-tight">
+        Upload Medical Documents
+      </h1>
+      <p class="text-aura-text-muted text-xs sm:text-sm max-w-3xl leading-relaxed">
+        Upload your lab reports, prescriptions, or clinical summaries in PDF, JPG, or PNG format.
+        Our structured extraction pipeline identifies clinical parameters, reference ranges, and source provenance for your review.
+      </p>
+    </div>
+
+    <!-- Quick Synthetic Seed Box -->
+    <div class="bg-aura-surface-cream rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-aura-card border border-black/5">
+      <div class="space-y-1">
+        <div class="font-bold text-aura-text text-sm flex items-center gap-2">
+          <Sparkles class="w-4 h-4 text-aura-accent-orange shrink-0" stroke-width={2} />
+          <span>Quick Demo: Sample CBC & Metabolic Lab Report</span>
+        </div>
+        <p class="text-xs text-aura-text-muted leading-relaxed">
+          Skip file selection and immediately explore a realistic synthetic blood panel with flagged parameters and review workflows.
+        </p>
+      </div>
+      <a
+        href="/review"
+        class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-aura-action hover:bg-aura-action-hover text-white font-semibold text-xs sm:text-sm shadow-xs transition shrink-0"
+      >
+        <span>Open Synthetic Report Fixture</span>
+        <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
+      </a>
+    </div>
+
+    <!-- Main Upload Card -->
+    <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card p-6 sm:p-8 space-y-6">
+      <h2 class="text-base font-serif font-normal text-aura-text flex items-center gap-2">
+        <UploadCloud class="w-4 h-4 text-aura-accent-orange" stroke-width={2} />
+        <span>Select or Drop File</span>
+      </h2>
+
+      <!-- Dropzone -->
+      <div
+        id="dropzone"
+        tabindex="0"
+        role="button"
+        aria-label="Upload medical file dropzone. Click or drag PDF, JPG, or PNG files here."
+        class="border-2 border-dashed border-aura-border hover:border-aura-accent-orange focus:border-aura-accent-orange focus:ring-4 focus:ring-aura-accent-peach/50 rounded-2xl p-8 text-center transition cursor-pointer bg-aura-surface-blush/60 hover:bg-aura-surface-blush group"
+      >
+        <input
+          type="file"
+          id="file-input"
+          class="hidden"
+          accept=".pdf,image/jpeg,image/png"
+          aria-hidden="true"
+        />
+
+        <div class="max-w-md mx-auto space-y-4">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-aura-accent-peach/60 text-aura-accent-orange flex items-center justify-center group-hover:scale-105 transition">
+            <UploadCloud class="w-7 h-7" stroke-width={1.8} />
+          </div>
+
+          <div class="space-y-1">
+            <p class="text-sm font-semibold text-aura-text">
+              <span class="text-aura-accent-orange hover:underline font-bold">Click to browse</span> or drag and drop your document
+            </p>
+            <p class="text-xs text-aura-text-muted">
+              Supported formats: PDF, JPG, PNG (Maximum file size: 10 MB)
+            </p>
+          </div>
+
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-medium bg-white text-aura-text border border-aura-border/60">
+            <Lock class="w-3 h-3 text-aura-text-muted" stroke-width={2} />
+            <span>Confidential</span> • Client-validated • Untrusted input isolated
+          </div>
+        </div>
+      </div>
+
+      <!-- State: Loading / Processing (Hidden by default) -->
+      <div id="state-loading" class="hidden bg-aura-surface-blush border border-aura-border rounded-xl p-5 space-y-3">
+        <div class="flex items-center justify-between text-xs font-semibold text-aura-text">
+          <span class="flex items-center gap-2">
+            <Loader2 class="w-4 h-4 text-aura-accent-orange animate-spin" stroke-width={2} />
+            <span>Extracting parameters via Mock AI Pipeline...</span>
+          </span>
+          <span id="loading-percentage">45%</span>
+        </div>
+        <div class="w-full bg-aura-border rounded-full h-2 overflow-hidden">
+          <div id="loading-bar" class="bg-aura-accent-orange h-2 rounded-full transition-all duration-300 w-[45%]"></div>
+        </div>
+        <p class="text-[11px] text-aura-text-muted">
+          Validating document headers, identifying laboratory reference ranges, and flagging uncertainty...
+        </p>
+      </div>
+
+      <!-- State: Error (Hidden by default) -->
+      <div id="state-error" class="hidden bg-rose-50 border border-rose-200 rounded-xl p-5 space-y-3 text-rose-900">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-2 text-sm font-bold text-rose-800">
+            <AlertCircle class="w-4 h-4 text-rose-600" stroke-width={2} />
+            <span>Validation Error</span>
+          </div>
+          <button id="btn-retry" class="text-xs font-semibold text-rose-700 hover:underline">
+            Dismiss & Try Again
+          </button>
+        </div>
+        <p id="error-message" class="text-xs leading-relaxed text-rose-700">
+          The selected file could not be processed.
+        </p>
+      </div>
+
+      <!-- State: Success Ready (Hidden by default) -->
+      <div id="state-success" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-5 space-y-3 text-emerald-900">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 text-sm font-bold text-emerald-800">
+            <CheckCircle2 class="w-4 h-4 text-emerald-600" stroke-width={2} />
+            <span>Document Successfully Extracted</span>
+          </div>
+          <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+            8 Fields Identified
+          </span>
+        </div>
+        <div class="text-xs text-emerald-700 space-y-1">
+          <div id="success-file-name" class="font-medium text-emerald-900">File: report.pdf</div>
+          <div>Uncertainty detected in 2 fields. Please review values against source image before confirming.</div>
+        </div>
+        <div class="pt-2">
+          <a
+            href="/review"
+            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-xs"
+          >
+            <span>Proceed to Field Review Screen</span>
+            <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Supported Document Types Information -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-aura-surface p-5 rounded-aura-card border border-aura-border/40 shadow-aura-card space-y-2">
+        <div class="flex items-center gap-2 text-aura-accent-orange">
+          <FlaskConical class="w-4 h-4" stroke-width={2} />
+          <span class="text-xs font-bold uppercase tracking-wider text-aura-text-subtle">Type 1</span>
+        </div>
+        <h3 class="font-serif font-bold text-aura-text text-base">Laboratory Panels</h3>
+        <p class="text-xs text-aura-text-muted leading-relaxed">
+          Complete blood counts, metabolic profiles, renal panels, thyroid tests, lipid profiles.
+        </p>
+      </div>
+
+      <div class="bg-aura-surface p-5 rounded-aura-card border border-aura-border/40 shadow-aura-card space-y-2">
+        <div class="flex items-center gap-2 text-aura-accent-orange">
+          <Pill class="w-4 h-4" stroke-width={2} />
+          <span class="text-xs font-bold uppercase tracking-wider text-aura-text-subtle">Type 2</span>
+        </div>
+        <h3 class="font-serif font-bold text-aura-text text-base">Clinical Prescriptions</h3>
+        <p class="text-xs text-aura-text-muted leading-relaxed">
+          Medications recorded as written, preserving original dosage instructions without inference.
+        </p>
+      </div>
+
+      <div class="bg-aura-surface p-5 rounded-aura-card border border-aura-border/40 shadow-aura-card space-y-2">
+        <div class="flex items-center gap-2 text-aura-accent-orange">
+          <Activity class="w-4 h-4" stroke-width={2} />
+          <span class="text-xs font-bold uppercase tracking-wider text-aura-text-subtle">Type 3</span>
+        </div>
+        <h3 class="font-serif font-bold text-aura-text text-base">Wellness & Diagnostic Logs</h3>
+        <p class="text-xs text-aura-text-muted leading-relaxed">
+          Home blood pressure logs, self-monitored fasting blood sugar, ultrasound summary impressions.
+        </p>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('file-input') as HTMLInputElement | null;
+  const stateLoading = document.getElementById('state-loading');
+  const stateError = document.getElementById('state-error');
+  const stateSuccess = document.getElementById('state-success');
+  const errorMessage = document.getElementById('error-message');
+  const loadingBar = document.getElementById('loading-bar');
+  const loadingPercentage = document.getElementById('loading-percentage');
+  const successFileName = document.getElementById('success-file-name');
+  const btnRetry = document.getElementById('btn-retry');
+
+  if (dropzone && fileInput) {
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        fileInput.click();
+      }
+    });
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('border-aura-accent-orange', 'bg-aura-surface-blush');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('border-aura-accent-orange', 'bg-aura-surface-blush');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('border-aura-accent-orange', 'bg-aura-surface-blush');
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFileSelection(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files.length > 0) {
+        handleFileSelection(fileInput.files[0]);
+      }
+    });
+  }
+
+  if (btnRetry) {
+    btnRetry.addEventListener('click', () => {
+      stateError?.classList.add('hidden');
+      if (fileInput) fileInput.value = '';
+    });
+  }
+
+  function handleFileSelection(file: File) {
+    // Reset states
+    stateError?.classList.add('hidden');
+    stateSuccess?.classList.add('hidden');
+
+    const validExtensions = ['.pdf', '.jpg', '.jpeg', '.png'];
+    const lowerName = file.name.toLowerCase();
+    const isValidType = validExtensions.some((ext) => lowerName.endsWith(ext));
+
+    if (!isValidType) {
+      showError(`Unsupported file format. Please upload a PDF, JPG, or PNG document (Received: "${file.name}").`);
+      return;
+    }
+
+    const maxBytes = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxBytes) {
+      showError(`File exceeds the maximum 10 MB limit (${(file.size / (1024 * 1024)).toFixed(1)} MB).`);
+      return;
+    }
+
+    // Trigger synthetic loading sequence
+    simulateExtraction(file.name);
+  }
+
+  function showError(msg: string) {
+    if (errorMessage && stateError) {
+      errorMessage.textContent = msg;
+      stateError.classList.remove('hidden');
+    }
+  }
+
+  function simulateExtraction(fileName: string) {
+    stateLoading?.classList.remove('hidden');
+    let progress = 10;
+
+    const interval = setInterval(() => {
+      progress += 25;
+      if (loadingBar) loadingBar.style.width = `${progress}%`;
+      if (loadingPercentage) loadingPercentage.textContent = `${progress}%`;
+
+      if (progress >= 100) {
+        clearInterval(interval);
+        setTimeout(() => {
+          stateLoading?.classList.add('hidden');
+          if (successFileName) successFileName.textContent = `File: ${fileName}`;
+          stateSuccess?.classList.remove('hidden');
+        }, 300);
+      }
+    }, 200);
+  }
+</script>
