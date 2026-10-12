@@ -75,6 +75,27 @@ export class AIProviderError extends Error {
 }
 
 /**
+ * General educational chat request message
+ */
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface GeneralChatRequest {
+  messages: ChatMessage[];
+  locale?: 'en' | 'te';
+}
+
+export interface GeneralChatResponse {
+  message: string;
+  isMockFallback: boolean;
+  provider: string;
+  disclaimer: string;
+  suggestedQuestions?: string[];
+}
+
+/**
  * Server-side AI Provider contract
  */
 export interface AIProvider {
@@ -82,5 +103,7 @@ export interface AIProvider {
   readonly isMock: boolean;
   extractDocument(input: DocumentInput): Promise<ExtractedDocument>;
   explainEvidence(request: ExplainEvidenceRequest): Promise<ExplanationResult>;
+  generateChat(request: GeneralChatRequest): Promise<GeneralChatResponse>;
   healthCheck(): Promise<ProviderHealth>;
 }
+

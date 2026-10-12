@@ -427,5 +427,34 @@ Antigravity: inspect the current repository and environment, report findings, th
   - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
   - Production Build: Clean (`astro build` with `@astrojs/vercel`, 6 static routes prerendered + 4 serverless functions bundled in 6.83s).
 
+## 2026-10-13 — Phase 4B: General Health AI Chat, Dual-Mode Copilot UI & Synthetic Provenance Gate (feat/guest-health-copilot-mvp)
+- **Dedicated General Health AI Chat Endpoint (`POST /api/copilot/chat`):**
+  - Implemented standalone conversational endpoint backed by `GeminiProvider.generateChat` using configurable `GEMINI_MODEL` (default: `gemini-3.8-flash`).
+  - Payload boundaries: maximum 16 KB payload ceiling (returns `413 Payload Too Large`), Zod schema validation (max 10 messages in conversation history, max 1000 characters per message, valid `en` or `te` locale).
+  - Tiered rate limits: Guest quota (5 requests/10 minutes per IP), Authenticated quota (20 requests/10 minutes via verified Supabase Bearer token), and Deployed Global quota (60 requests/minute).
+  - Safety Precedence: Priority 1 Emergency Red Flags and Priority 2 Medication Dosage Refusal intercept user queries *before* model invocation.
+  - Resilience & Fallback: 8-second request timeout (`AbortSignal.timeout(8000)`). On missing API key, network timeout, upstream 429 quota exhaustion, or malformed JSON, automatically falls back to offline deterministic mock chat response.
+- **Provider Interface Expansion (`src/lib/ai/provider.ts`):**
+  - Added `ChatMessage`, `GeneralChatRequest`, and `GeneralChatResponse` contracts.
+  - Implemented `generateChat` across `GeminiProvider`, `MockExtractionProvider`, and `GeminiProviderPlaceholder`.
+- **Server-Side Synthetic Provenance Gate Hardening (`POST /api/copilot/explain`):**
+  - Replaced client-trusting `isSynthetic: true` / document ID parsing with strict server-side provenance validation.
+  - Validates document IDs against `TRUSTED_SYNTHETIC_FIXTURE_IDS` or queries Supabase with user JWT to confirm `is_synthetic_demo === true`.
+  - Rejects unknown or non-synthetic documents with `403 FORBIDDEN_UNTRUSTED_PROVENANCE`.
+  - Preserved Emergency Red Flags and Medication Dosage interception ahead of provenance checks so life-threatening queries are never blocked by missing fixture IDs.
+- **Dual-Mode Copilot UI (`src/pages/copilot.astro`):**
+  - Added Mode switcher tabs: "Guided Health Guide (40 Scenarios)" vs "General Health AI Chat (Gemini 3.8-Flash)".
+  - Integrated AI Prototype Privacy & Educational Disclaimer banner.
+  - Added real-time loading pulse animation, retry error card, and offline demo fallback badge.
+  - Seamless handoff action: "Continue with General Health AI Chat" button transfers active queries from guided flows into AI conversation.
+  - Added URL parameter support (`?mode=ai`, `?query=...`, `?locale=te`).
+- **Dashboard & Landing Integration (`src/pages/index.astro`):**
+  - Added AI chat topic chip and direct shortcuts on dashboard (`/`) linking into `/copilot?mode=ai`.
+- **Verification Quality Gates:**
+  - Vitest Unit Tests: **127/127 passing** across 8 test suites (+10 new tests in `tests/chat-api.test.ts`, +1 new test in `tests/explain-api.test.ts`).
+  - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
+  - Production Build: Clean (`astro build` with `@astrojs/vercel`, 6 static routes prerendered + 5 serverless functions bundled in 7.19s).
+
+
 
 

@@ -133,6 +133,24 @@ describe('Phase 3: Controlled AI Explanation & Safety Guardrails', () => {
         })
       ).rejects.toThrow('REAL_PHI_DISALLOWED');
     });
+
+    it('rejects client-supplied documentId with untrusted provenance even if isSynthetic is claimed true', async () => {
+      const spoofedBody = {
+        documentId: 'random-unverified-doc-id-999',
+        isSynthetic: true,
+        fields: [{ name: 'Glucose', value: 140, unit: 'mg/dL' }],
+        locale: 'en',
+      };
+      const req = createMockRequest(spoofedBody);
+      const ctx = createMockContext(req, '192.168.1.112');
+
+      const res = await POST(ctx);
+      expect(res.status).toBe(403);
+
+      const json = await res.json();
+      expect(json.code).toBe('FORBIDDEN_UNTRUSTED_PROVENANCE');
+      expect(json.error).toContain('Cannot verify that the specified document is a confirmed synthetic demo record');
+    });
   });
 
   describe('C. Safety Gates: Priority Over External AI Model', () => {

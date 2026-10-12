@@ -21,18 +21,20 @@ import {
   ShieldCheck,
   User,
   LogIn,
+  Cpu,
+  MessageSquare,
 } from '@lucide/astro';
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Guided Health Copilot" subtext="Source-backed health education & 40 guided scenarios">
+<Layout title="Health Copilot" subtext="Guided Clinical Scenarios & General Health AI Chat">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
     <!-- Header -->
     <div class="space-y-2 pb-2 border-b border-aura-border/30">
       <nav class="flex items-center gap-2 text-xs text-aura-text-muted mb-1.5">
         <a href="/" class="hover:text-aura-text transition">Dashboard</a>
         <span>/</span>
-        <span class="text-aura-text font-semibold">Guided Health Copilot</span>
+        <span class="text-aura-text font-semibold">Health Copilot</span>
       </nav>
       <div class="flex flex-wrap items-center gap-2">
         <div id="session-mode-pill" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-aura-surface-cream text-aura-text border border-black/5 shadow-2xs">
@@ -41,14 +43,14 @@ import Layout from '../layouts/Layout.astro';
         </div>
         <div id="auth-status-container" class="hidden sm:inline-flex items-center gap-1.5 text-xs text-aura-text-muted">
           <span>•</span>
-          <a id="auth-link-text" href="/auth" class="hover:text-aura-text hover:underline">Sign In for Vault Storage & Deep AI</a>
+          <a id="auth-link-text" href="/auth" class="hover:text-aura-text hover:underline">Sign In for Vault Storage & Higher AI Limits</a>
         </div>
       </div>
       <h1 class="text-2xl sm:text-3xl font-serif font-normal text-aura-text tracking-tight">
-        Altrix Guided Health Copilot
+        Altrix Health Copilot
       </h1>
       <p class="text-aura-text-muted text-xs sm:text-sm max-w-2xl leading-relaxed">
-        Immediate, deterministic answers for 40 clinical topics covering acute symptoms, medication safety, laboratory reports, and urgent first aid.
+        Choose between our deterministic <strong>40-Scenario Guided Health Guide</strong> (curated offline answers) and our <strong>General Health AI Chat</strong> (Gemini 3.8-Flash educational reasoning).
       </p>
     </div>
 
@@ -70,24 +72,27 @@ import Layout from '../layouts/Layout.astro';
     </div>
 
     <!-- Main Copilot Chat Shell -->
-    <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card overflow-hidden flex flex-col min-h-[640px]">
-      <!-- Shell Header: Status, Turns Counter, Language Switcher -->
+    <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card overflow-hidden flex flex-col min-h-[660px]">
+      <!-- Shell Header: Status, Mode Switcher, Turns Counter, Language Switcher -->
       <div class="bg-aura-surface-blush border-b border-aura-border px-5 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-full bg-aura-sidebar text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
-            <HeartPulse class="w-4 h-4 text-aura-accent-orange" stroke-width={2.2} />
-          </div>
-          <div>
-            <div class="font-bold text-aura-text text-xs sm:text-sm flex items-center gap-1.5">
-              <span>Altrix Health Copilot</span>
-              <span class="px-2 py-0.2 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
-                40-Scenario Engine
-              </span>
-            </div>
-            <div class="text-[11px] text-aura-text-muted flex items-center gap-1">
-              <span>CDC • MedlinePlus • AHA Knowledge</span>
-            </div>
-          </div>
+        <!-- Dual Mode Switcher Tabs -->
+        <div class="inline-flex rounded-full p-1 bg-white border border-aura-border text-xs font-semibold shadow-2xs">
+          <button
+            id="tab-mode-guided"
+            type="button"
+            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-aura-sidebar text-white shadow-2xs transition cursor-pointer"
+          >
+            <BookOpen class="w-3.5 h-3.5" />
+            <span>Guided Guide (40 Scenarios)</span>
+          </button>
+          <button
+            id="tab-mode-ai"
+            type="button"
+            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-aura-text-muted hover:text-aura-text transition cursor-pointer"
+          >
+            <Cpu class="w-3.5 h-3.5 text-aura-accent-orange" />
+            <span>General AI Chat (Gemini)</span>
+          </button>
         </div>
 
         <div class="flex items-center gap-3">
@@ -95,7 +100,7 @@ import Layout from '../layouts/Layout.astro';
           <div
             id="turn-counter-badge"
             class="px-2.5 py-1 rounded-full text-[11px] font-medium bg-white text-aura-text-muted border border-aura-border shadow-2xs"
-            title="Guest conversations allow 6 turns. Emergencies bypass this limit."
+            title="Guided guest conversations allow 6 turns. AI chat applies per-IP/user rate limits. Emergencies bypass all limits."
           >
             Session: <strong id="remaining-turns-text" class="text-aura-text font-bold">6 turns remaining</strong>
           </div>
@@ -120,6 +125,15 @@ import Layout from '../layouts/Layout.astro';
         </div>
       </div>
 
+      <!-- AI Privacy Notice Banner (Active in AI mode) -->
+      <div id="ai-privacy-banner" class="hidden bg-amber-50/90 border-b border-amber-200 px-5 py-2.5 text-xs text-amber-950 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <Info class="w-4 h-4 text-amber-700 shrink-0" />
+          <span><strong>Educational Prototype:</strong> Do NOT submit real names, medical records, or sensitive private data. AI answers are general education only.</span>
+        </div>
+        <span class="text-[10.5px] font-mono px-2 py-0.5 rounded bg-amber-200/70 text-amber-900 shrink-0">gemini-3.8-flash</span>
+      </div>
+
       <!-- Scrollable Chat Messages Container -->
       <div id="chat-messages" class="flex-grow p-4 sm:p-6 space-y-4 overflow-y-auto max-h-[460px] bg-aura-canvas/40">
         <!-- Initial Welcome Bubble -->
@@ -139,8 +153,8 @@ import Layout from '../layouts/Layout.astro';
         </div>
       </div>
 
-      <!-- Categorized Quick-Reply Topic Dock -->
-      <div class="p-4 bg-aura-surface-blush/80 border-t border-aura-border space-y-3">
+      <!-- Categorized Quick-Reply Topic Dock (Active in Guided mode) -->
+      <div id="guided-topic-dock" class="p-4 bg-aura-surface-blush/80 border-t border-aura-border space-y-3">
         <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-aura-text-subtle">
           <span id="topic-dock-title">Popular Guided Topics • Tap to explore:</span>
           <span class="text-[10px] lowercase font-normal">no records required</span>
@@ -209,14 +223,6 @@ import Layout from '../layouts/Layout.astro';
             <Pill class="w-3.5 h-3.5 text-indigo-600" />
             <span>Read Prescription</span>
           </button>
-          <button
-            type="button"
-            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
-            data-query="I missed my medicine dose."
-          >
-            <Clock class="w-3.5 h-3.5 text-indigo-600" />
-            <span>Missed Dose</span>
-          </button>
 
           <!-- 4. Emergency Signs -->
           <button
@@ -245,7 +251,7 @@ import Layout from '../layouts/Layout.astro';
           <input
             id="chat-input"
             type="text"
-            placeholder="Ask any of the 40 health topics, e.g. 'Can you explain my cholesterol results?'"
+            placeholder="Ask any health question, e.g. 'Can you explain my cholesterol results?'"
             class="flex-grow px-4 py-2.5 rounded-full border border-aura-border text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-aura-sidebar placeholder:text-aura-text-subtle bg-white"
             aria-label="Ask health question"
           />
@@ -260,7 +266,7 @@ import Layout from '../layouts/Layout.astro';
         </form>
 
         <div class="flex items-center justify-between text-[11px] text-aura-text-subtle mt-2 px-1">
-          <span>Sources: MedlinePlus, CDC, American Heart Association</span>
+          <span id="footer-sources-text">Sources: MedlinePlus, CDC, American Heart Association</span>
           <div class="flex items-center gap-3">
             <a href="/auth" class="hover:text-aura-text underline">Sign In / Sign Up</a>
             <span>•</span>
@@ -283,12 +289,18 @@ import Layout from '../layouts/Layout.astro';
   import { getCurrentUser } from '../lib/supabase/auth';
   import type { ChatIntentMatch } from '../types/healthChat';
 
+  type ActiveMode = 'guided' | 'ai';
+  let activeMode: ActiveMode = 'guided';
+
   let engine = new ConversationEngine({ locale: 'en' });
   let currentLocale: 'en' | 'te' = 'en';
+  let aiChatHistory: Array<{ role: 'user' | 'assistant'; content: string }> = [];
+  let userAuthToken: string | null = null;
 
   const chatMessages = document.getElementById('chat-messages');
   const chatForm = document.getElementById('chat-form') as HTMLFormElement | null;
   const chatInput = document.getElementById('chat-input') as HTMLInputElement | null;
+  const chatSubmit = document.getElementById('chat-submit') as HTMLButtonElement | null;
   const langBtnEn = document.getElementById('lang-btn-en');
   const langBtnTe = document.getElementById('lang-btn-te');
   const welcomeMessage = document.getElementById('welcome-message');
@@ -296,6 +308,10 @@ import Layout from '../layouts/Layout.astro';
   const btnRestartChat = document.getElementById('btn-restart-chat');
   const sessionModeText = document.getElementById('session-mode-text');
   const authStatusContainer = document.getElementById('auth-status-container');
+  const tabModeGuided = document.getElementById('tab-mode-guided');
+  const tabModeAi = document.getElementById('tab-mode-ai');
+  const aiPrivacyBanner = document.getElementById('ai-privacy-banner');
+  const guidedTopicDock = document.getElementById('guided-topic-dock');
   const topicChips = document.querySelectorAll('.topic-chip');
 
   // Check auth session
@@ -308,8 +324,10 @@ import Layout from '../layouts/Layout.astro';
           sessionModeText.textContent = `Signed In: ${user.email || 'User'} • Vault Mode`;
         }
         if (authStatusContainer) {
-          authStatusContainer.innerHTML = `<span>•</span> <span class="font-medium text-emerald-800">Authenticated (Unlimited Turns)</span>`;
+          authStatusContainer.innerHTML = `<span>•</span> <span class="font-medium text-emerald-800">Authenticated (Unlimited Guided Turns)</span>`;
         }
+        // Retrieve local access token if present in session storage or cookie
+        userAuthToken = (window as any).__SUPABASE_ACCESS_TOKEN__ || null;
         updateTurnsDisplay();
       }
     } catch {
@@ -317,10 +335,46 @@ import Layout from '../layouts/Layout.astro';
     }
   }
 
+  function setMode(mode: ActiveMode) {
+    activeMode = mode;
+    if (mode === 'guided') {
+      tabModeGuided?.classList.add('bg-aura-sidebar', 'text-white', 'shadow-2xs');
+      tabModeGuided?.classList.remove('text-aura-text-muted');
+      tabModeAi?.classList.remove('bg-aura-sidebar', 'text-white', 'shadow-2xs');
+      tabModeAi?.classList.add('text-aura-text-muted');
+      aiPrivacyBanner?.classList.add('hidden');
+      guidedTopicDock?.classList.remove('hidden');
+      if (chatInput) {
+        chatInput.placeholder = "Ask any of the 40 health topics, e.g. 'Can you explain my cholesterol results?'";
+      }
+    } else {
+      tabModeAi?.classList.add('bg-aura-sidebar', 'text-white', 'shadow-2xs');
+      tabModeAi?.classList.remove('text-aura-text-muted');
+      tabModeGuided?.classList.remove('bg-aura-sidebar', 'text-white', 'shadow-2xs');
+      tabModeGuided?.classList.add('text-aura-text-muted');
+      aiPrivacyBanner?.classList.remove('hidden');
+      guidedTopicDock?.classList.add('hidden');
+      if (chatInput) {
+        chatInput.placeholder = "Ask general educational health question (Gemini 3.8-Flash)...";
+      }
+    }
+    updateTurnsDisplay();
+  }
+
+  tabModeGuided?.addEventListener('click', () => setMode('guided'));
+  tabModeAi?.addEventListener('click', () => setMode('ai'));
+
   function updateTurnsDisplay() {
     if (!remainingTurnsText) return;
-    const state = engine.getSessionState();
 
+    if (activeMode === 'ai') {
+      const state = engine.getSessionState();
+      remainingTurnsText.textContent = state.isAuthenticated ? 'AI Mode: 20 / 10m' : 'AI Mode: 5 / 10m';
+      remainingTurnsText.classList.remove('text-amber-700');
+      return;
+    }
+
+    const state = engine.getSessionState();
     if (state.isAuthenticated) {
       remainingTurnsText.textContent = 'Unlimited (Member)';
       remainingTurnsText.classList.remove('text-amber-700');
@@ -353,12 +407,31 @@ import Layout from '../layouts/Layout.astro';
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
+  function appendLoadingBubble(): HTMLElement {
+    const div = document.createElement('div');
+    div.id = 'ai-loading-bubble';
+    div.className = 'flex items-start gap-3';
+    div.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-aura-sidebar text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs animate-pulse">
+        AI
+      </div>
+      <div class="bg-white rounded-2xl rounded-tl-xs p-3.5 sm:p-4 max-w-sm text-xs text-aura-text-muted space-y-1.5 border border-aura-border shadow-2xs">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-aura-accent-orange animate-ping"></span>
+          <span class="font-medium">Altrix AI is formulating response...</span>
+        </div>
+      </div>
+    `;
+    chatMessages?.appendChild(div);
+    if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+    return div;
+  }
+
   function appendIntentBubble(match: ChatIntentMatch) {
     if (!chatMessages) return;
     const div = document.createElement('div');
     div.className = 'flex items-start gap-3';
 
-    // Safety badge config
     let badgeClass = 'bg-emerald-50 text-emerald-800 border-emerald-200';
     let badgeLabel = 'ℹ Educational Guidance';
     let iconSymbol = '+';
@@ -376,7 +449,6 @@ import Layout from '../layouts/Layout.astro';
       iconBg = 'bg-amber-600';
     }
 
-    // Quick replies chips
     let quickRepliesHtml = '';
     if (match.quickReplies && match.quickReplies.length > 0) {
       quickRepliesHtml = `
@@ -403,7 +475,19 @@ import Layout from '../layouts/Layout.astro';
       `;
     }
 
-    // Citations
+    // AI handoff button if fallback or user requested
+    let aiHandoffHtml = '';
+    if (match.type === 'fallback') {
+      aiHandoffHtml = `
+        <div class="p-2.5 rounded-xl bg-aura-surface-blush border border-aura-border text-xs flex items-center justify-between gap-2">
+          <span>Need deeper AI exploration for this query?</span>
+          <button type="button" class="btn-handoff-ai px-3 py-1 rounded-full bg-aura-action text-white text-[11px] font-semibold hover:bg-aura-action-hover cursor-pointer">
+            Ask Altrix AI Chat ↗
+          </button>
+        </div>
+      `;
+    }
+
     let citationsHtml = '';
     if (match.citations && match.citations.length > 0) {
       citationsHtml = `
@@ -422,7 +506,6 @@ import Layout from '../layouts/Layout.astro';
       `;
     }
 
-    // Paragraph formatting
     const formattedMessage = escapeHtml(match.message)
       .replace(/\n\n/g, '<br/><br/>')
       .replace(/\n•/g, '<br/>•')
@@ -444,6 +527,7 @@ import Layout from '../layouts/Layout.astro';
           ${formattedMessage}
         </div>
 
+        ${aiHandoffHtml}
         ${quickRepliesHtml}
         ${citationsHtml}
 
@@ -456,7 +540,7 @@ import Layout from '../layouts/Layout.astro';
     chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
-    // Attach click listeners to freshly rendered quick replies
+    // Attach listeners
     div.querySelectorAll('.quick-reply-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
         const reply = btn.getAttribute('data-reply');
@@ -471,6 +555,120 @@ import Layout from '../layouts/Layout.astro';
         }
       });
     });
+
+    div.querySelector('.btn-handoff-ai')?.addEventListener('click', () => {
+      setMode('ai');
+      appendUserBubble('Switching to General Health AI Chat...');
+    });
+  }
+
+  function appendAIBubble(data: {
+    message: string;
+    isMockFallback: boolean;
+    provider: string;
+    disclaimer: string;
+    suggestedQuestions?: string[];
+    isEmergency?: boolean;
+    isBlockedDosage?: boolean;
+  }) {
+    if (!chatMessages) return;
+    const div = document.createElement('div');
+    div.className = 'flex items-start gap-3';
+
+    let badgeClass = 'bg-indigo-50 text-indigo-900 border-indigo-200';
+    let badgeLabel = '🤖 General AI Response';
+    if (data.isEmergency) {
+      badgeClass = 'bg-rose-100 text-rose-900 border-rose-300 font-bold';
+      badgeLabel = '🚨 Urgent Emergency Priority';
+    } else if (data.isBlockedDosage) {
+      badgeClass = 'bg-amber-100 text-amber-900 border-amber-300 font-semibold';
+      badgeLabel = '⚠ Caution / Dosage Safety';
+    }
+
+    const formattedMessage = escapeHtml(data.message)
+      .replace(/\n\n/g, '<br/><br/>')
+      .replace(/\n•/g, '<br/>•')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+    div.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-aura-sidebar text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
+        AI
+      </div>
+      <div class="bg-white rounded-2xl rounded-tl-xs p-4 sm:p-5 max-w-xl text-xs sm:text-sm text-aura-text space-y-3 leading-relaxed border border-aura-border/60 shadow-2xs">
+        <div class="flex items-center justify-between gap-2">
+          <span class="px-2 py-0.5 rounded-full text-[10px] border ${badgeClass}">
+            ${badgeLabel}
+          </span>
+          <span class="text-[10px] text-aura-text-muted font-mono">
+            ${data.isMockFallback ? 'Offline Demo Fallback' : escapeHtml(data.provider)}
+          </span>
+        </div>
+
+        <div class="leading-relaxed">
+          ${formattedMessage}
+        </div>
+
+        ${
+          data.suggestedQuestions && data.suggestedQuestions.length > 0
+            ? `
+          <div class="pt-2 border-t border-aura-border/40 space-y-1.5">
+            <div class="text-[10.5px] font-bold uppercase tracking-wider text-aura-text-subtle">Suggested Questions:</div>
+            <div class="flex flex-wrap gap-1.5">
+              ${data.suggestedQuestions
+                .map(
+                  (q) => `
+                <button type="button" class="quick-reply-btn px-3 py-1 rounded-full text-xs font-medium bg-aura-surface-cream hover:bg-white text-aura-text border border-aura-border transition shadow-2xs cursor-pointer" data-reply="${escapeHtml(q)}">
+                  ${escapeHtml(q)}
+                </button>
+              `
+                )
+                .join('')}
+            </div>
+          </div>
+        `
+            : ''
+        }
+
+        <div class="p-2 rounded-lg bg-aura-surface-blush text-[10.5px] text-aura-text-subtle leading-tight">
+          ${escapeHtml(data.disclaimer)}
+        </div>
+      </div>
+    `;
+
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    div.querySelectorAll('.quick-reply-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const reply = btn.getAttribute('data-reply');
+        if (reply) handleUserQuery(reply);
+      });
+    });
+  }
+
+  function appendErrorBubble(errorMsg: string, retryQuery: string) {
+    if (!chatMessages) return;
+    const div = document.createElement('div');
+    div.className = 'flex items-start gap-3';
+    div.innerHTML = `
+      <div class="w-8 h-8 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
+        !
+      </div>
+      <div class="bg-rose-50 border border-rose-200 rounded-2xl rounded-tl-xs p-4 max-w-xl text-xs text-rose-950 space-y-2 leading-relaxed shadow-2xs">
+        <strong>Error:</strong>
+        <p>${escapeHtml(errorMsg)}</p>
+        <button type="button" id="btn-retry-chat" class="px-3 py-1 rounded-full bg-rose-600 text-white font-semibold hover:bg-rose-700 text-[11px] cursor-pointer">
+          Retry
+        </button>
+      </div>
+    `;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    div.querySelector('#btn-retry-chat')?.addEventListener('click', () => {
+      div.remove();
+      handleUserQuery(retryQuery);
+    });
   }
 
   function escapeHtml(str: string) {
@@ -478,7 +676,58 @@ import Layout from '../layouts/Layout.astro';
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
+  async function handleAIQuery(query: string) {
+    const trimmed = query.trim();
+    if (!trimmed) return;
+
+    appendUserBubble(trimmed);
+    if (chatInput) chatInput.value = '';
+
+    aiChatHistory.push({ role: 'user', content: trimmed });
+    const loadingBubble = appendLoadingBubble();
+
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (userAuthToken) {
+        headers['Authorization'] = `Bearer ${userAuthToken}`;
+      }
+
+      const res = await fetch('/api/copilot/chat', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          messages: aiChatHistory,
+          locale: currentLocale,
+        }),
+      });
+
+      loadingBubble.remove();
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => null);
+        const errMsg = errJson?.error || `Server returned HTTP ${res.status}`;
+        appendErrorBubble(errMsg, trimmed);
+        return;
+      }
+
+      const data = await res.json();
+      aiChatHistory.push({ role: 'assistant', content: data.message });
+      appendAIBubble(data);
+      updateTurnsDisplay();
+    } catch (err: any) {
+      loadingBubble.remove();
+      appendErrorBubble(err?.message || 'Network error while contacting AI service.', trimmed);
+    }
+  }
+
   function handleUserQuery(query: string) {
+    if (activeMode === 'ai') {
+      handleAIQuery(query);
+      return;
+    }
+
     const trimmed = query.trim();
     if (!trimmed) return;
 
@@ -534,6 +783,7 @@ import Layout from '../layouts/Layout.astro';
   // Restart chat
   btnRestartChat?.addEventListener('click', () => {
     engine.reset();
+    aiChatHistory = [];
     updateTurnsDisplay();
     if (chatMessages) {
       chatMessages.innerHTML = '';
@@ -545,7 +795,7 @@ import Layout from '../layouts/Layout.astro';
         </div>
         <div class="bg-white rounded-2xl rounded-tl-xs p-4 sm:p-5 max-w-xl text-xs sm:text-sm text-aura-text space-y-2 leading-relaxed border border-aura-border/60 shadow-2xs">
           <p class="font-medium">
-            Session refreshed. 6 guest turns available. Tap any popular topic below or type your health question.
+            Session refreshed. 6 guided guest turns available. Tap any popular topic below or type your health question.
           </p>
         </div>
       `;
@@ -556,6 +806,10 @@ import Layout from '../layouts/Layout.astro';
   // Handle URL query params
   function checkUrlParams() {
     const params = new URLSearchParams(window.location.search);
+    const modeParam = params.get('mode');
+    if (modeParam === 'ai') {
+      setMode('ai');
+    }
     const localeParam = params.get('locale');
     if (localeParam === 'te') {
       langBtnTe?.click();

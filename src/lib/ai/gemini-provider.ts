@@ -202,4 +202,90 @@ RULES:
       return this.mockFallback.explainEvidence(request);
     }
   }
+
+  /**
+   * General educational health chat grounded in strict medical safety policies
+   */
+  async generateChat(request: import('./provider').GeneralChatRequest): Promise<import('./provider').GeneralChatResponse> {
+    if (!request.messages || request.messages.length === 0) {
+      throw new AIProviderError(
+        'At least one chat message is required.',
+        'VALIDATION_FAILED',
+        400
+      );
+    }
+
+    // Fall back to deterministic template if API key is unconfigured
+    if (!this.apiKey || this.apiKey.includes('your-gemini-api-key')) {
+      return this.mockFallback.generateChat(request);
+    }
+
+    const locale = request.locale || 'en';
+    const localePrompt = locale === 'te' ? 'Telugu (తెలుగు)' : 'English';
+
+    const systemInstruction = `You are the Altrix Health Educational Copilot.
+You answer patient general health questions with educational, evidence-based clarity.
+RULES:
+1. Provide educational health information ONLY.
+2. NEVER diagnose diseases, prescribe medications, or calculate/adjust drug dosages.
+3. NEVER claim any medication or treatment is universally safe for everyone.
+4. If a question involves potential red flag symptoms, advise seeing a clinician or emergency service immediately.
+5. Ground your answers in authoritative guidance (CDC, MedlinePlus, WHO, NHS).
+6. Output language must be strictly ${localePrompt}.
+7. Keep answers structured (concise overview, bulleted considerations, when to contact a clinician).
+8. Always conclude with a disclaimer that this is educational advice and not a diagnosis.`;
+
+    const contents = request.messages.slice(-6).map((m) => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }],
+    }));
+
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(this.modelName)}:generateContent?key=${encodeURIComponent(this.apiKey)}`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8-second strict timeout
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          contents,
+          systemInstruction: { parts: [{ text: systemInstruction }] },
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 600,
+          },
+        }),
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        return this.mockFallback.generateChat(request);
+      }
+
+      const rawJson = await response.json();
+      const candidateText = rawJson?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!candidateText || candidateText.trim().length === 0) {
+        return this.mockFallback.generateChat(request);
+      }
+
+      return {
+        message: candidateText.trim(),
+        isMockFallback: false,
+        provider: `GoogleGemini (${this.modelName})`,
+        disclaimer: 'Educational guidance only. Not a medical diagnosis or prescription. Consult a licensed physician for personal care.',
+        suggestedQuestions: [
+          'What red flag symptoms should I watch for?',
+          'How should I prepare for a doctor visit?',
+          'What questions should I ask my doctor?',
+        ],
+      };
+    } catch {
+      return this.mockFallback.generateChat(request);
+    }
+  }
 }
+

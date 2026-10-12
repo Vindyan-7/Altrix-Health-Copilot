@@ -39,20 +39,18 @@ Reviewed evidence determines what may be said; templates determine tone; AI may 
 10. Update this file and `docs/DEVELOPMENT_LOG.md` after each milestone with current status, test results, known issues, and the next exact task.
 
 ## Current implementation status
-Phase 4A: 40-Scenario Engine & Guided Chatbot completed on branch `feat/guest-health-copilot-mvp`:
+Phase 4B: General Health AI Chat, Dual-Mode Copilot & Synthetic Provenance Gate completed on branch `feat/guest-health-copilot-mvp`:
 - **Current Baseline:** `feat/guest-health-copilot-mvp` active; `develop`, `feat/timeline-iteration-3`, and `feat/review-page-iteration-2b` preserved intact.
-- **Phase 4A Deliverables:**
-  1. **Typed Scenario Registry:** Parsed 40 clinical scenarios from root `health_copilot_40_chatbot_scenarios.md` into `src/data/healthChatScenarios.ts` and `src/types/healthChat.ts`. Preserved canonical IDs, triggers, quick replies, and exact responses.
-  2. **Deterministic Matching Engine:** Word-boundary input normalization, confidence scoring, multi-topic disambiguation, and context retention for quick replies and short follow-ups.
-  3. **Safety Priority:** Priority 1 emergency red flags (chest pain, stroke, breathing distress, severe bleeding) and Priority 2 medication dosage refusal precede routine matching.
-  4. **Session Management & Guest Budget:** 6-turn guest session budget with emergency bypass; Guest-to-AI handoff CTA to Sign In/Sign Up; session reset.
-  5. **Authenticated Mode Integration:** Detects active Supabase session via `getCurrentUser()` unlocking unlimited turns and direct deep AI explanation via `/api/copilot/explain` with `gemini-3.8-flash`.
-  6. **Aura UI Alignment & Landing Entry:** Rendered safety badges, quick-reply chips, disambiguation buttons, and verified citations in `src/pages/copilot.astro`. Added Guided Copilot quick access card and popular topic chips on `src/pages/index.astro`.
-  7. **Preserved Multilingual Support:** Bilingual English/Telugu switcher with honest notice for untranslated content.
-- **Quality Gates:** 116/116 Vitest unit tests pass across 7 test suites, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
+- **Phase 4B Deliverables:**
+  1. **Dual-Mode Copilot Experience:** `src/pages/copilot.astro` provides tabbed navigation between the deterministic 40-Scenario Guided Guide and the dynamic General Health AI Chat backed by Gemini 3.8-Flash.
+  2. **Dedicated General Health AI Chat API:** `POST /api/copilot/chat` with 16 KB payload ceiling, Zod validation, tiered rate limiting (5 req/10m guest, 20 req/10m auth, 60 req/min global), pre-model Emergency (Priority 1) and Dosage (Priority 2) interception, 8s timeout, and graceful offline fallback.
+  3. **Strict Synthetic Provenance Verification:** Hardened `POST /api/copilot/explain` to reject client spoofing. Documents must be in `TRUSTED_SYNTHETIC_FIXTURE_IDS` or confirmed as `is_synthetic_demo === true` in database via user JWT, else rejected with `403 FORBIDDEN_UNTRUSTED_PROVENANCE`.
+  4. **Landing Page & Navigation Shortcuts:** Updated `src/pages/index.astro` and `src/pages/copilot.astro` with deep query/mode linking, privacy warnings, loading pulse animations, and guided-to-AI handoffs.
+  5. **Bilingual & Disclaimer Support:** Preserved English/Telugu switcher with explicit indicators for untranslated content, non-diagnostic educational tone, and emergency 112/108 banners.
+- **Quality Gates:** 127/127 Vitest unit tests pass across 8 test suites, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
 
 ## Current next task
-Deliver the Phase 4A report and guided-flow preview for CTO review. Do not begin OCR, real document uploads, real-patient analysis, or production merging.
+CTO Review and Sprint Acceptance of Phase 4B Master Implementation. Do not begin OCR, real document uploads, real-patient analysis, or production merging.
 
 
 

@@ -94,6 +94,36 @@ export class MockExtractionProvider implements AIProvider {
     };
   }
 
+  async generateChat(request: import('./provider').GeneralChatRequest): Promise<import('./provider').GeneralChatResponse> {
+    const isTelugu = request.locale === 'te';
+    const lastUserMessage = [...request.messages].reverse().find((m) => m.role === 'user')?.content || 'General health information';
+
+    let messageText = '';
+    let suggestedQuestions: string[] = [];
+
+    if (isTelugu) {
+      messageText = `మీ ప్రశ్న ("${lastUserMessage}") కు సమాధానంగా: ఇది ఒక సాధారణ విద్యాపరమైన సారాంశం. ఆరోగ్య సమస్యలకు సంబంధించి మరింత స్పష్టత కోసం మీ వైద్యుడిని లేదా సమీప క్లినిక్‌ను సంప్రదించండి. మేము వ్యక్తిగత మందుల మోతాదులను సూచించలేము.`;
+      suggestedQuestions = ['ల్యాబ్ నివేదిక వివరాలు తెలుసుకోవడం ఎలా?', 'వైద్యుడిని ఎప్పుడు సంప్రదించాలి?'];
+    } else {
+      messageText = `Regarding your health inquiry ("${lastUserMessage}"): This is an educational health overview. ` +
+        `General health and wellness involves monitoring symptom duration, maintaining adequate hydration and rest, and keeping a factual log of any changes. ` +
+        `If symptoms persist or significantly interfere with daily living, schedule an evaluation with a licensed physician.`;
+      suggestedQuestions = [
+        'What red flags should I monitor for?',
+        'How can I prepare questions for my doctor?',
+        'Explain safe medicine practices',
+      ];
+    }
+
+    return {
+      message: messageText,
+      isMockFallback: true,
+      provider: this.name,
+      disclaimer: 'Educational guidance only. Not a medical diagnosis or prescription. Consult a licensed physician for personal care.',
+      suggestedQuestions,
+    };
+  }
+
   async healthCheck(): Promise<ProviderHealth> {
     return {
       providerName: this.name,

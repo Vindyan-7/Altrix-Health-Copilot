@@ -60,6 +60,16 @@ export class GeminiProviderPlaceholder implements AIProvider {
     );
   }
 
+  async generateChat(
+    _request: import('./provider').GeneralChatRequest
+  ): Promise<import('./provider').GeneralChatResponse> {
+    throw new AIProviderError(
+      'Gemini placeholder provider is inactive. Use GeminiProvider.',
+      'PROVIDER_UNAVAILABLE',
+      503
+    );
+  }
+
   async healthCheck(): Promise<ProviderHealth> {
     const hasKey = Boolean(this.apiKey && this.apiKey.trim().length > 0);
     return {

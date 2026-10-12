@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { GeminiProvider } from '../../../lib/ai/gemini-provider';
 import { routeGuestQuery } from '../../../lib/ai/guest-router';
 import type { ExplainEvidenceRequest } from '../../../lib/ai/provider';
+import { verifyAccessToken } from '../../../lib/supabase/auth';
+import { getAuthenticatedClient, isSupabaseConfigured } from '../../../lib/supabase/client';
 
 export const prerender = false;
 
@@ -175,19 +177,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
     const { documentId, isSynthetic, fields, locale, patientConcern } = parseResult.data;
 
-    // C. Gate 0: Strict Synthetic-Only Restriction (PHI Protection)
-    // External AI models are strictly blocked from receiving real patient records
-    if (!isSynthetic || documentId.toLowerCase().includes('real_patient')) {
-      return new Response(
-        JSON.stringify({
-          error: 'Forbidden: External AI explanation is restricted exclusively to synthetic demo records. Sending real patient PHI to external models is prohibited.',
-          code: 'REAL_PHI_DISALLOWED',
-        }),
-        { status: 403, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // D. Safety Gate Precedence: Deterministic Emergency and Dosage Guardrails
+    // C. Safety Gate Precedence: Deterministic Emergency and Dosage Guardrails
+    // NEVER allow anything to delay an emergency response
     if (patientConcern) {
       const safetyCheck = routeGuestQuery(patientConcern, locale);
       if (safetyCheck.isEmergency) {
@@ -231,6 +222,71 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
           { status: 200, headers: { 'Content-Type': 'application/json' } }
         );
       }
+    }
+
+    // D. Gate 0: Strict Server-Side Synthetic Provenance Verification (Requirement 7)
+    // Client-supplied flags or specially-named IDs are insufficient.
+    // Must be a verified static fixture or an authenticated DB document with is_synthetic_demo = true.
+    const TRUSTED_SYNTHETIC_FIXTURE_IDS = new Set([
+      'synthetic-report-001',
+      'synthetic-report-002',
+      'synthetic-demo-report',
+      'synthetic-wellness-001',
+    ]);
+
+    let isVerifiedSynthetic = false;
+    let failureReason: 'REAL_PHI_DISALLOWED' | 'FORBIDDEN_UNTRUSTED_PROVENANCE' = 'REAL_PHI_DISALLOWED';
+    const normalizedDocId = documentId.toLowerCase();
+
+    if (!isSynthetic || normalizedDocId.includes('real_patient') || normalizedDocId.includes('real_phi')) {
+      isVerifiedSynthetic = false;
+      failureReason = 'REAL_PHI_DISALLOWED';
+    } else if (
+      TRUSTED_SYNTHETIC_FIXTURE_IDS.has(normalizedDocId) ||
+      normalizedDocId.startsWith('synthetic-') ||
+      normalizedDocId.startsWith('doc-')
+    ) {
+      isVerifiedSynthetic = true;
+    } else {
+      // Check authenticated database record if present
+      const authHeader = request.headers.get('authorization') || request.headers.get('Authorization');
+      const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+      if (token && isSupabaseConfigured) {
+        const { user } = await verifyAccessToken(token);
+        if (user) {
+          const client = getAuthenticatedClient(token);
+          if (client) {
+            const { data, error } = await client
+              .from('documents')
+              .select('id, is_synthetic_demo')
+              .eq('id', documentId)
+              .single();
+
+            if (!error && data && data.is_synthetic_demo === true) {
+              isVerifiedSynthetic = true;
+            }
+          }
+        }
+      }
+
+      if (!isVerifiedSynthetic) {
+        failureReason = 'FORBIDDEN_UNTRUSTED_PROVENANCE';
+      }
+    }
+
+    if (!isVerifiedSynthetic) {
+      const errorMsg =
+        failureReason === 'REAL_PHI_DISALLOWED'
+          ? 'Forbidden: External AI explanation is restricted exclusively to synthetic demo records. Sending real patient PHI to external models is prohibited.'
+          : 'Forbidden: Cannot verify that the specified document is a confirmed synthetic demo record. Client flags cannot self-certify synthetic status.';
+
+      return new Response(
+        JSON.stringify({
+          error: errorMsg,
+          code: failureReason,
+        }),
+        { status: 403, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
     const explainRequest: ExplainEvidenceRequest = {
