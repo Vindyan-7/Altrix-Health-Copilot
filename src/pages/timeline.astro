@@ -7,260 +7,468 @@ import {
   FlaskConical,
   Activity,
   Pill,
+  FileText,
+  Filter,
+  Search,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  ShieldAlert,
+  SlidersHorizontal,
+  Clock,
+  Sparkles,
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus,
 } from '@lucide/astro';
 import Layout from '../layouts/Layout.astro';
 import { SYNTHETIC_PATIENT } from '../fixtures/synthetic-patient';
+import { SYNTHETIC_REPORT_STATS } from '../fixtures/synthetic-lab-report';
 
 const timeline = SYNTHETIC_PATIENT.timeline;
+const outOfRangeCount = SYNTHETIC_REPORT_STATS.outOfRangeCount;
+const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
+
+// Category counts computed accurately
+const labCount = timeline.filter((e) => e.category === 'lab_report').length;
+const wellnessCount = timeline.filter((e) => e.category === 'wellness').length;
+const rxCount = timeline.filter((e) => e.category === 'prescription').length;
 ---
 
-<Layout title="Health Timeline" subtext="Chronological synthetic health history">
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<Layout title="Health Timeline" subtext="Chronological longitudinal health records">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
+    <!-- 1. Header & Quick Actions -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-aura-border/30">
       <div class="space-y-1">
-        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-aura-surface-cream text-aura-text border border-black/5">
+        <nav class="flex items-center gap-2 text-xs text-aura-text-muted mb-1.5">
+          <a href="/" class="hover:text-aura-text transition">Dashboard</a>
+          <span>/</span>
+          <span class="text-aura-text font-semibold">Health Timeline</span>
+        </nav>
+        <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-aura-surface-cream text-aura-text border border-black/5 shadow-2xs">
           <Calendar class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
-          <span>Longitudinal Health History</span>
+          <span>Longitudinal Health History • Adult Profile (34F)</span>
         </div>
         <h1 class="text-2xl sm:text-3xl font-serif font-normal text-aura-text tracking-tight">
-          Synthetic Health Timeline
+          Personal Health Timeline
         </h1>
         <p class="text-aura-text-muted text-xs sm:text-sm max-w-2xl leading-relaxed">
-          Explore {SYNTHETIC_PATIENT.displayName}'s health journey over time. Comparable measurements with verified units are grouped for trend analysis.
+          Chronological record of lab visits, home wellness readings, and prescriptions for <strong class="text-aura-text font-semibold">{SYNTHETIC_PATIENT.displayName}</strong>. 
+          Comparable measurements with standardized units are aggregated for trend comparison.
         </p>
       </div>
 
-      <!-- Quick Add Demo Entry -->
-      <a
-        href="/records"
-        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-aura-action hover:bg-aura-action-hover text-white font-medium text-xs sm:text-sm shadow-xs transition"
-      >
-        <Plus class="w-4 h-4" stroke-width={2} />
-        <span>Add Document to Timeline</span>
-      </a>
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+        <a
+          href="/records"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-aura-action hover:bg-aura-action-hover text-white font-semibold text-xs sm:text-sm shadow-xs transition transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
+        >
+          <Plus class="w-4 h-4" stroke-width={2} />
+          <span>Add Record to Timeline</span>
+        </a>
+        <a
+          href="/review"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white hover:bg-aura-surface-blush text-aura-text font-medium text-xs sm:text-sm border border-aura-border shadow-2xs transition focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
+        >
+          <FileText class="w-4 h-4 text-aura-accent-orange" stroke-width={2} />
+          <span>Inspect Latest Lab Report</span>
+        </a>
+      </div>
     </div>
 
-    <!-- Trend Comparison Card (Hemoglobin & Fasting Glucose) -->
-    <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card p-6 space-y-5">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-aura-border/60 pb-4">
+    <!-- 2. Interactive Longitudinal Trend Comparison Panel -->
+    <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card p-6 sm:p-7 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-aura-border/40 pb-4">
         <div>
-          <h2 class="text-base font-serif font-normal text-aura-text flex items-center gap-2">
-            <TrendingUp class="w-4 h-4 text-aura-accent-orange" stroke-width={2} />
-            <span>Longitudinal Trend Comparison</span>
-          </h2>
-          <p class="text-xs text-aura-text-muted">
-            Comparing verified synthetic observations with standardized units (Aug 2026 vs Oct 2026).
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-aura-accent-peach/50 flex items-center justify-center text-aura-accent-orange">
+              <TrendingUp class="w-4 h-4" stroke-width={2.2} />
+            </div>
+            <h2 class="text-base sm:text-lg font-serif font-normal text-aura-text">
+              Longitudinal Observation Trends
+            </h2>
+          </div>
+          <p class="text-xs text-aura-text-muted mt-1">
+            Standardized multi-visit biomarker comparisons (Apollo Clinic Aug 04 vs. Metro Diagnostic Oct 10, 2026).
           </p>
         </div>
-        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-aura-surface-cream text-aura-text border border-black/5">
-          Deterministic Comparison
-        </span>
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-aura-surface-cream text-aura-text border border-black/5">
+            <Sparkles class="w-3 h-3 text-aura-accent-orange" />
+            <span>Deterministic Delta Calculation</span>
+          </span>
+        </div>
       </div>
 
       <!-- Trend Cards Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Metric 1: Hemoglobin Trend -->
-        <div class="bg-aura-surface-blush rounded-2xl p-4 border border-aura-border/40 space-y-3">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-sm text-aura-text">Hemoglobin (g/dL)</span>
-            <span class="text-xs text-aura-text font-semibold px-2 py-0.5 rounded-full bg-aura-accent-peach">
-              Mild Decrease (12.4 → 11.2)
+        <div class="bg-aura-surface-blush rounded-2xl p-5 border border-aura-border/50 shadow-2xs space-y-4">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="font-bold text-sm text-aura-text block">Hemoglobin</span>
+              <span class="text-[11px] text-aura-text-muted">Standard Ref Range: 12.0 – 15.5 g/dL</span>
+            </div>
+            <span class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-aura-accent-peach text-aura-text border border-aura-accent-orange/30">
+              <ArrowDownRight class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2.5} />
+              <span>-1.2 g/dL (-9.7%)</span>
             </span>
           </div>
 
-          <!-- Visual Bar Representation -->
-          <div class="space-y-2 pt-2 text-xs">
-            <div class="flex items-center justify-between text-aura-text-muted">
-              <span class="font-mono">Aug 04, 2026 (Apollo Clinic)</span>
-              <strong class="text-aura-text font-mono">12.4 g/dL (Normal)</strong>
-            </div>
-            <div class="w-full bg-aura-border rounded-full h-2">
-              <div class="bg-emerald-600 h-2 rounded-full w-[80%]"></div>
+          <!-- Trend Bar Graph Comparison -->
+          <div class="space-y-3 pt-1 text-xs">
+            <div class="space-y-1">
+              <div class="flex justify-between items-center text-aura-text-muted">
+                <span class="font-medium text-[11px]">Aug 04, 2026 • Apollo Clinic</span>
+                <span class="font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                  12.4 g/dL (Normal)
+                </span>
+              </div>
+              <div class="w-full bg-aura-border/60 rounded-full h-2.5 overflow-hidden">
+                <div class="bg-emerald-600 h-2.5 rounded-full transition-all" style="width: 72%;"></div>
+              </div>
             </div>
 
-            <div class="flex items-center justify-between text-aura-text-muted pt-2">
-              <span class="font-mono">Oct 10, 2026 (Metro Lab)</span>
-              <strong class="text-aura-accent-orange font-mono">11.2 g/dL (Slightly Low)</strong>
-            </div>
-            <div class="w-full bg-aura-border rounded-full h-2">
-              <div class="bg-aura-accent-orange h-2 rounded-full w-[65%]"></div>
+            <div class="space-y-1">
+              <div class="flex justify-between items-center text-aura-text-muted">
+                <span class="font-medium text-[11px]">Oct 10, 2026 • Metro Diagnostic</span>
+                <span class="font-mono font-bold text-aura-text bg-aura-accent-peach px-2 py-0.5 rounded-md border border-aura-accent-orange/30">
+                  11.2 g/dL (Slightly Low)
+                </span>
+              </div>
+              <div class="w-full bg-aura-border/60 rounded-full h-2.5 overflow-hidden">
+                <div class="bg-aura-accent-orange h-2.5 rounded-full transition-all" style="width: 58%;"></div>
+              </div>
             </div>
           </div>
 
-          <div class="text-[11px] text-aura-text-subtle pt-1">
-            Standard Reference Range: 12.0 – 15.5 g/dL. (Units: g/dL matches across both visits).
+          <div class="p-3 rounded-xl bg-white/70 border border-aura-border/50 text-[11px] text-aura-text-muted leading-relaxed">
+            <strong class="text-aura-text">Clinical Observation Note:</strong> Hemoglobin shifted from within normal limits to slightly below lab baseline. Recommended to discuss dietary iron intake and potential repeat screening with your physician.
           </div>
         </div>
 
-        <!-- Metric 2: Fasting Blood Sugar Trend -->
-        <div class="bg-aura-surface-blush rounded-2xl p-4 border border-aura-border/40 space-y-3">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-sm text-aura-text">Fasting Blood Glucose (mg/dL)</span>
-            <span class="text-xs text-rose-800 font-semibold px-2 py-0.5 rounded-full bg-rose-100">
-              Elevated (98 → 118)
+        <!-- Metric 2: Fasting Blood Glucose Trend -->
+        <div class="bg-aura-surface-blush rounded-2xl p-5 border border-aura-border/50 shadow-2xs space-y-4">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="font-bold text-sm text-aura-text block">Fasting Blood Glucose</span>
+              <span class="text-[11px] text-aura-text-muted">Normal Fasting: 70 – 100 mg/dL</span>
+            </div>
+            <span class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-rose-100 text-rose-900 border border-rose-200">
+              <ArrowUpRight class="w-3.5 h-3.5 text-rose-600" stroke-width={2.5} />
+              <span>+20 mg/dL (+20.4%)</span>
             </span>
           </div>
 
-          <!-- Visual Bar Representation -->
-          <div class="space-y-2 pt-2 text-xs">
-            <div class="flex items-center justify-between text-aura-text-muted">
-              <span class="font-mono">Aug 04, 2026 (Apollo Clinic)</span>
-              <strong class="text-aura-text font-mono">98 mg/dL (Normal)</strong>
-            </div>
-            <div class="w-full bg-aura-border rounded-full h-2">
-              <div class="bg-emerald-600 h-2 rounded-full w-[70%]"></div>
+          <!-- Trend Bar Graph Comparison -->
+          <div class="space-y-3 pt-1 text-xs">
+            <div class="space-y-1">
+              <div class="flex justify-between items-center text-aura-text-muted">
+                <span class="font-medium text-[11px]">Aug 04, 2026 • Apollo Clinic</span>
+                <span class="font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                  98 mg/dL (Normal)
+                </span>
+              </div>
+              <div class="w-full bg-aura-border/60 rounded-full h-2.5 overflow-hidden">
+                <div class="bg-emerald-600 h-2.5 rounded-full transition-all" style="width: 60%;"></div>
+              </div>
             </div>
 
-            <div class="flex items-center justify-between text-aura-text-muted pt-2">
-              <span class="font-mono">Oct 10, 2026 (Metro Lab)</span>
-              <strong class="text-rose-800 font-mono">118 mg/dL (Above Range)</strong>
-            </div>
-            <div class="w-full bg-aura-border rounded-full h-2">
-              <div class="bg-rose-500 h-2 rounded-full w-[90%]"></div>
+            <div class="space-y-1">
+              <div class="flex justify-between items-center text-aura-text-muted">
+                <span class="font-medium text-[11px]">Oct 10, 2026 • Metro Diagnostic</span>
+                <span class="font-mono font-bold text-rose-900 bg-rose-100 px-2 py-0.5 rounded-md border border-rose-200">
+                  118 mg/dL (Above Range)
+                </span>
+              </div>
+              <div class="w-full bg-aura-border/60 rounded-full h-2.5 overflow-hidden">
+                <div class="bg-rose-500 h-2.5 rounded-full transition-all" style="width: 86%;"></div>
+              </div>
             </div>
           </div>
 
-          <div class="text-[11px] text-aura-text-subtle pt-1">
-            Normal Fasting Range: 70 – 100 mg/dL. Accompanied by HbA1c 6.2% on Oct 10.
+          <div class="p-3 rounded-xl bg-white/70 border border-aura-border/50 text-[11px] text-aura-text-muted leading-relaxed">
+            <strong class="text-aura-text">Correlated Finding:</strong> Elevated fasting glucose on Oct 10 is accompanied by HbA1c of 6.2% (ref &lt; 5.7%). Consult your healthcare provider regarding glycemic management.
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Category Filters -->
-    <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-medium">
-      <button
-        type="button"
-        class="filter-btn active px-3.5 py-1.5 rounded-full bg-aura-action text-white shadow-xs"
-        data-filter="all"
-      >
-        All Records ({timeline.length})
-      </button>
-      <button
-        type="button"
-        class="filter-btn px-3.5 py-1.5 rounded-full bg-white border border-aura-border text-aura-text hover:bg-aura-surface-blush"
-        data-filter="lab_report"
-      >
-        Lab Reports (2)
-      </button>
-      <button
-        type="button"
-        class="filter-btn px-3.5 py-1.5 rounded-full bg-white border border-aura-border text-aura-text hover:bg-aura-surface-blush"
-        data-filter="wellness"
-      >
-        Wellness Logs (1)
-      </button>
-      <button
-        type="button"
-        class="filter-btn px-3.5 py-1.5 rounded-full bg-white border border-aura-border text-aura-text hover:bg-aura-surface-blush"
-        data-filter="prescription"
-      >
-        Prescriptions (1)
-      </button>
+    <!-- 3. Interactive Filter & Search Control Strip -->
+    <div class="bg-aura-surface rounded-2xl border border-aura-border/40 shadow-aura-card p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <!-- Search Input -->
+      <div class="relative max-w-sm w-full">
+        <Search class="w-4 h-4 text-aura-text-subtle absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <input
+          type="text"
+          id="timeline-search"
+          placeholder="Search by test, facility, or keyword..."
+          class="w-full pl-9 pr-4 py-2 bg-aura-surface-blush border border-aura-border rounded-full text-xs font-medium text-aura-text placeholder:text-aura-text-subtle focus:outline-none focus:ring-2 focus:ring-aura-sidebar focus:bg-white transition"
+          aria-label="Filter timeline events by keyword"
+        />
+      </div>
+
+      <!-- Filter Chips -->
+      <div class="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+        <span class="text-aura-text-subtle text-[11px] uppercase tracking-wider mr-1 hidden sm:inline">Filter:</span>
+        <button
+          type="button"
+          class="filter-chip px-3 py-1 rounded-full bg-aura-sidebar text-white shadow-2xs transition cursor-pointer"
+          data-filter="all"
+        >
+          All Records ({timeline.length})
+        </button>
+        <button
+          type="button"
+          class="filter-chip px-3 py-1 rounded-full bg-white border border-aura-border text-aura-text hover:bg-aura-surface-blush transition cursor-pointer flex items-center gap-1.5"
+          data-filter="lab_report"
+        >
+          <FlaskConical class="w-3.5 h-3.5 text-aura-accent-orange" />
+          <span>Lab Reports ({labCount})</span>
+        </button>
+        <button
+          type="button"
+          class="filter-chip px-3 py-1 rounded-full bg-white border border-aura-border text-aura-text hover:bg-aura-surface-blush transition cursor-pointer flex items-center gap-1.5"
+          data-filter="wellness"
+        >
+          <Activity class="w-3.5 h-3.5 text-emerald-600" />
+          <span>Wellness Logs ({wellnessCount})</span>
+        </button>
+        <button
+          type="button"
+          class="filter-chip px-3 py-1 rounded-full bg-white border border-aura-border text-aura-text hover:bg-aura-surface-blush transition cursor-pointer flex items-center gap-1.5"
+          data-filter="prescription"
+        >
+          <Pill class="w-3.5 h-3.5 text-indigo-600" />
+          <span>Prescriptions ({rxCount})</span>
+        </button>
+      </div>
     </div>
 
-    <!-- Vertical Timeline Feed -->
-    <div class="relative pl-6 sm:pl-8 border-l-2 border-aura-accent-peach space-y-8 my-6">
+    <!-- 4. Vertical Longitudinal Timeline Feed -->
+    <div class="relative pl-6 sm:pl-10 space-y-8 my-6">
+      <!-- Continuous vertical timeline guide line -->
+      <div class="absolute left-3 sm:left-5 top-4 bottom-4 w-0.5 bg-gradient-to-b from-aura-accent-orange via-aura-accent-peach to-aura-border/80"></div>
+
       {timeline.map((evt) => (
         <div
-          class="timeline-card relative group"
+          class="timeline-card relative group transition-all"
           data-category={evt.category}
+          data-text={`${evt.title} ${evt.facility} ${evt.summary}`.toLowerCase()}
         >
-          <!-- Bullet node on timeline -->
-          <div class={`absolute -left-[31px] sm:-left-[39px] top-1.5 w-4 h-4 rounded-full border-4 border-white shadow-xs ${
-            evt.status === 'review_required' ? 'bg-aura-accent-orange' : 'bg-aura-sidebar'
-          }`}></div>
+          <!-- Bullet node on timeline rail -->
+          <div
+            class={`absolute -left-[27px] sm:-left-[43px] top-4 w-5 h-5 rounded-full border-4 border-white shadow-sm flex items-center justify-center transition-all group-hover:scale-110 ${
+              evt.status === 'review_required'
+                ? 'bg-aura-accent-orange'
+                : evt.category === 'wellness'
+                ? 'bg-emerald-600'
+                : evt.category === 'prescription'
+                ? 'bg-indigo-600'
+                : 'bg-aura-sidebar'
+            }`}
+          ></div>
 
-          <!-- Card -->
-          <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card p-5 sm:p-6 space-y-3 hover:border-aura-accent-peach transition">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-mono font-bold text-aura-text bg-aura-surface-cream px-2 py-0.5 rounded-full border border-black/5">
-                  {evt.date}
+          <!-- Card Content -->
+          <div class="bg-aura-surface rounded-aura-panel border border-aura-border/50 shadow-aura-card p-5 sm:p-6 space-y-4 hover:border-aura-accent-orange/40 hover:shadow-aura-card-hover transition-all">
+            <!-- Header Row: Category Badge + Date + Review Status -->
+            <div class="flex flex-wrap items-center justify-between gap-2.5 pb-2 border-b border-aura-border/30">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-aura-surface-cream text-aura-text border border-black/5">
+                  <Clock class="w-3 h-3 text-aura-accent-orange" />
+                  <span>{evt.date}</span>
                 </span>
-                <span class="text-xs font-semibold uppercase tracking-wider text-aura-text-muted flex items-center gap-1">
+                <span class="text-xs font-bold uppercase tracking-wider text-aura-text-muted flex items-center gap-1.5">
                   {evt.category === 'lab_report' && <FlaskConical class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />}
-                  {evt.category === 'wellness' && <Activity class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />}
-                  {evt.category === 'prescription' && <Pill class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />}
+                  {evt.category === 'wellness' && <Activity class="w-3.5 h-3.5 text-emerald-600" stroke-width={2} />}
+                  {evt.category === 'prescription' && <Pill class="w-3.5 h-3.5 text-indigo-600" stroke-width={2} />}
                   <span>{evt.category.replace('_', ' ')}</span>
                 </span>
               </div>
-              <span class={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                evt.status === 'review_required'
-                  ? 'bg-aura-accent-peach text-aura-text'
-                  : 'bg-emerald-100 text-emerald-800'
-              }`}>
-                {evt.status === 'review_required' ? 'Action / Review' : 'Verified'}
+
+              <!-- Status Badge (Strict: avoid false claims of clinical verification) -->
+              <span
+                class={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                  evt.status === 'review_required'
+                    ? 'bg-amber-50 text-amber-900 border-amber-200'
+                    : 'bg-aura-surface-blush text-aura-text border-aura-border'
+                }`}
+              >
+                {evt.status === 'review_required' ? 'Pending User Review' : 'Stored in Vault'}
               </span>
             </div>
 
-            <div class="space-y-1">
-              <h3 class="text-base font-serif font-bold text-aura-text">{evt.title}</h3>
-              <p class="text-xs sm:text-sm text-aura-text-muted leading-relaxed">{evt.summary}</p>
+            <!-- Title & Clinical Summary -->
+            <div class="space-y-1.5">
+              <h3 class="text-base sm:text-lg font-serif font-bold text-aura-text">
+                {evt.title}
+              </h3>
+              <p class="text-xs sm:text-sm text-aura-text-muted leading-relaxed">
+                {evt.summary}
+              </p>
             </div>
 
-            <!-- Measurements pills if present -->
+            <!-- Measurements / Biomarkers Pills Strip -->
             {evt.measurements && evt.measurements.length > 0 && (
-              <div class="pt-3 border-t border-aura-border/50 flex flex-wrap gap-2 text-xs">
-                {evt.measurements.map((m) => (
-                  <span class={`px-2.5 py-1 rounded-full border font-mono ${
-                    m.flag === 'low'
-                      ? 'bg-aura-accent-peach border-aura-accent-orange/30 text-aura-text'
-                      : m.flag === 'high'
-                      ? 'bg-rose-50 border-rose-200 text-rose-900'
-                      : 'bg-aura-surface-blush border-aura-border text-aura-text'
-                  }`}>
-                    {m.name}: <strong>{m.value} {m.unit || ''}</strong>
-                    {m.flag && m.flag !== 'normal' && (
-                      <span class="ml-1 font-sans text-[10px] uppercase font-bold text-aura-accent-orange">
-                        [{m.flag}]
-                      </span>
-                    )}
-                  </span>
-                ))}
+              <div class="space-y-2 pt-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle block">
+                  Key Document Observations:
+                </span>
+                <div class="flex flex-wrap gap-2 text-xs">
+                  {evt.measurements.map((m) => (
+                    <span
+                      class={`px-3 py-1 rounded-full border font-mono flex items-center gap-1.5 ${
+                        m.flag === 'low'
+                          ? 'bg-aura-accent-peach border-aura-accent-orange/30 text-aura-text'
+                          : m.flag === 'high'
+                          ? 'bg-rose-50 border-rose-200 text-rose-900'
+                          : 'bg-aura-surface-blush border-aura-border text-aura-text'
+                      }`}
+                    >
+                      <span class="font-medium">{m.name}:</span>
+                      <strong>{m.value} {m.unit || ''}</strong>
+                      {m.flag && m.flag !== 'normal' && (
+                        <span class={`ml-0.5 text-[9.5px] font-sans font-bold uppercase px-1 rounded-full ${
+                          m.flag === 'high' ? 'bg-rose-200 text-rose-900' : 'bg-amber-200 text-amber-900'
+                        }`}>
+                          {m.flag}
+                        </span>
+                      )}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
 
-            <div class="flex justify-between items-center text-xs text-aura-text-muted pt-2">
-              <span>Recorded Facility: {evt.facility}</span>
-              {evt.category === 'lab_report' && (
-                <a href="/review" class="font-semibold text-aura-text hover:text-aura-action inline-flex items-center gap-1">
-                  <span>Inspect Report Details</span>
-                  <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
-                </a>
-              )}
+            <!-- Footer Meta & Deep Action Link -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-3 border-t border-aura-border/40 text-xs text-aura-text-muted">
+              <span class="flex items-center gap-1.5">
+                <span class="text-aura-text-subtle">Facility:</span>
+                <strong class="text-aura-text font-medium">{evt.facility}</strong>
+              </span>
+
+              <div class="flex items-center gap-3">
+                {evt.category === 'lab_report' && (
+                  <a
+                    href="/review"
+                    class="font-semibold text-aura-text hover:text-aura-accent-orange inline-flex items-center gap-1 transition group-hover:underline"
+                  >
+                    <span>Inspect Raw Findings & Provenance</span>
+                    <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
+                  </a>
+                )}
+                {evt.category === 'prescription' && (
+                  <a
+                    href="/copilot"
+                    class="font-semibold text-aura-text hover:text-aura-accent-orange inline-flex items-center gap-1 transition"
+                  >
+                    <span>Ask Copilot About Medications</span>
+                    <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>
       ))}
+
+      <!-- Empty Filter State Container -->
+      <div
+        id="timeline-empty"
+        class="hidden bg-aura-surface rounded-aura-panel border border-aura-border/50 p-8 sm:p-12 text-center space-y-3"
+      >
+        <div class="w-12 h-12 rounded-full bg-aura-surface-blush text-aura-text-muted mx-auto flex items-center justify-center">
+          <Filter class="w-6 h-6 text-aura-accent-orange" />
+        </div>
+        <h3 class="text-base font-serif font-bold text-aura-text">
+          No Timeline Records Found
+        </h3>
+        <p class="text-xs text-aura-text-muted max-w-sm mx-auto">
+          No records match your selected filter or search keyword. Try clearing your search or switching categories.
+        </p>
+        <button
+          type="button"
+          id="btn-clear-filters"
+          class="px-4 py-2 text-xs font-semibold rounded-full bg-aura-action text-white hover:bg-aura-action-hover cursor-pointer"
+        >
+          Reset All Filters
+        </button>
+      </div>
     </div>
   </div>
 </Layout>
 
 <script>
-  // Simple category filtering
-  const filterBtns = document.querySelectorAll('.filter-btn');
+  // Interactive Timeline Category Filtering & Real-Time Keyword Search
+  const filterChips = document.querySelectorAll('.filter-chip');
   const cards = document.querySelectorAll('.timeline-card');
+  const searchInput = document.getElementById('timeline-search') as HTMLInputElement | null;
+  const emptyState = document.getElementById('timeline-empty');
+  const btnClearFilters = document.getElementById('btn-clear-filters');
 
-  filterBtns.forEach((btn) => {
+  let activeCategory = 'all';
+  let searchQuery = '';
+
+  function applyFilters() {
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const el = card as HTMLElement;
+      const cat = el.getAttribute('data-category') || '';
+      const text = el.getAttribute('data-text') || '';
+
+      const matchesCat = activeCategory === 'all' || cat === activeCategory;
+      const matchesSearch = !searchQuery || text.includes(searchQuery);
+
+      if (matchesCat && matchesSearch) {
+        el.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        el.classList.add('hidden');
+      }
+    });
+
+    if (emptyState) {
+      emptyState.classList.toggle('hidden', visibleCount > 0);
+    }
+  }
+
+  filterChips.forEach((btn) => {
     btn.addEventListener('click', () => {
-      filterBtns.forEach((b) => {
-        b.classList.remove('bg-aura-action', 'text-white', 'shadow-xs');
+      filterChips.forEach((b) => {
+        b.classList.remove('bg-aura-sidebar', 'text-white', 'shadow-2xs');
         b.classList.add('bg-white', 'border', 'border-aura-border', 'text-aura-text');
       });
-      btn.classList.add('bg-aura-action', 'text-white', 'shadow-xs');
+      btn.classList.add('bg-aura-sidebar', 'text-white', 'shadow-2xs');
       btn.classList.remove('bg-white', 'border', 'border-aura-border', 'text-aura-text');
 
-      const filter = btn.getAttribute('data-filter');
-      cards.forEach((card) => {
-        const cat = card.getAttribute('data-category');
-        if (filter === 'all' || cat === filter) {
-          (card as HTMLElement).style.display = 'block';
-        } else {
-          (card as HTMLElement).style.display = 'none';
-        }
-      });
+      activeCategory = btn.getAttribute('data-filter') || 'all';
+      applyFilters();
     });
+  });
+
+  searchInput?.addEventListener('input', (e) => {
+    const target = e.target as HTMLInputElement;
+    searchQuery = target.value.trim().toLowerCase();
+    applyFilters();
+  });
+
+  btnClearFilters?.addEventListener('click', () => {
+    activeCategory = 'all';
+    searchQuery = '';
+    if (searchInput) searchInput.value = '';
+
+    filterChips.forEach((b) => {
+      if (b.getAttribute('data-filter') === 'all') {
+        b.classList.add('bg-aura-sidebar', 'text-white', 'shadow-2xs');
+        b.classList.remove('bg-white', 'border', 'border-aura-border', 'text-aura-text');
+      } else {
+        b.classList.remove('bg-aura-sidebar', 'text-white', 'shadow-2xs');
+        b.classList.add('bg-white', 'border', 'border-aura-border', 'text-aura-text');
+      }
+    });
+
+    applyFilters();
   });
 </script>
