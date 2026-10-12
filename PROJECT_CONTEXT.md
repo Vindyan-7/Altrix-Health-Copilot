@@ -39,17 +39,16 @@ Reviewed evidence determines what may be said; templates determine tone; AI may 
 10. Update this file and `docs/DEVELOPMENT_LOG.md` after each milestone with current status, test results, known issues, and the next exact task.
 
 ## Current implementation status
-Iteration 2A (Records Page) implemented and verified on branch `feat/records-page-iteration-2a`. The `/records` route matches the Aura warm aubergine/ivory design specification (`aura_health_dashboard_design_spec.md`) with DM Serif Display typography, Lucide stroke icons, and accessible controls. Features:
-- Prominent one-click synthetic report fixture loader (`/review`).
-- Interactive drag-and-drop dropzone with keyboard accessibility (`Enter`/`Space`) and browse action.
-- Format validation (PDF, JPG, PNG) and 10 MB size limit validation with error dismiss & retry states.
-- Animated multi-stage simulated extraction progress (quarantine, entity recognition, uncertainty check).
-- Extraction success state with file metadata, optical uncertainty notices (TSH & Platelets), and review navigation.
-- 3-column supported categories grid (Labs, Rx, Logs) and privacy architecture overview.
-- All 15 tests, strict typecheck, and production build pass with 0 errors. Dev server running on `http://localhost:4321/`.
+Iteration 2A.1 (UX Consistency & Usability Pass) implemented and verified on branch `feat/records-page-iteration-2a`. Key deliverables:
+- **Synthetic Data Consistency:** Shared helper `SYNTHETIC_REPORT_STATS` created. Accurately distinguishes 4 vault documents, 2 priority optical uncertainties (Platelets & TSH), 5 out-of-range observations, and real-time review confirmation state across all pages.
+- **UI Repetition Reduced:** Standardized global banner and header height (`h-16`) across all routes. Removed redundant repetitive "offline mock" text and fake decorative progress bars from Dashboard KPI cards.
+- **Usability Enhancements on `/review`:** Responsive mobile card view implemented eliminating forced horizontal table scrolling on mobile. Touchscreen-accessible provenance inspector works without hover via inline toggles and tap synchronization.
+- **Copilot Usability & Safety Prioritization:** Grouped guided topic options into Primary Health Guidance, Safety Guardrail Demonstrations, and explicitly disclosed Demo Mock Booking Flow.
+- All 15 tests, strict typecheck, and production build pass with 0 errors. Dev server active on `http://localhost:4321/`.
 
 ## Current next task
-STOP for Product Manager (Vindyan) and CTO (ChatGPT) review of `/records` at http://localhost:4321/records. Await approval of Iteration 2A before proceeding to Iteration 2B (Report Review page deep styling at `/review`).
+STOP for Product Manager (Vindyan) and CTO (ChatGPT) review of the UX consistency pass across http://localhost:4321/ (`/`, `/records`, `/review`, `/copilot`). Await approval before starting Iteration 2B (Report Review screen deep alignment).
+
 
 
 

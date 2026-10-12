@@ -194,3 +194,22 @@ export const SYNTHETIC_LAB_REPORT_FIXTURE: ExtractedDocument = {
     },
   ],
 };
+
+/**
+ * Derived Shared Statistics for Cross-Page Consistency
+ * Accurately derives metrics from the shared fixture.
+ */
+export const SYNTHETIC_REPORT_STATS = {
+  totalFieldsCount: SYNTHETIC_LAB_REPORT_FIXTURE.fields.length, // 8
+  outOfRangeFields: SYNTHETIC_LAB_REPORT_FIXTURE.fields.filter(
+    (f) => f.interpretation === 'low' || f.interpretation === 'high'
+  ),
+  outOfRangeCount: SYNTHETIC_LAB_REPORT_FIXTURE.fields.filter(
+    (f) => f.interpretation === 'low' || f.interpretation === 'high'
+  ).length, // 5
+  uncertainFields: SYNTHETIC_LAB_REPORT_FIXTURE.fields.filter((f) => f.isUncertain),
+  uncertainFieldsCount: SYNTHETIC_LAB_REPORT_FIXTURE.fields.filter((f) => f.isUncertain).length, // 2
+  normalFieldsCount: SYNTHETIC_LAB_REPORT_FIXTURE.fields.filter(
+    (f) => f.interpretation === 'normal'
+  ).length, // 3
+};

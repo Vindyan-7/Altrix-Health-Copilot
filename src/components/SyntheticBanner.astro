@@ -9,20 +9,20 @@ const { subtext } = Astro.props;
 <div
   role="region"
   aria-label="Demo environment notification"
-  class="bg-aura-surface-blush border-b border-aura-border text-aura-text px-4 py-2 text-xs font-medium"
+  class="w-full bg-aura-surface-blush border-b border-aura-border text-aura-text px-4 sm:px-6 lg:px-8 py-2 text-xs font-medium shrink-0"
 >
-  <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+  <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 min-h-[24px]">
     <div class="flex items-center gap-2">
       <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-aura-sidebar text-white tracking-wide uppercase">
         DEMO MODE
       </span>
       <span class="text-xs text-aura-text">
         <strong class="font-bold">Synthetic Data Only:</strong> All patient records, test values, and clinic references are synthetic fixtures.
-        {subtext && <span class="text-aura-text-muted ml-1">{subtext}</span>}
+        {subtext && <span class="text-aura-text-muted ml-1 hidden md:inline">({subtext})</span>}
       </span>
     </div>
     <div class="flex items-center gap-3 text-[11px] text-aura-text-muted">
-      <span class="hidden sm:inline">Offline-ready • No API keys required</span>
+      <span class="hidden sm:inline">Offline Mock Active • Zero PHI</span>
       <span class="inline-flex items-center gap-1 font-semibold text-aura-text bg-aura-surface-cream px-2.5 py-0.5 rounded-full border border-black/5">
         Non-Clinical Prototype
       </span>

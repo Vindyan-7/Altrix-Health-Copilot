@@ -108,6 +108,36 @@ Antigravity: inspect the current repository and environment, report findings, th
   - Production build: `astro build` clean with 0 errors (5 static pages + 1 API route built in 7.59s).
   - Dev server HTTP check: `GET /records` -> HTTP 200 (141 KB). Adjacent routes (`/`, `/review`) verified returning HTTP 200.
 
+## 2026-10-12 — Iteration 2A.1: UX Consistency & Usability Pass (feat/records-page-iteration-2a)
+- **Synthetic Data Consistency:**
+  - Created shared export `SYNTHETIC_REPORT_STATS` in `src/fixtures/synthetic-lab-report.ts` providing deterministic derivations.
+  - Clearly separated distinct metric categories across all pages:
+    - **Documents in Vault:** 4 documents (`SYNTHETIC_PATIENT.timeline.length`).
+    - **Priority Uncertain Fields:** 2 fields (`Platelet Count` and `TSH` with optical flags).
+    - **Out-of-Range Findings:** 5 observations (`Hemoglobin`, `Platelets`, `Fasting Glucose`, `HbA1c`, `TSH`).
+    - **Extracted Fields in Report:** 8 parameters total.
+    - **User Confirmation State:** Real-time counter starting at 0 of 8 fields confirmed.
+  - Reconciled grounded explanations and Telugu translations across `/review` and `/copilot` to reflect all 5 out-of-range observations.
+- **UI Repetition Reduction & Header Standardization:**
+  - Standardized `SyntheticBanner.astro` padding and fixed responsive layout.
+  - Standardized `TopBar.astro` height to fixed `h-16 flex items-center` across all routes. Added demo search input handler and dynamic unread badge reflecting the 2 priority review items.
+  - Removed redundant status badges and decorative "offline mock" text that repeated the global banner.
+  - Removed arbitrary, unrepresentative progress bars (`w-[100%]`, `w-[60%]`, `w-[75%]`, `w-[85%]`) from Dashboard KPI cards, replacing them with truthful semantic status lines.
+- **Usability Enhancements on `/review`:**
+  - **Mobile Card View (`block md:hidden`):** Eliminated forced horizontal table scrolling on touchscreens by providing responsive parameter cards.
+  - **Touchscreen Provenance without Hover:** Added inline tap-to-inspect snippet toggles on each mobile card, and synchronized row/card tap events to update the Source Document Provenance Inspector immediately without requiring mouse hover.
+  - Interactive "Confirm All Verified" and "Reset to Original" flows update the real progress bar and status badges across both desktop and mobile views.
+- **Copilot Usability & Safety Prioritization (`/copilot`):**
+  - Grouped guided option buttons into clear categories: Primary Health Guidance, Safety Guardrail Demonstrations (Urgent Symptoms and Dosage tests), and Mock Healthcare Finder.
+  - Emphasized the Emergency Red Flag banner with rose styling and deterministic escalation notice.
+  - Added explicit "Demo Only" disclosure to the Mock Healthcare Finder button.
+- **Verification & Quality Gates:**
+  - Vitest: 15/15 unit tests passing.
+  - Typecheck: `tsc --noEmit` clean with 0 errors.
+  - Production build: `astro build` clean with 0 errors (7.25s).
+  - Dev server HTTP checks: All 6 routes (`/`, `/records`, `/review`, `/timeline`, `/copilot`, `/api/health.json`) returning HTTP 200.
+
+
 
 
 

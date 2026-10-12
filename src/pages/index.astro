@@ -13,17 +13,15 @@ import {
 } from '@lucide/astro';
 import Layout from '../layouts/Layout.astro';
 import { SYNTHETIC_PATIENT } from '../fixtures/synthetic-patient';
-import { SYNTHETIC_LAB_REPORT_FIXTURE } from '../fixtures/synthetic-lab-report';
-
-const flaggedCount = SYNTHETIC_LAB_REPORT_FIXTURE.fields.filter(
-  (f) => f.interpretation === 'low' || f.interpretation === 'high'
-).length;
-
-const uncertainCount = SYNTHETIC_LAB_REPORT_FIXTURE.fields.filter(
-  (f) => f.isUncertain
-).length;
+import {
+  SYNTHETIC_LAB_REPORT_FIXTURE,
+  SYNTHETIC_REPORT_STATS,
+} from '../fixtures/synthetic-lab-report';
 
 const timeline = SYNTHETIC_PATIENT.timeline;
+const flaggedCount = SYNTHETIC_REPORT_STATS.outOfRangeCount; // 5 out-of-range observations
+const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount; // 2 uncertain OCR items (Platelets, TSH)
+const totalFieldsCount = SYNTHETIC_REPORT_STATS.totalFieldsCount; // 8 total fields in fixture
 
 // Formatted current date
 const formattedDate = new Intl.DateTimeFormat('en-US', {
@@ -56,9 +54,9 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
           Good morning, <em class="italic font-normal">{SYNTHETIC_PATIENT.displayName.split(' ')[0]}</em>
         </h1>
 
-        <!-- Short Personal Health Summary -->
+        <!-- Short Personal Health Summary with Accurately Derived Counts -->
         <p class="text-xs sm:text-sm text-aura-text-muted leading-relaxed max-w-xl">
-          Your personal health records are organized and up to date. <strong class="text-aura-text font-semibold">{timeline.length} records</strong> in your health vault, with <strong class="text-aura-text font-semibold">{uncertainCount} items flagged for review</strong> before your next physician consultation.
+          Your personal health records are organized and up to date. <strong class="text-aura-text font-semibold">{timeline.length} records</strong> in your health vault, with <strong class="text-aura-text font-semibold">{uncertainCount} priority items flagged for optical verification</strong> and <strong class="text-aura-text font-semibold">{flaggedCount} out-of-range observations</strong> to discuss with your clinician.
         </p>
       </div>
 
@@ -84,7 +82,7 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
       </div>
     </div>
 
-    <!-- 2. Four KPI / Metric Cards in a Single Row (Desktop) -->
+    <!-- 2. Four KPI / Metric Cards in a Single Row (Desktop) - Truthful Metrics without Fake Bars -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
       <!-- Card A: Records in Vault -->
       <div class="bg-aura-surface rounded-aura-card p-5 shadow-aura-card border border-aura-border/40 flex flex-col justify-between min-h-[160px] space-y-4">
@@ -96,16 +94,11 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
         </div>
         <div>
           <div class="text-3xl font-serif text-aura-text font-normal">{timeline.length}</div>
-          <div class="text-[11px] text-aura-text-muted mt-0.5">documents processed</div>
+          <div class="text-[11px] text-aura-text-muted mt-0.5">documents in vault</div>
         </div>
-        <div>
-          <div class="flex justify-between text-[10px] text-aura-text-subtle mb-1">
-            <span>1 lab, 1 wellness, 1 Rx, 1 checkup</span>
-            <span class="font-medium text-aura-text">100% indexed</span>
-          </div>
-          <div class="w-full bg-aura-accent-pink rounded-full h-1.5 overflow-hidden">
-            <div class="bg-aura-sidebar h-1.5 rounded-full w-[100%]"></div>
-          </div>
+        <div class="pt-2 border-t border-aura-border/40 flex items-center justify-between text-[11px] text-aura-text-muted">
+          <span>1 lab, 1 wellness, 1 checkup, 1 Rx</span>
+          <span class="font-medium text-aura-text">All Indexed</span>
         </div>
       </div>
 
@@ -121,22 +114,17 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
           <div class="flex items-baseline gap-2">
             <span class="text-3xl font-serif text-aura-text font-normal">{uncertainCount}</span>
             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-aura-accent-peach text-aura-text">
-              Review Needed
+              Optical Flags
             </span>
           </div>
           <div class="text-[11px] text-aura-text-muted mt-0.5">Platelets & TSH uncertain OCR</div>
         </div>
-        <div>
-          <div class="flex justify-between items-center text-[10px] mb-1">
-            <span class="text-aura-text-muted">Uncertain extraction flags</span>
-            <a href="/review" class="text-aura-accent-orange font-bold hover:underline inline-flex items-center gap-0.5">
-              <span>Inspect & Review</span>
-              <ArrowRight class="w-3 h-3" stroke-width={2} />
-            </a>
-          </div>
-          <div class="w-full bg-aura-accent-peach rounded-full h-1.5 overflow-hidden">
-            <div class="bg-aura-accent-orange h-1.5 rounded-full w-[60%]"></div>
-          </div>
+        <div class="pt-2 border-t border-aura-border/40 flex items-center justify-between text-[11px]">
+          <span class="text-aura-text-muted">{uncertainCount} of {totalFieldsCount} fields flagged</span>
+          <a href="/review" class="text-aura-accent-orange font-bold hover:underline inline-flex items-center gap-0.5">
+            <span>Inspect</span>
+            <ArrowRight class="w-3 h-3" stroke-width={2} />
+          </a>
         </div>
       </div>
 
@@ -152,14 +140,9 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
           <div class="text-3xl font-serif text-aura-text font-normal">{flaggedCount}</div>
           <div class="text-[11px] text-aura-text-muted mt-0.5">findings outside lab range</div>
         </div>
-        <div>
-          <div class="flex justify-between text-[10px] text-aura-text-subtle mb-1">
-            <span>Hemoglobin, Glucose, HbA1c</span>
-            <span class="font-medium text-aura-success">Lab baseline</span>
-          </div>
-          <div class="w-full bg-aura-border rounded-full h-1.5 overflow-hidden">
-            <div class="bg-aura-success h-1.5 rounded-full w-[75%]"></div>
-          </div>
+        <div class="pt-2 border-t border-aura-border/40 flex items-center justify-between text-[11px] text-aura-text-muted">
+          <span>Hemoglobin, Glucose, HbA1c, Platelets, TSH</span>
+          <span class="font-medium text-aura-success">Oct Panel</span>
         </div>
       </div>
 
@@ -172,17 +155,12 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
           </div>
         </div>
         <div>
-          <div class="text-3xl font-serif text-aura-text font-normal">Oct 2026</div>
-          <div class="text-[11px] text-aura-text-muted mt-0.5">latest recorded checkup</div>
+          <div class="text-3xl font-serif text-aura-text font-normal">4 Months</div>
+          <div class="text-[11px] text-aura-text-muted mt-0.5">longitudinal recorded span</div>
         </div>
-        <div>
-          <div class="flex justify-between text-[10px] text-aura-text-subtle mb-1">
-            <span>Longitudinal span: 5 months</span>
-            <span class="font-medium text-aura-sidebar">Tier 1 data</span>
-          </div>
-          <div class="w-full bg-aura-accent-pink rounded-full h-1.5 overflow-hidden">
-            <div class="bg-aura-sidebar h-1.5 rounded-full w-[85%]"></div>
-          </div>
+        <div class="pt-2 border-t border-aura-border/40 flex items-center justify-between text-[11px] text-aura-text-muted">
+          <span>Jun 15 – Oct 10, 2026</span>
+          <span class="font-medium text-aura-sidebar">4 Visits</span>
         </div>
       </div>
     </div>
@@ -214,53 +192,54 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
           </div>
         </div>
 
-        <!-- Vertically Stacked Record Rows -->
-        <div class="space-y-3">
-          {timeline.map((evt) => (
-            <div class="bg-aura-surface-blush rounded-2xl p-3.5 sm:p-4 border border-aura-border/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:shadow-xs transition">
-              <!-- Left: Time/Date Badge + Details -->
-              <div class="flex items-start gap-3.5 min-w-0">
-                <!-- Date Badge Pill (44x44 target) -->
-                <div class="w-11 h-11 rounded-xl bg-aura-surface-cream text-aura-text flex flex-col items-center justify-center shrink-0 border border-black/5 shadow-2xs">
-                  <span class="text-[10px] font-bold uppercase leading-none">{evt.date.split('-')[1]}</span>
-                  <span class="text-xs font-mono font-extrabold leading-none mt-0.5">{evt.date.split('-')[2]}</span>
+        <!-- Activity Queue Items (Rows) -->
+        <div class="divide-y divide-aura-border/40">
+          {timeline.map((event) => (
+            <div class="py-4 first:pt-2 last:pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-aura-surface-blush/60 rounded-xl px-2 -mx-2 transition">
+              <div class="space-y-1 max-w-xl">
+                <!-- Meta pill + Date -->
+                <div class="flex items-center gap-2 text-xs">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-aura-surface-cream text-aura-text border border-black/5 uppercase">
+                    {event.category.replace('_', ' ')}
+                  </span>
+                  <span class="text-aura-text-subtle font-mono text-[11px]">{event.date}</span>
+                  <span class="text-aura-text-subtle">•</span>
+                  <span class="text-aura-text-muted text-[11px]">{event.facility}</span>
                 </div>
 
-                <div class="min-w-0 space-y-1">
-                  <div class="flex flex-wrap items-center gap-2">
-                    <h3 class="text-xs sm:text-sm font-bold text-aura-text truncate">{evt.title}</h3>
-                    <span class={`text-[9.5px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                      evt.status === 'review_required'
-                        ? 'bg-aura-accent-peach text-aura-text'
-                        : 'bg-aura-surface-cream text-aura-text'
-                    }`}>
-                      {evt.status === 'review_required' ? 'Review Needed' : 'Documented'}
+                <!-- Event Title -->
+                <div class="font-bold text-sm text-aura-text flex items-center gap-2">
+                  <span>{event.title}</span>
+                  {event.status === 'review_required' && (
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-aura-accent-peach text-aura-text">
+                      <span class="w-1.5 h-1.5 rounded-full bg-aura-accent-orange"></span>
+                      Review Ready
                     </span>
-                  </div>
-                  <p class="text-xs text-aura-text-muted leading-relaxed line-clamp-1">{evt.summary}</p>
-                  <div class="text-[11px] text-aura-text-subtle">
-                    Source: {evt.facility}
-                  </div>
+                  )}
                 </div>
+
+                <!-- Summary Description -->
+                <p class="text-xs text-aura-text-muted leading-relaxed line-clamp-2">
+                  {event.summary}
+                </p>
               </div>
 
-              <!-- Right: Row Action Button -->
-              <div class="shrink-0 sm:self-center pt-2 sm:pt-0 border-t sm:border-t-0 border-aura-border/40">
-                {evt.category === 'lab_report' ? (
+              <!-- Action Link / Button -->
+              <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                {event.category === 'lab_report' ? (
                   <a
                     href="/review"
-                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-aura-accent-purple-strong hover:bg-aura-sidebar text-white text-xs font-semibold shadow-xs transition"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-aura-action hover:bg-aura-action-hover text-white text-xs font-semibold shadow-2xs transition"
                   >
-                    <span>Review Findings</span>
-                    <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
+                    <span>Inspect</span>
+                    <ArrowRight class="w-3 h-3" stroke-width={2} />
                   </a>
                 ) : (
                   <a
                     href="/timeline"
-                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white hover:bg-aura-surface-cream-light text-aura-text text-xs font-medium border border-aura-border transition"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white hover:bg-aura-surface-blush text-aura-text text-xs font-medium border border-aura-border shadow-2xs transition"
                   >
-                    <span>View Record</span>
-                    <ArrowRight class="w-3.5 h-3.5" stroke-width={2} />
+                    <span>Timeline</span>
                   </a>
                 )}
               </div>
@@ -323,7 +302,7 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
               <Eye class="w-3 h-3" stroke-width={2} />
               <span>Optical Reading Check</span>
             </span>
-            <span class="text-[10px] text-aura-text-subtle">Pending User Check</span>
+            <span class="text-[10px] text-aura-text-subtle">{uncertainCount} Fields Flagged</span>
           </div>
 
           <div class="space-y-1">

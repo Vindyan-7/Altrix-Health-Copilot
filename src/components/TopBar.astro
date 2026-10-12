@@ -1,15 +1,18 @@
 ---
 import { Menu, Search, Globe, Bell } from '@lucide/astro';
 import { SYNTHETIC_PATIENT } from '../fixtures/synthetic-patient';
+import { SYNTHETIC_REPORT_STATS } from '../fixtures/synthetic-lab-report';
+
+const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
 ---
 
-<header class="w-full bg-aura-canvas py-3 px-4 sm:px-6 lg:px-8 border-b border-aura-border/60">
-  <div class="flex items-center justify-between gap-3 sm:gap-4 max-w-7xl mx-auto">
+<header class="w-full bg-aura-canvas h-16 flex items-center px-4 sm:px-6 lg:px-8 border-b border-aura-border/60 shrink-0">
+  <div class="flex items-center justify-between gap-3 sm:gap-4 max-w-7xl mx-auto w-full">
     <!-- Mobile hamburger button -->
     <button
       id="btn-open-drawer"
       type="button"
-      class="lg:hidden p-2 rounded-xl bg-white border border-aura-border text-aura-text hover:bg-aura-surface-blush focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
+      class="lg:hidden p-2 rounded-xl bg-white border border-aura-border text-aura-text hover:bg-aura-surface-blush focus:outline-none focus:ring-2 focus:ring-aura-sidebar shrink-0 cursor-pointer"
       aria-label="Open navigation drawer"
     >
       <Menu class="w-5 h-5" stroke-width={2} />
@@ -25,14 +28,14 @@ import { SYNTHETIC_PATIENT } from '../fixtures/synthetic-patient';
         <input
           id="global-search"
           type="search"
-          placeholder="Search health records, lab tests, medications..."
+          placeholder="Demo search: Glucose, Hemoglobin, HbA1c..."
           class="w-full h-10 pl-10 pr-4 rounded-full bg-white border-0 shadow-aura-card text-xs text-aura-text placeholder-aura-text-subtle focus:outline-none focus:ring-2 focus:ring-aura-sidebar-active transition"
         />
       </div>
     </div>
 
     <!-- Right Controls -->
-    <div class="flex items-center gap-2 sm:gap-3 ml-auto">
+    <div class="flex items-center gap-2 sm:gap-3 ml-auto shrink-0">
       <!-- Session / Language Pill (Cream surface) -->
       <a
         href="/copilot"
@@ -40,19 +43,21 @@ import { SYNTHETIC_PATIENT } from '../fixtures/synthetic-patient';
         title="Session language: English (Telugu available in Copilot)"
       >
         <Globe class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
-        <span class="hidden md:inline font-semibold">Demo Vault:</span>
-        <span>English (EN)</span>
+        <span class="hidden md:inline font-semibold">Vault:</span>
+        <span>English (Telugu in Copilot)</span>
       </a>
 
       <!-- Notification bell with badge -->
       <a
         href="/review"
         class="relative p-2 sm:p-2.5 rounded-full bg-white hover:bg-aura-surface-blush text-aura-text shadow-aura-card transition focus:outline-none focus:ring-2 focus:ring-aura-sidebar-active border border-aura-border/40"
-        aria-label="2 items require your review"
-        title="2 items require your review"
+        aria-label={`${uncertainCount} items require your review (Platelets & TSH)`}
+        title={`${uncertainCount} items require your review (Platelets & TSH)`}
       >
         <Bell class="w-4 h-4" stroke-width={1.8} />
-        <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-aura-accent-orange"></span>
+        {uncertainCount > 0 && (
+          <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-aura-accent-orange"></span>
+        )}
       </a>
 
       <!-- User Profile chip -->
@@ -76,6 +81,22 @@ import { SYNTHETIC_PATIENT } from '../fixtures/synthetic-patient';
   if (btnOpenDrawer && drawer) {
     btnOpenDrawer.addEventListener('click', () => {
       drawer.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    });
+  }
+
+  // Quick demo search handler
+  const globalSearch = document.getElementById('global-search') as HTMLInputElement | null;
+  if (globalSearch) {
+    globalSearch.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const query = globalSearch.value.trim().toLowerCase();
+        if (query.includes('glucose') || query.includes('sugar') || query.includes('hemoglobin') || query.includes('platelet') || query.includes('tsh')) {
+          window.location.href = '/review';
+        } else if (query.length > 0) {
+          window.location.href = `/records`;
+        }
+      }
     });
   }
 </script>

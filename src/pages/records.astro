@@ -17,6 +17,11 @@ import {
   Info,
 } from '@lucide/astro';
 import Layout from '../layouts/Layout.astro';
+import { SYNTHETIC_REPORT_STATS } from '../fixtures/synthetic-lab-report';
+
+const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
+const outOfRangeCount = SYNTHETIC_REPORT_STATS.outOfRangeCount;
+const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
 ---
 
 <Layout title="Medical Records" subtext="Upload and manage synthetic records">
@@ -30,15 +35,13 @@ import Layout from '../layouts/Layout.astro';
             MEDICAL RECORDS INTAKE
           </span>
           <span class="hidden sm:inline">•</span>
-          <span class="font-medium text-aura-text-muted">Offline Mock Mode</span>
-          <span class="hidden sm:inline">•</span>
           <span class="font-medium text-aura-text">Priya Sharma (34F)</span>
         </div>
         <h1 class="text-3xl sm:text-4xl font-serif font-normal text-aura-text tracking-tight">
           Upload Medical Documents
         </h1>
         <p class="text-xs sm:text-sm text-aura-text-muted leading-relaxed max-w-2xl">
-          Upload your laboratory reports, clinical prescriptions, or diagnostic summaries.
+          Upload laboratory reports, clinical prescriptions, or diagnostic summaries.
           The extraction pipeline verifies reference ranges, flags optical uncertainties, and prepares parameters for your review.
         </p>
       </div>
@@ -46,7 +49,7 @@ import Layout from '../layouts/Layout.astro';
       <!-- Header status pill -->
       <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-aura-surface border border-aura-border/60 text-xs text-aura-text shrink-0 shadow-2xs self-start md:self-auto">
         <ShieldCheck class="w-4 h-4 text-emerald-600" stroke-width={2} />
-        <span class="font-medium">Client-Side Validation Active</span>
+        <span class="font-medium">Client Isolation Active</span>
       </div>
     </div>
 
@@ -65,7 +68,7 @@ import Layout from '../layouts/Layout.astro';
           Explore Sample CBC & Metabolic Lab Panel
         </h2>
         <p class="text-xs sm:text-sm text-aura-text-muted leading-relaxed">
-          Skip file selection to immediately examine a realistic synthetic report with 8 clinical parameters, including low Hemoglobin, high Fasting Blood Sugar, and flagged TSH optical uncertainty.
+          Skip file selection to immediately examine a realistic synthetic report with {totalCount} clinical parameters ({outOfRangeCount} out-of-range observations, including low Hemoglobin, high Fasting Blood Sugar, and {uncertainCount} flagged optical uncertainties).
         </p>
       </div>
       <div class="shrink-0">
@@ -244,7 +247,7 @@ import Layout from '../layouts/Layout.astro';
             </div>
           </div>
           <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-bold border border-emerald-200 shrink-0 self-start sm:self-auto">
-            <span>8 Parameters Extracted</span>
+            <span>{totalCount} Parameters Extracted</span>
           </span>
         </div>
 
@@ -268,7 +271,7 @@ import Layout from '../layouts/Layout.astro';
         <div class="p-4 rounded-xl bg-amber-50/90 border border-amber-200/80 text-xs text-amber-900 space-y-1">
           <div class="font-bold flex items-center gap-2 text-amber-950">
             <AlertCircle class="w-4 h-4 text-amber-600 shrink-0" stroke-width={2} />
-            <span>Optical Uncertainty Detected in 2 Fields</span>
+            <span>Optical Uncertainty Detected in {uncertainCount} Fields</span>
           </div>
           <p class="text-amber-800 leading-relaxed">
             Values for <strong class="text-amber-950">Platelet Count</strong> and <strong class="text-amber-950">TSH (Thyroid Stimulating Hormone)</strong> had lower OCR confidence. Please verify these against the original document on the review screen.

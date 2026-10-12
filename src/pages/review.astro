@@ -9,23 +9,30 @@ import {
   Check,
   RotateCcw,
   CheckCheck,
+  Eye,
+  Info,
 } from '@lucide/astro';
 import Layout from '../layouts/Layout.astro';
-import { SYNTHETIC_LAB_REPORT_FIXTURE } from '../fixtures/synthetic-lab-report';
+import {
+  SYNTHETIC_LAB_REPORT_FIXTURE,
+  SYNTHETIC_REPORT_STATS,
+} from '../fixtures/synthetic-lab-report';
 
 const doc = SYNTHETIC_LAB_REPORT_FIXTURE;
-const uncertainCount = doc.fields.filter((f) => f.isUncertain).length;
+const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
+const outOfRangeCount = SYNTHETIC_REPORT_STATS.outOfRangeCount;
+const totalCount = SYNTHETIC_REPORT_STATS.totalFieldsCount;
 ---
 
 <Layout title="Report Review" subtext="Interactive field verification & provenance inspection">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
     <!-- Breadcrumb & Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-aura-border/30">
       <div>
         <nav class="flex items-center gap-2 text-xs text-aura-text-muted mb-2">
-          <a href="/" class="hover:text-aura-text">Dashboard</a>
+          <a href="/" class="hover:text-aura-text transition">Dashboard</a>
           <span>/</span>
-          <a href="/records" class="hover:text-aura-text">Records</a>
+          <a href="/records" class="hover:text-aura-text transition">Records</a>
           <span>/</span>
           <span class="text-aura-text font-semibold">Report Review</span>
         </nav>
@@ -34,22 +41,24 @@ const uncertainCount = doc.fields.filter((f) => f.isUncertain).length;
           <span>Review Extracted Findings</span>
         </h1>
         <p class="text-aura-text-muted text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
-          Review extracted parameters against the source document. Verify uncertain readings and correct any values before adding to your timeline.
+          Verify extracted lab values against the source document. Inspect bounding boxes and confirm readings before saving to your timeline.
         </p>
       </div>
 
       <!-- Action buttons -->
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2">
         <button
           id="btn-confirm-all"
-          class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs sm:text-sm shadow-xs transition"
+          type="button"
+          class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs sm:text-sm shadow-xs transition cursor-pointer"
         >
           <CheckCheck class="w-4 h-4" stroke-width={2} />
           <span>Confirm All Verified</span>
         </button>
         <button
           id="btn-reset-demo"
-          class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-white hover:bg-aura-surface-blush text-aura-text font-medium text-xs sm:text-sm border border-aura-border transition"
+          type="button"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-white hover:bg-aura-surface-blush text-aura-text font-medium text-xs sm:text-sm border border-aura-border transition cursor-pointer"
         >
           <RotateCcw class="w-3.5 h-3.5 text-aura-text-muted" stroke-width={2} />
           <span>Reset to Original</span>
@@ -86,14 +95,14 @@ const uncertainCount = doc.fields.filter((f) => f.isUncertain).length;
           </div>
           <div>
             <span class="text-aura-text-subtle block">Extractor Engine:</span>
-            <strong class="text-aura-text">{doc.provider}</strong>
+            <strong class="text-aura-text font-mono text-[11px]">{doc.provider}</strong>
           </div>
         </div>
 
-        <!-- Review Progress Bar -->
+        <!-- Review Progress Bar (Represents real confirmed state) -->
         <div class="space-y-1.5 pt-2">
           <div class="flex justify-between text-xs font-medium text-aura-text">
-            <span id="review-status-label">Review Status: 0 of 8 fields confirmed</span>
+            <span id="review-status-label">Review Status: 0 of {totalCount} fields confirmed</span>
             <span id="review-percentage">0% Reviewed</span>
           </div>
           <div class="w-full bg-aura-border rounded-full h-2 overflow-hidden">
@@ -110,26 +119,29 @@ const uncertainCount = doc.fields.filter((f) => f.isUncertain).length;
             <span>Uncertainty Indicators ({uncertainCount})</span>
           </div>
           <p class="text-xs text-aura-text-muted leading-relaxed">
-            <strong class="text-aura-text">Platelet Count</strong> and <strong class="text-aura-text">TSH</strong> have degraded printing or obscured units on the simulated lab slip.
-            Please verify their numerical values against the source snippet.
+            <strong class="text-aura-text">Platelet Count</strong> and <strong class="text-aura-text">TSH</strong> have degraded printing or obscured unit prefixes on the simulated lab slip.
+            Please verify their values against the source snippet.
           </p>
         </div>
         <div class="text-[11px] text-aura-text bg-white/70 p-2.5 rounded-xl border border-black/5">
-          <strong>Safety Rule:</strong> Unknowns remain marked uncertain until explicit human confirmation.
+          <strong>Safety Rule:</strong> Unknown values remain marked uncertain until explicit human confirmation.
         </div>
       </div>
     </div>
 
-    <!-- Main Content: Extracted Fields Table & Interactive Inspector -->
+    <!-- Main Content: Extracted Fields (Desktop Table + Mobile Cards) & Inspector -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Left (2 cols): Extracted Fields Table -->
+      <!-- Left (2 cols): Extracted Fields Container -->
       <div class="lg:col-span-2 space-y-4">
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-serif font-normal text-aura-text">Extracted Clinical Fields</h2>
-          <span class="text-xs text-aura-text-muted">Click "Edit" on any row to adjust values</span>
+          <h2 class="text-lg font-serif font-normal text-aura-text">
+            Extracted Clinical Fields ({totalCount})
+          </h2>
+          <span class="text-xs text-aura-text-muted">Tap or click any field to inspect provenance</span>
         </div>
 
-        <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card overflow-hidden">
+        <!-- 1. Desktop / Tablet View (Table) -->
+        <div class="hidden md:block bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs sm:text-sm">
               <thead>
@@ -145,20 +157,26 @@ const uncertainCount = doc.fields.filter((f) => f.isUncertain).length;
                 {doc.fields.map((field) => (
                   <tr
                     id={`row-${field.id}`}
-                    class={`hover:bg-aura-surface-blush/60 transition ${field.isUncertain ? 'bg-aura-accent-peach/20' : ''}`}
+                    class={`hover:bg-aura-surface-blush/60 cursor-pointer transition select-none ${field.isUncertain ? 'bg-aura-accent-peach/20' : ''}`}
                     data-field-id={field.id}
                     data-raw-snippet={field.provenance.rawSnippet}
                     data-page={field.provenance.page}
+                    data-name={field.name}
                   >
                     <!-- Test Parameter -->
                     <td class="py-3.5 px-4">
-                      <div class="font-bold text-aura-text">{field.name}</div>
+                      <div class="font-bold text-aura-text flex items-center gap-1.5">
+                        <span>{field.name}</span>
+                        {field.isUncertain && (
+                          <span class="w-2 h-2 rounded-full bg-aura-accent-orange" title="Uncertain extraction"></span>
+                        )}
+                      </div>
                       <div class="text-[11px] text-aura-text-muted">{field.category}</div>
                     </td>
 
                     <!-- Value -->
                     <td class="py-3.5 px-4 font-mono">
-                      <span id={`val-display-${field.id}`} class="font-semibold text-aura-text">
+                      <span id={`val-display-${field.id}`} class="font-semibold text-aura-text text-sm">
                         {field.value}
                       </span>
                       <span id={`unit-display-${field.id}`} class="text-aura-text-muted text-xs ml-1">
@@ -211,10 +229,10 @@ const uncertainCount = doc.fields.filter((f) => f.isUncertain).length;
 
                     <!-- Actions -->
                     <td class="py-3.5 px-4 text-right">
-                      <div class="inline-flex items-center gap-1.5">
+                      <div class="inline-flex items-center gap-1.5" onclick="event.stopPropagation();">
                         <button
                           type="button"
-                          class="btn-edit inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-full border border-aura-border hover:bg-aura-surface-blush font-medium text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
+                          class="btn-edit inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-full border border-aura-border hover:bg-aura-surface-blush font-medium text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-sidebar cursor-pointer"
                           data-id={field.id}
                           data-name={field.name}
                           data-val={field.value}
@@ -226,7 +244,7 @@ const uncertainCount = doc.fields.filter((f) => f.isUncertain).length;
                         </button>
                         <button
                           type="button"
-                          class="btn-confirm inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          class="btn-confirm inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                           data-id={field.id}
                           aria-label={`Confirm ${field.name}`}
                         >
@@ -240,6 +258,120 @@ const uncertainCount = doc.fields.filter((f) => f.isUncertain).length;
               </tbody>
             </table>
           </div>
+        </div>
+
+        <!-- 2. Mobile View (Card List - Eliminates horizontal table scrolling) -->
+        <div id="mobile-fields-list" class="block md:hidden space-y-3">
+          {doc.fields.map((field) => (
+            <div
+              id={`mobile-card-${field.id}`}
+              class={`bg-aura-surface rounded-2xl p-4 border border-aura-border/50 shadow-2xs space-y-3 cursor-pointer transition select-none ${field.isUncertain ? 'bg-aura-accent-peach/15' : ''}`}
+              data-field-id={field.id}
+              data-raw-snippet={field.provenance.rawSnippet}
+              data-page={field.provenance.page}
+              data-name={field.name}
+            >
+              <!-- Card Header -->
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <div class="font-bold text-sm text-aura-text">{field.name}</div>
+                  <div class="text-[11px] text-aura-text-muted">{field.category}</div>
+                </div>
+                <div class="flex flex-col items-end gap-1 shrink-0">
+                  <span
+                    id={`mobile-flag-${field.id}`}
+                    class={`px-2 py-0.5 rounded-full text-[10.5px] font-semibold ${
+                      field.interpretation === 'low'
+                        ? 'bg-aura-accent-peach text-aura-text'
+                        : field.interpretation === 'high'
+                        ? 'bg-rose-100 text-rose-800'
+                        : 'bg-emerald-100 text-emerald-800'
+                    }`}
+                  >
+                    {field.interpretation.toUpperCase()}
+                  </span>
+                  {field.isUncertain && (
+                    <span
+                      class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-aura-accent-orange/20 text-aura-accent-orange border border-aura-accent-orange/30 inline-flex items-center gap-1"
+                    >
+                      <AlertTriangle class="w-2.5 h-2.5" stroke-width={2} />
+                      <span>Uncertain ({(field.confidence * 100).toFixed(0)}%)</span>
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <!-- Measurement Details Grid -->
+              <div class="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-aura-surface-blush/80 border border-aura-border/40 text-xs">
+                <div>
+                  <span class="text-aura-text-subtle block text-[10px] font-semibold uppercase">Extracted Value</span>
+                  <span id={`mobile-val-display-${field.id}`} class="font-bold font-mono text-aura-text text-sm">
+                    {field.value} {field.unit || ''}
+                  </span>
+                </div>
+                <div>
+                  <span class="text-aura-text-subtle block text-[10px] font-semibold uppercase">Reference Range</span>
+                  <span class="font-mono text-aura-text-muted text-xs">
+                    {field.referenceRange?.text || 'Not reported'}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Touchscreen Provenance Snippet (Always accessible without hover) -->
+              <div class="space-y-1.5 pt-1">
+                <button
+                  type="button"
+                  class="btn-toggle-snippet text-[11px] font-semibold text-aura-accent-orange hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  data-target={`snippet-panel-${field.id}`}
+                  onclick="event.stopPropagation();"
+                >
+                  <Eye class="w-3 h-3" stroke-width={2} />
+                  <span>Inspect Source OCR Snippet</span>
+                </button>
+                <div
+                  id={`snippet-panel-${field.id}`}
+                  class="hidden bg-aura-sidebar-deep rounded-xl p-3 font-mono text-xs text-emerald-300 space-y-1"
+                >
+                  <div class="text-[9.5px] text-aura-sidebar-text uppercase tracking-widest border-b border-white/10 pb-1">
+                    Raw Document Snippet (Page {field.provenance.page})
+                  </div>
+                  <div class="whitespace-pre-wrap leading-relaxed text-[11px]">
+                    {field.provenance.rawSnippet}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card Actions -->
+              <div class="flex items-center justify-between pt-2 border-t border-aura-border/40" onclick="event.stopPropagation();">
+                <span id={`mobile-review-badge-${field.id}`} class="text-[11px] font-medium text-aura-text-muted">
+                  {field.reviewStatus === 'unreviewed' ? 'Unreviewed' : 'Confirmed'}
+                </span>
+                <div class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    class="btn-edit inline-flex items-center gap-1 px-3 py-1.5 text-xs rounded-full border border-aura-border hover:bg-aura-surface-blush font-medium text-aura-text cursor-pointer"
+                    data-id={field.id}
+                    data-name={field.name}
+                    data-val={field.value}
+                    data-unit={field.unit || ''}
+                    aria-label={`Edit ${field.name}`}
+                  >
+                    <Edit3 class="w-3 h-3 text-aura-text-muted" stroke-width={2} />
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-confirm inline-flex items-center gap-1 px-3 py-1.5 text-xs rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-medium cursor-pointer"
+                    data-id={field.id}
+                    aria-label={`Confirm ${field.name}`}
+                  >
+                    <Check class="w-3 h-3 text-emerald-700" stroke-width={2.2} />
+                    <span>Confirm</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
         <!-- Inline Edit Modal Dialog (Accessible) -->
@@ -261,11 +393,12 @@ const uncertainCount = doc.fields.filter((f) => f.isUncertain).length;
                 </p>
               </div>
               <button
+                type="button"
                 id="modal-close"
-                class="text-aura-text-subtle hover:text-aura-text p-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
-                aria-label="Close edit dialog"
+                class="p-1 rounded-full text-aura-text-muted hover:text-aura-text hover:bg-aura-surface-blush cursor-pointer"
+                aria-label="Close dialog"
               >
-                <X class="w-5 h-5" stroke-width={2} />
+                <X class="w-4 h-4" stroke-width={2} />
               </button>
             </div>
 
@@ -274,30 +407,30 @@ const uncertainCount = doc.fields.filter((f) => f.isUncertain).length;
 
               <div>
                 <label for="edit-value-input" class="block text-xs font-semibold text-aura-text mb-1">
-                  Report Value
+                  Corrected Numerical Value
                 </label>
                 <input
                   type="text"
                   id="edit-value-input"
                   required
-                  class="w-full px-3 py-2 border border-aura-border rounded-xl text-sm focus:ring-2 focus:ring-aura-sidebar-active focus:outline-none"
+                  class="w-full px-3 py-2 border border-aura-border rounded-xl text-sm font-mono focus:ring-2 focus:ring-aura-sidebar-active focus:outline-none"
                 />
               </div>
 
               <div>
                 <label for="edit-unit-input" class="block text-xs font-semibold text-aura-text mb-1">
-                  Measurement Unit
+                  Unit
                 </label>
                 <input
                   type="text"
                   id="edit-unit-input"
-                  class="w-full px-3 py-2 border border-aura-border rounded-xl text-sm focus:ring-2 focus:ring-aura-sidebar-active focus:outline-none"
+                  class="w-full px-3 py-2 border border-aura-border rounded-xl text-sm font-mono focus:ring-2 focus:ring-aura-sidebar-active focus:outline-none"
                 />
               </div>
 
               <div>
                 <label for="edit-reason-input" class="block text-xs font-semibold text-aura-text mb-1">
-                  Reason for Adjustment (Optional Audit Trail)
+                  Reason for Adjustment (Audit Trail)
                 </label>
                 <input
                   type="text"
@@ -311,13 +444,13 @@ const uncertainCount = doc.fields.filter((f) => f.isUncertain).length;
                 <button
                   type="button"
                   id="modal-cancel"
-                  class="px-4 py-2 text-xs font-semibold rounded-full border border-aura-border text-aura-text hover:bg-aura-surface-blush"
+                  class="px-4 py-2 text-xs font-semibold rounded-full border border-aura-border text-aura-text hover:bg-aura-surface-blush cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  class="px-4 py-2 text-xs font-semibold rounded-full bg-aura-action hover:bg-aura-action-hover text-white"
+                  class="px-4 py-2 text-xs font-semibold rounded-full bg-aura-action hover:bg-aura-action-hover text-white cursor-pointer"
                 >
                   Save Correction
                 </button>
@@ -329,30 +462,31 @@ const uncertainCount = doc.fields.filter((f) => f.isUncertain).length;
 
       <!-- Right (1 col): Provenance Snippet Inspector & Grounded Summary -->
       <div class="space-y-6">
-        <!-- Provenance Inspector Box -->
+        <!-- Provenance Inspector Box (Updates on desktop hover/click AND mobile tap) -->
         <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card p-5 space-y-3">
           <div class="flex items-center justify-between">
             <h3 class="text-sm font-serif font-bold text-aura-text flex items-center gap-1.5">
               <Search class="w-4 h-4 text-aura-accent-orange" stroke-width={2} />
               <span>Source Document Provenance</span>
             </h3>
-            <span class="text-[11px] font-mono text-aura-text-subtle">Page 1</span>
+            <span id="inspector-page-badge" class="text-[11px] font-mono text-aura-text-subtle">Page 1</span>
           </div>
 
           <p class="text-xs text-aura-text-muted leading-relaxed">
-            Hover or select any parameter to view the exact simulated OCR slip region from which it was extracted:
+            Active parameter snippet from the simulated laboratory report:
           </p>
 
           <div class="bg-aura-sidebar-deep rounded-xl p-3.5 font-mono text-xs text-aura-sidebar-active space-y-1">
-            <div class="text-[10px] text-aura-sidebar-text uppercase tracking-widest border-b border-white/10 pb-1">
-              Raw Extracted Text Snippet
+            <div id="inspector-label" class="text-[10px] text-aura-sidebar-text uppercase tracking-widest border-b border-white/10 pb-1">
+              Raw Extracted Text Snippet • Hemoglobin
             </div>
             <div id="inspector-snippet" class="whitespace-pre-wrap leading-relaxed text-emerald-300">
               Hemoglobin ................... 11.2 g/dL (Ref: 12.0 - 15.5)
             </div>
           </div>
-          <div class="text-[11px] text-aura-text-muted">
-            Bounding Box: <span id="inspector-box" class="font-mono text-aura-text">Top: 18%, Left: 12%</span>
+          <div class="text-[11px] text-aura-text-muted flex items-center justify-between">
+            <span>Bounding Box: <strong id="inspector-box" class="font-mono text-aura-text">Top: 18%, Left: 12%</strong></span>
+            <span class="text-[10px] text-aura-text-subtle">High OCR Confidence</span>
           </div>
         </div>
 
@@ -368,62 +502,68 @@ const uncertainCount = doc.fields.filter((f) => f.isUncertain).length;
               <button
                 id="lang-en"
                 type="button"
-                class="px-2.5 py-1 rounded-full bg-white text-aura-text shadow-2xs transition"
+                class="px-2.5 py-1 rounded-full bg-white text-aura-text shadow-2xs transition cursor-pointer"
               >
                 English
               </button>
               <button
                 id="lang-te"
                 type="button"
-                class="px-2.5 py-1 rounded-full text-aura-text-muted hover:text-aura-text transition"
+                class="px-2.5 py-1 rounded-full text-aura-text-muted hover:text-aura-text transition cursor-pointer"
               >
                 తెలుగు
               </button>
             </div>
           </div>
 
-          <!-- English Summary Content -->
+          <!-- English Summary Content (Accurate 5 out-of-range observations) -->
           <div id="summary-en" class="space-y-3 text-xs leading-relaxed text-aura-text-muted">
             <p>
-              This report contains <strong class="text-aura-text">8 extracted lab tests</strong>. 3 parameters differ from the reference baseline:
+              This report contains <strong class="text-aura-text">{totalCount} extracted parameters</strong>. <strong class="text-aura-text">{outOfRangeCount} parameters differ from standard reference ranges</strong>:
             </p>
             <ul class="space-y-1.5 list-disc pl-4 text-aura-text-muted">
               <li><strong class="text-aura-text">Hemoglobin (11.2 g/dL):</strong> Below reference (12.0 - 15.5 g/dL). Oxygen-carrying protein in red blood cells.</li>
+              <li><strong class="text-aura-text">Platelet Count (145,000 /cumm):</strong> Slightly below standard baseline (150,000 - 450,000 /cumm) with optical uncertainty flag.</li>
               <li><strong class="text-aura-text">Fasting Blood Sugar (118 mg/dL):</strong> Above normal fasting range (70 - 100 mg/dL).</li>
-              <li><strong class="text-aura-text">HbA1c (6.2%):</strong> Indicates 3-month average blood glucose is slightly elevated.</li>
+              <li><strong class="text-aura-text">HbA1c (6.2%):</strong> Indicates 3-month average blood glucose is slightly elevated (Ref: &lt; 5.7%).</li>
+              <li><strong class="text-aura-text">TSH (5.4 uIU/mL):</strong> Above reference range (0.4 - 4.5 uIU/mL) with unit prefix optical uncertainty flag.</li>
             </ul>
 
             <div class="pt-2 border-t border-aura-border/60">
               <div class="font-bold text-aura-text mb-1">Suggested Questions for Your Doctor:</div>
               <ol class="list-decimal pl-4 space-y-1 text-aura-text-muted">
-                <li>What dietary changes or follow-up tests are recommended for my fasting blood sugar?</li>
-                <li>Does the mild hemoglobin reading warrant iron supplementation?</li>
+                <li>What dietary patterns or follow-up tests are recommended for my fasting sugar and HbA1c readings?</li>
+                <li>Does the mild hemoglobin reading warrant iron profile or ferritin testing?</li>
+                <li>Should the TSH level be re-checked alongside thyroid antibodies?</li>
               </ol>
             </div>
           </div>
 
-          <!-- Telugu Summary Content (Hidden by default) -->
+          <!-- Telugu Summary Content -->
           <div id="summary-te" class="hidden space-y-3 text-xs leading-relaxed text-aura-text-muted">
             <p>
-              ఈ రిపోర్టులో మొత్తం <strong class="text-aura-text">8 పరీక్షలు</strong> నమోదయ్యాయి. వీటిలో 3 విలువలు సాధారణ పరిధి కంటే భిన్నంగా ఉన్నాయి:
+              ఈ నివేదికలో <strong class="text-aura-text">8 పరిశీలనలు</strong> ఉన్నాయి. ప్రామాణిక పరిధి కంటే <strong class="text-aura-text">5 పారామితులు</strong> వేరుగా ఉన్నాయి:
             </p>
             <ul class="space-y-1.5 list-disc pl-4 text-aura-text-muted">
-              <li><strong class="text-aura-text">హీమోగ్లోబిన్ (11.2 g/dL):</strong> సాధారణ పరిమితి కంటే తక్కువగా ఉంది. ఇది శరీరంలో ఆక్సిజన్‌ను మోసుకెళ్ళే ప్రోటీన్.</li>
+              <li><strong class="text-aura-text">హీమోగ్లోబిన్ (11.2 g/dL):</strong> సాధారణ పరిమితి (12.0 - 15.5 g/dL) కంటే తక్కువగా ఉంది.</li>
+              <li><strong class="text-aura-text">ప్లేట్‌లెట్లు (145,000 /cumm):</strong> ప్రామాణిక పరిధి కంటే కొద్దిగా తక్కువ, ప్రింట్ స్పష్టత సందేహాస్పదం.</li>
               <li><strong class="text-aura-text">ఫాస్టింగ్ బ్లడ్ షుగర్ (118 mg/dL):</strong> సాధారణ పరిధి (70 - 100 mg/dL) కంటే కొద్దిగా ఎక్కువ.</li>
               <li><strong class="text-aura-text">HbA1c (6.2%):</strong> గత 3 నెలల సగటు చక్కెర స్థాయిలు సాధారణం కంటే ఎక్కువగా ఉన్నట్లు సూచిస్తుంది.</li>
+              <li><strong class="text-aura-text">TSH (5.4 uIU/mL):</strong> థైరాయిడ్ హార్మోన్ సాధారణ పరిధి (0.4 - 4.5 uIU/mL) కంటే ఎక్కువ.</li>
             </ul>
 
             <div class="pt-2 border-t border-aura-border/60">
               <div class="font-bold text-aura-text mb-1">వైద్యుడిని అడగాల్సిన ప్రశ్నలు:</div>
               <ol class="list-decimal pl-4 space-y-1 text-aura-text-muted">
                 <li>రక్తంలో చక్కెర స్థాయిలను నియంత్రించడానికి ఆహారపు అలవాట్లలో ఎలాంటి మార్పులు చేయాలి?</li>
-                <li>తక్కువ హీమోగ్లోబిన్ కోసం ఐరన్ పరీక్షలు అవసరమా?</li>
+                <li>తక్కువ హీమోగ్లోబిన్ కోసం ఐరన్ లేదా ఫెర్రిటిన్ పరీక్షలు అవసరమా?</li>
+                <li>TSH స్థాయిని మళ్లీ ఎప్పుడు పరీక్షించుకోవాలి?</li>
               </ol>
             </div>
           </div>
 
           <div class="bg-aura-surface-blush p-3 rounded-xl border border-aura-border/60 text-[11px] text-aura-text-muted">
-            <strong>Disclaimer:</strong> Sourced purely from reviewed fields. No autonomous diagnosis or prescribing.
+            <strong>Safety Notice:</strong> Sourced purely from reviewed fields. No autonomous diagnosis or prescribing.
           </div>
         </div>
       </div>
@@ -434,8 +574,11 @@ const uncertainCount = doc.fields.filter((f) => f.isUncertain).length;
 <script>
   // Interactive client review & correction logic
   const tableRows = document.querySelectorAll('#fields-table-body tr');
+  const mobileCards = document.querySelectorAll('#mobile-fields-list > div');
   const inspectorSnippet = document.getElementById('inspector-snippet');
   const inspectorBox = document.getElementById('inspector-box');
+  const inspectorLabel = document.getElementById('inspector-label');
+  const inspectorPageBadge = document.getElementById('inspector-page-badge');
   const reviewBar = document.getElementById('review-bar');
   const reviewStatusLabel = document.getElementById('review-status-label');
   const reviewPercentage = document.getElementById('review-percentage');
@@ -458,122 +601,189 @@ const uncertainCount = doc.fields.filter((f) => f.isUncertain).length;
   const summaryEn = document.getElementById('summary-en');
   const summaryTe = document.getElementById('summary-te');
 
-  let confirmedCount = 0;
-  const totalCount = tableRows.length;
+  const confirmedFields = new Set<string>();
+  const totalCount = 8;
 
   function updateReviewProgress() {
+    const confirmedCount = confirmedFields.size;
     const pct = Math.round((confirmedCount / totalCount) * 100);
     if (reviewBar) reviewBar.style.width = `${pct}%`;
     if (reviewStatusLabel) reviewStatusLabel.textContent = `Review Status: ${confirmedCount} of ${totalCount} fields confirmed`;
     if (reviewPercentage) reviewPercentage.textContent = `${pct}% Reviewed`;
   }
 
-  // Hover to inspect provenance snippet
+  // Provenance synchronization for both hover and touch tap
+  function activateProvenance(name: string, snippet: string, page: string) {
+    if (inspectorSnippet) inspectorSnippet.textContent = snippet;
+    if (inspectorBox) inspectorBox.textContent = `Page ${page} (Region mapped)`;
+    if (inspectorLabel) inspectorLabel.textContent = `Raw Extracted Text Snippet • ${name}`;
+    if (inspectorPageBadge) inspectorPageBadge.textContent = `Page ${page}`;
+  }
+
+  // Desktop Table Rows (Click or Hover)
   tableRows.forEach((row) => {
-    row.addEventListener('mouseenter', () => {
-      const snippet = row.getAttribute('data-raw-snippet');
-      const page = row.getAttribute('data-page');
-      if (snippet && inspectorSnippet) {
-        inspectorSnippet.textContent = snippet;
-      }
-      if (inspectorBox && page) {
-        inspectorBox.textContent = `Page ${page} (High confidence bounding box)`;
+    const name = row.getAttribute('data-name') || 'Field';
+    const snippet = row.getAttribute('data-raw-snippet') || '';
+    const page = row.getAttribute('data-page') || '1';
+
+    row.addEventListener('mouseenter', () => activateProvenance(name, snippet, page));
+    row.addEventListener('click', () => {
+      tableRows.forEach((r) => r.classList.remove('ring-2', 'ring-aura-accent-orange/40'));
+      row.classList.add('ring-2', 'ring-aura-accent-orange/40');
+      activateProvenance(name, snippet, page);
+    });
+  });
+
+  // Mobile Cards (Tap to activate inspector)
+  mobileCards.forEach((card) => {
+    const name = card.getAttribute('data-name') || 'Field';
+    const snippet = card.getAttribute('data-raw-snippet') || '';
+    const page = card.getAttribute('data-page') || '1';
+
+    card.addEventListener('click', () => {
+      mobileCards.forEach((c) => c.classList.remove('ring-2', 'ring-aura-accent-orange'));
+      card.classList.add('ring-2', 'ring-aura-accent-orange');
+      activateProvenance(name, snippet, page);
+    });
+  });
+
+  // Mobile Inline Snippet Toggles (Touchscreen without hover)
+  document.querySelectorAll('.btn-toggle-snippet').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const targetId = btn.getAttribute('data-target');
+      if (targetId) {
+        const panel = document.getElementById(targetId);
+        if (panel) {
+          panel.classList.toggle('hidden');
+        }
       }
     });
   });
 
-  // Individual confirm button
+  // Confirm Single Field Handler (Works across desktop table and mobile cards)
   document.querySelectorAll('.btn-confirm').forEach((btn) => {
     btn.addEventListener('click', (e) => {
-      const target = e.currentTarget as HTMLElement;
-      const fieldId = target.getAttribute('data-id');
+      e.stopPropagation();
+      const fieldId = btn.getAttribute('data-id');
       if (!fieldId) return;
 
-      const reviewBadge = document.getElementById(`review-badge-${fieldId}`);
-      const uncertainBadge = document.getElementById(`uncertain-badge-${fieldId}`);
-
-      if (reviewBadge && reviewBadge.textContent !== 'Confirmed') {
-        reviewBadge.textContent = 'Confirmed';
-        reviewBadge.className = 'text-[10px] font-semibold text-emerald-700';
-        confirmedCount = Math.min(totalCount, confirmedCount + 1);
-        updateReviewProgress();
+      if (confirmedFields.has(fieldId)) {
+        confirmedFields.delete(fieldId);
+        markFieldUI(fieldId, false);
+      } else {
+        confirmedFields.add(fieldId);
+        markFieldUI(fieldId, true);
       }
-
-      if (uncertainBadge) {
-        uncertainBadge.classList.add('hidden');
-      }
-
-      target.textContent = 'Verified ✓';
-      target.classList.add('bg-emerald-200', 'text-emerald-900');
+      updateReviewProgress();
     });
   });
 
-  // Edit button opens modal
+  function markFieldUI(fieldId: string, isConfirmed: boolean) {
+    // Desktop badge
+    const desktopBadge = document.getElementById(`review-badge-${fieldId}`);
+    if (desktopBadge) {
+      desktopBadge.textContent = isConfirmed ? 'Confirmed' : 'Unreviewed';
+      desktopBadge.className = isConfirmed ? 'text-[10px] font-bold text-emerald-700' : 'text-[10px] font-medium text-aura-text-muted';
+    }
+
+    // Mobile badge
+    const mobileBadge = document.getElementById(`mobile-review-badge-${fieldId}`);
+    if (mobileBadge) {
+      mobileBadge.textContent = isConfirmed ? 'Confirmed' : 'Unreviewed';
+      mobileBadge.className = isConfirmed ? 'text-[11px] font-bold text-emerald-700' : 'text-[11px] font-medium text-aura-text-muted';
+    }
+
+    // Update row & card border
+    const row = document.getElementById(`row-${fieldId}`);
+    if (row) {
+      if (isConfirmed) row.classList.add('bg-emerald-50/40');
+      else row.classList.remove('bg-emerald-50/40');
+    }
+
+    const card = document.getElementById(`mobile-card-${fieldId}`);
+    if (card) {
+      if (isConfirmed) card.classList.add('border-emerald-300', 'bg-emerald-50/30');
+      else card.classList.remove('border-emerald-300', 'bg-emerald-50/30');
+    }
+  }
+
+  // Confirm All Button
+  btnConfirmAll?.addEventListener('click', () => {
+    tableRows.forEach((row) => {
+      const fid = row.getAttribute('data-field-id');
+      if (fid) {
+        confirmedFields.add(fid);
+        markFieldUI(fid, true);
+      }
+    });
+    updateReviewProgress();
+  });
+
+  // Reset Demo Button
+  btnResetDemo?.addEventListener('click', () => {
+    confirmedFields.clear();
+    tableRows.forEach((row) => {
+      const fid = row.getAttribute('data-field-id');
+      if (fid) markFieldUI(fid, false);
+    });
+    updateReviewProgress();
+  });
+
+  // Edit Modal Event Handlers
   document.querySelectorAll('.btn-edit').forEach((btn) => {
     btn.addEventListener('click', (e) => {
-      const target = e.currentTarget as HTMLElement;
-      const id = target.getAttribute('data-id') || '';
-      const val = target.getAttribute('data-val') || '';
-      const unit = target.getAttribute('data-unit') || '';
+      e.stopPropagation();
+      const id = btn.getAttribute('data-id');
+      const name = btn.getAttribute('data-name');
+      const val = btn.getAttribute('data-val');
+      const unit = btn.getAttribute('data-unit');
 
-      if (editFieldId) editFieldId.value = id;
-      if (editValueInput) editValueInput.value = val;
-      if (editUnitInput) editUnitInput.value = unit;
+      if (editFieldId) editFieldId.value = id || '';
+      if (editValueInput) editValueInput.value = val || '';
+      if (editUnitInput) editUnitInput.value = unit || '';
       if (editReasonInput) editReasonInput.value = '';
 
+      const dialogTitle = document.getElementById('edit-dialog-title');
+      if (dialogTitle && name) {
+        dialogTitle.textContent = `Correct: ${name}`;
+      }
+
       editModal?.classList.remove('hidden');
+      editValueInput?.focus();
     });
   });
 
-  // Modal actions
-  function closeModal() {
-    editModal?.classList.add('hidden');
-  }
-  modalClose?.addEventListener('click', closeModal);
-  modalCancel?.addEventListener('click', closeModal);
+  modalClose?.addEventListener('click', () => editModal?.classList.add('hidden'));
+  modalCancel?.addEventListener('click', () => editModal?.classList.add('hidden'));
 
-  // Form submit saves edit
   editForm?.addEventListener('submit', (e) => {
     e.preventDefault();
     const id = editFieldId?.value;
     const newVal = editValueInput?.value;
     const newUnit = editUnitInput?.value;
 
-    if (!id || !newVal) return;
+    if (id && newVal !== undefined) {
+      // Update desktop
+      const valDisplay = document.getElementById(`val-display-${id}`);
+      const unitDisplay = document.getElementById(`unit-display-${id}`);
+      if (valDisplay) valDisplay.textContent = newVal;
+      if (unitDisplay) unitDisplay.textContent = newUnit || '';
 
-    const valDisplay = document.getElementById(`val-display-${id}`);
-    const unitDisplay = document.getElementById(`unit-display-${id}`);
-    const reviewBadge = document.getElementById(`review-badge-${id}`);
-    const uncertainBadge = document.getElementById(`uncertain-badge-${id}`);
+      // Update mobile
+      const mobileValDisplay = document.getElementById(`mobile-val-display-${id}`);
+      if (mobileValDisplay) mobileValDisplay.textContent = `${newVal} ${newUnit || ''}`;
 
-    if (valDisplay) valDisplay.textContent = newVal;
-    if (unitDisplay) unitDisplay.textContent = newUnit || '';
-
-    if (reviewBadge && reviewBadge.textContent !== 'Confirmed') {
-      reviewBadge.textContent = 'Corrected ✓';
-      reviewBadge.className = 'text-[10px] font-semibold text-aura-accent-orange';
-      confirmedCount = Math.min(totalCount, confirmedCount + 1);
+      // Automatically confirm the edited field
+      confirmedFields.add(id);
+      markFieldUI(id, true);
       updateReviewProgress();
     }
 
-    if (uncertainBadge) {
-      uncertainBadge.classList.add('hidden');
-    }
-
-    closeModal();
+    editModal?.classList.add('hidden');
   });
 
-  // Confirm All Button
-  btnConfirmAll?.addEventListener('click', () => {
-    document.querySelectorAll('.btn-confirm').forEach((b) => (b as HTMLElement).click());
-  });
-
-  // Reset Button
-  btnResetDemo?.addEventListener('click', () => {
-    window.location.reload();
-  });
-
-  // Language switch
+  // Language toggle handlers
   langEn?.addEventListener('click', () => {
     langEn.classList.add('bg-white', 'text-aura-text', 'shadow-2xs');
     langEn.classList.remove('text-aura-text-muted');

@@ -11,33 +11,38 @@ import {
   MapPin,
   Activity,
   CheckCircle2,
+  Info,
 } from '@lucide/astro';
 import Layout from '../layouts/Layout.astro';
+import { SYNTHETIC_REPORT_STATS } from '../fixtures/synthetic-lab-report';
+
+const outOfRangeCount = SYNTHETIC_REPORT_STATS.outOfRangeCount;
+const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
 ---
 
 <Layout title="Guided Health Copilot" subtext="Evidence-grounded assistant with clinical safety boundaries">
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
     <!-- Header -->
-    <div class="space-y-2">
-      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-aura-surface-cream text-aura-text border border-black/5">
+    <div class="space-y-2 pb-2 border-b border-aura-border/30">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-aura-surface-cream text-aura-text border border-black/5 shadow-2xs">
         <Bot class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
-        <span>Guided Health Assistant</span>
+        <span>Evidence-Grounded Assistant</span>
       </div>
       <h1 class="text-2xl sm:text-3xl font-serif font-normal text-aura-text tracking-tight">
         Altrix Health Copilot
       </h1>
       <p class="text-aura-text-muted text-xs sm:text-sm max-w-2xl leading-relaxed">
-        Select a guided topic below or ask about your records. Our assistant uses approved medical knowledge templates,
-        never guesses missing values, and respects clinical safety boundaries.
+        Select a guided topic below or ask about your records. Our assistant uses curated medical knowledge templates,
+        never guesses missing values, and strictly respects clinical safety boundaries.
       </p>
     </div>
 
-    <!-- Safety Red Flag Banner -->
-    <div class="bg-aura-surface-cream rounded-2xl p-4 text-xs text-aura-text flex items-start gap-3 border border-black/5 shadow-aura-card">
-      <ShieldAlert class="w-5 h-5 text-aura-accent-orange shrink-0 mt-0.5" stroke-width={2} />
+    <!-- Safety Red Flag Banner (High Priority Visibility) -->
+    <div class="bg-rose-50/80 border border-rose-200 rounded-2xl p-4 text-xs text-rose-950 flex items-start gap-3 shadow-2xs">
+      <ShieldAlert class="w-5 h-5 text-rose-600 shrink-0 mt-0.5" stroke-width={2} />
       <div class="space-y-1">
-        <strong class="font-bold text-aura-text">Deterministic Safety Routing Active</strong>
-        <p class="text-aura-text-muted leading-relaxed">
+        <strong class="font-bold text-rose-900">Deterministic Safety Routing Active</strong>
+        <p class="text-rose-800 leading-relaxed">
           Urgent symptoms trigger immediate emergency guidance without waiting for an AI response.
           The copilot provides general health education and does not prescribe, diagnose, or formulate individualized drug doses.
         </p>
@@ -68,14 +73,14 @@ import Layout from '../layouts/Layout.astro';
             <button
               id="chat-lang-en"
               type="button"
-              class="px-2.5 py-1 rounded-full bg-aura-sidebar text-white shadow-2xs transition"
+              class="px-2.5 py-1 rounded-full bg-aura-sidebar text-white shadow-2xs transition cursor-pointer"
             >
               English
             </button>
             <button
               id="chat-lang-te"
               type="button"
-              class="px-2.5 py-1 rounded-full text-aura-text-muted hover:text-aura-text transition"
+              class="px-2.5 py-1 rounded-full text-aura-text-muted hover:text-aura-text transition cursor-pointer"
             >
               తెలుగు
             </button>
@@ -101,58 +106,72 @@ import Layout from '../layouts/Layout.astro';
         </div>
       </div>
 
-      <!-- Quick Guided Topic Buttons (Task Choices) -->
-      <div class="p-4 bg-aura-surface-cream/40 border-t border-aura-border space-y-2">
-        <div class="text-xs font-semibold text-aura-text">Select a guided option:</div>
-        <div class="flex flex-wrap gap-2" id="guided-chips">
-          <button
-            type="button"
-            class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-aura-surface-blush text-xs font-medium text-aura-text transition"
-            data-intent="reports"
-          >
-            <FileSpreadsheet class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
-            <span>Understand My Lab Report</span>
-          </button>
-          <button
-            type="button"
-            class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-aura-surface-blush text-xs font-medium text-aura-text transition"
-            data-intent="medicines"
-          >
-            <Pill class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
-            <span>Medicine Information</span>
-          </button>
-          <button
-            type="button"
-            class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-aura-surface-blush text-xs font-medium text-aura-text transition"
-            data-intent="questions"
-          >
-            <Stethoscope class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
-            <span>Questions to Ask My Doctor</span>
-          </button>
-          <button
-            type="button"
-            class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-rose-300 hover:border-rose-500 hover:bg-rose-50 text-xs font-medium text-rose-900 transition"
-            data-intent="emergency_demo"
-          >
-            <AlertTriangle class="w-3.5 h-3.5 text-rose-600" stroke-width={2} />
-            <span>Safety Demo: Urgent Symptoms Test</span>
-          </button>
-          <button
-            type="button"
-            class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-amber-300 hover:border-amber-500 hover:bg-amber-50 text-xs font-medium text-amber-900 transition"
-            data-intent="dosing_demo"
-          >
-            <ShieldBan class="w-3.5 h-3.5 text-amber-600" stroke-width={2} />
-            <span>Safety Demo: Dosage Request Test</span>
-          </button>
-          <button
-            type="button"
-            class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-aura-surface-blush text-xs font-medium text-aura-text transition"
-            data-intent="care_finder"
-          >
-            <MapPin class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
-            <span>Find Healthcare (Demo Booking)</span>
-          </button>
+      <!-- Quick Guided Topic Buttons (Grouped with Clear Prioritization) -->
+      <div class="p-4 bg-aura-surface-cream/40 border-t border-aura-border space-y-3">
+        <!-- Group 1: General Health Guidance (Primary) -->
+        <div class="space-y-1.5">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-aura-text-subtle">
+            Report & Health Guidance
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-aura-surface-blush text-xs font-medium text-aura-text transition cursor-pointer"
+              data-intent="reports"
+            >
+              <FileSpreadsheet class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
+              <span>Understand My Lab Report</span>
+            </button>
+            <button
+              type="button"
+              class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-aura-surface-blush text-xs font-medium text-aura-text transition cursor-pointer"
+              data-intent="questions"
+            >
+              <Stethoscope class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
+              <span>Questions to Ask My Doctor</span>
+            </button>
+            <button
+              type="button"
+              class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-aura-surface-blush text-xs font-medium text-aura-text transition cursor-pointer"
+              data-intent="medicines"
+            >
+              <Pill class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
+              <span>Medicine Information (Paracetamol)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Group 2: Safety Boundary Demonstrations -->
+        <div class="space-y-1.5 pt-1 border-t border-aura-border/40">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-rose-800">
+            Safety Guardrail Demonstrations
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-rose-300 hover:border-rose-500 hover:bg-rose-50 text-xs font-medium text-rose-900 transition cursor-pointer"
+              data-intent="emergency_demo"
+            >
+              <AlertTriangle class="w-3.5 h-3.5 text-rose-600" stroke-width={2} />
+              <span>Safety Demo: Urgent Symptoms Test</span>
+            </button>
+            <button
+              type="button"
+              class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-amber-300 hover:border-amber-500 hover:bg-amber-50 text-xs font-medium text-amber-900 transition cursor-pointer"
+              data-intent="dosing_demo"
+            >
+              <ShieldBan class="w-3.5 h-3.5 text-amber-600" stroke-width={2} />
+              <span>Safety Demo: Dosage Request Test</span>
+            </button>
+            <button
+              type="button"
+              class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-aura-surface-blush text-xs font-medium text-aura-text transition cursor-pointer"
+              data-intent="care_finder"
+            >
+              <MapPin class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
+              <span>Mock Healthcare Finder (Demo Flow)</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -160,14 +179,14 @@ import Layout from '../layouts/Layout.astro';
       <div class="p-4 bg-white border-t border-aura-border">
         <form id="chat-form" class="flex gap-2">
           <input
-            type="text"
             id="chat-input"
-            placeholder="Type your question or choose a guided topic above..."
-            class="flex-grow px-4 py-2.5 border border-aura-border rounded-full text-sm focus:ring-2 focus:ring-aura-sidebar-active focus:outline-none"
+            type="text"
+            placeholder="Ask about your records, e.g. 'What does elevated fasting glucose mean?'"
+            class="flex-grow px-4 py-2.5 rounded-full border border-aura-border text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-aura-sidebar-active placeholder-aura-text-subtle"
           />
           <button
             type="submit"
-            class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-aura-action hover:bg-aura-action-hover text-white font-semibold text-sm transition shadow-xs"
+            class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-aura-action hover:bg-aura-action-hover text-white font-semibold text-sm transition shadow-xs cursor-pointer"
           >
             <span>Send</span>
             <Send class="w-3.5 h-3.5" stroke-width={2} />
@@ -290,8 +309,8 @@ import Layout from '../layouts/Layout.astro';
     if (isEmergency) {
       appendAssistantMessage(
         `<strong>Immediate Emergency Medical Notice:</strong><br/><br/>
-         Your symptoms may need urgent medical attention. Please contact your local emergency service (e.g., <strong>108 / 112</strong> in India or 911) or proceed immediately to the nearest emergency department.
-         If possible, ask someone nearby to assist you. This assistant cannot assess an emergency safely through chat.`,
+         Your symptoms may require urgent medical evaluation. Please contact your local emergency service (e.g., <strong>108 / 112</strong> in India or <strong>911</strong> in the US) or proceed immediately to the nearest hospital emergency department.
+         If possible, ask someone nearby to assist you. Altrix cannot assess emergencies through chat.`,
         'Safety Policy: emergency-red-flags.md • Deterministic Routing (No LLM called)',
         true
       );
@@ -313,7 +332,7 @@ import Layout from '../layouts/Layout.astro';
 
     // 3. Fallback educational response
     appendAssistantMessage(
-      `"I have received your question regarding <em>${escapeHtml(query)}</em>. In accordance with Altrix clinical safety guidelines, I provide educational explanations grounded in your uploaded documents. You can review your lab findings directly or ask your doctor the recommended questions on the Review screen."`,
+      `"I have received your question regarding <em>${escapeHtml(query)}</em>. In accordance with Altrix clinical safety guidelines, I provide educational explanations grounded in your uploaded documents. You can review your lab findings directly or ask your doctor the recommended questions on the <a href='/review' class='text-aura-accent-orange font-bold underline'>Review screen</a>."`,
       'Curated Knowledge Router • Mode: Educational',
       false
     );
@@ -324,12 +343,12 @@ import Layout from '../layouts/Layout.astro';
       appendUserMessage('Can you help me understand my latest lab report?');
       if (currentLocale === 'te') {
         appendAssistantMessage(
-          `మీ ఇటీవలి బ్లడ్ రిపోర్టులో <strong>హీమోగ్లోబిన్ (11.2 g/dL)</strong> సాధారణం కంటే తక్కువగా ఉంది, మరియు <strong>ఫాస్టింగ్ బ్లడ్ షుగర్ (118 mg/dL)</strong> ప్రామాణిక పరిధి కంటే ఎక్కువగా ఉంది. పూర్తి వివరాలను పరిశీలించడానికి <a href="/review" class="text-aura-accent-orange font-bold underline">రిపోర్ట్ రివ్యూ పేజీని చూడండి</a>.`,
+          `మీ ఇటీవలి బ్లడ్ రిపోర్టులో 5 పారామితులు ప్రామాణిక పరిధి కంటే భిన్నంగా ఉన్నాయి: <strong>హీమోగ్లోబిన్ (11.2 g/dL)</strong>, <strong>ప్లేట్‌లెట్లు (145,000 /cumm)</strong>, <strong>ఫాస్టింగ్ బ్లడ్ షుగర్ (118 mg/dL)</strong>, <strong>HbA1c (6.2%)</strong>, మరియు <strong>TSH (5.4 uIU/mL)</strong>. పూర్తి వివరాలను పరిశీలించడానికి <a href="/review" class="text-aura-accent-orange font-bold underline">రిపోర్ట్ రివ్యూ పేజీని చూడండి</a>.`,
           'Source: Synthetic CBC Fixture • Telugu Template'
         );
       } else {
         appendAssistantMessage(
-          `In your synthetic report, 3 parameters differed from the reference range: <strong>Hemoglobin (11.2 g/dL)</strong> is slightly low, while <strong>Fasting Blood Sugar (118 mg/dL)</strong> and <strong>HbA1c (6.2%)</strong> are elevated. You can inspect the bounding boxes and edit values on the <a href="/review" class="text-aura-accent-orange font-bold underline">Report Review Screen</a>.`,
+          `In your synthetic report, 5 parameters differ from laboratory reference ranges: <strong>Hemoglobin (11.2 g/dL)</strong> is slightly low, while <strong>Fasting Blood Sugar (118 mg/dL)</strong>, <strong>HbA1c (6.2%)</strong>, and <strong>TSH (5.4 uIU/mL)</strong> are elevated, and <strong>Platelet Count (145k)</strong> is slightly below baseline with optical uncertainty. You can inspect the bounding boxes and edit values on the <a href="/review" class="text-aura-accent-orange font-bold underline">Report Review Screen</a>.`,
           'Source: Synthetic CBC Fixture • Grounded Evidence'
         );
       }
@@ -348,7 +367,7 @@ import Layout from '../layouts/Layout.astro';
         `Here are grounded questions prepared for your next appointment:<br/>
          1. <em>"My fasting sugar is 118 mg/dL with HbA1c at 6.2%. What dietary or lifestyle modifications do you recommend at this stage?"</em><br/>
          2. <em>"My hemoglobin came in at 11.2 g/dL. Would you suggest testing ferritin or dietary iron adjustments?"</em><br/>
-         3. <em>"When would you like me to repeat this lab panel?"</em>`,
+         3. <em>"Should my TSH level (5.4 uIU/mL) be re-tested along with a thyroid panel?"</em>`,
         'Evidence-Grounded Question Generator'
       );
     } else if (intent === 'emergency_demo') {
@@ -364,7 +383,7 @@ import Layout from '../layouts/Layout.astro';
          We can help locate medical clinics by PIN code or city. <br/><br/>
          <em>Demo Facility Available:</em> Metro Diagnostic & Multispeciality Clinic (5.2 km away).<br/>
          <div class="bg-aura-surface-cream p-2.5 rounded-xl border border-black/5 mt-2 text-xs text-aura-text">
-           <strong>Notice:</strong> This is a demonstration booking flow only. No real appointment has been reserved and no hospital has been contacted.
+           <strong>Demo Limitation Notice:</strong> This is an illustrative booking flow prototype. No real appointment has been scheduled and no clinical facility has been contacted.
          </div>`,
         'Knowledge Source: knowledge/responses/response-catalog.md • Template #11'
       );
