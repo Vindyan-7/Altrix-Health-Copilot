@@ -62,12 +62,12 @@ export const GET: APIRoute = async ({ request }) => {
 
   const { data, error: dbError } = await client
     .from('health_documents')
-    .select('id, profile_id, document_type, document_date, source_facility, status, is_synthetic_demo, created_at')
+    .select('id, profile_id, document_type, document_date, source_facility, status, is_synthetic_demo, created_at, original_filename_sanitized, file_size_bytes')
     .order('created_at', { ascending: false });
 
   if (dbError) {
     return new Response(
-      JSON.stringify({ error: dbError.message, code: 'DATABASE_ERROR' }),
+      JSON.stringify({ error: 'Failed to retrieve documents from vault', code: 'DATABASE_ERROR' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -123,6 +123,15 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
+  // Payload size guard (max 32 KB)
+  const contentLengthHeader = request.headers.get('content-length');
+  if (contentLengthHeader && parseInt(contentLengthHeader, 10) > 32 * 1024) {
+    return new Response(
+      JSON.stringify({ error: 'Payload too large. Maximum allowed size is 32 KB.', code: 'PAYLOAD_TOO_LARGE' }),
+      { status: 413, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
     const rawBody = await request.json().catch(() => null);
     if (!rawBody) {
@@ -167,7 +176,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (insertError) {
       return new Response(
-        JSON.stringify({ error: insertError.message, code: 'DATABASE_ERROR' }),
+        JSON.stringify({ error: 'Failed to create document record in vault', code: 'DATABASE_ERROR' }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }

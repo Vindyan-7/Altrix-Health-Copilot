@@ -16,22 +16,35 @@ const MAX_REQUESTS_PER_MINUTE = 10;
 const WINDOW_MS = 60 * 1000;
 const MAX_PAYLOAD_BYTES = 32 * 1024; // 32 KB
 
-function checkRateLimit(clientIp: string): { allowed: boolean; retryAfterSeconds: number } {
+function pruneExpiredBuckets(now: number) {
+  if (rateLimitMap.size > 500) {
+    for (const [key, bucket] of rateLimitMap.entries()) {
+      if (now > bucket.resetAt) {
+        rateLimitMap.delete(key);
+      }
+    }
+  }
+}
+
+function checkRateLimit(clientIp: string): { allowed: boolean; remaining: number; retryAfterSeconds: number; resetAt: number } {
   const now = Date.now();
+  pruneExpiredBuckets(now);
+
   const bucket = rateLimitMap.get(clientIp);
 
   if (!bucket || now > bucket.resetAt) {
-    rateLimitMap.set(clientIp, { count: 1, resetAt: now + WINDOW_MS });
-    return { allowed: true, retryAfterSeconds: 0 };
+    const resetAt = now + WINDOW_MS;
+    rateLimitMap.set(clientIp, { count: 1, resetAt });
+    return { allowed: true, remaining: MAX_REQUESTS_PER_MINUTE - 1, retryAfterSeconds: 0, resetAt };
   }
 
   if (bucket.count >= MAX_REQUESTS_PER_MINUTE) {
     const retryAfterSeconds = Math.ceil((bucket.resetAt - now) / 1000);
-    return { allowed: false, retryAfterSeconds };
+    return { allowed: false, remaining: 0, retryAfterSeconds, resetAt: bucket.resetAt };
   }
 
   bucket.count++;
-  return { allowed: true, retryAfterSeconds: 0 };
+  return { allowed: true, remaining: MAX_REQUESTS_PER_MINUTE - bucket.count, retryAfterSeconds: 0, resetAt: bucket.resetAt };
 }
 
 // 2. Strict Input Validation Schema
@@ -64,7 +77,11 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   }
 
   // B. Rate Limiting Check (Prevent automated scraping and quota exhaustion)
-  const clientIp = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown-client';
+  const clientIp =
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip')?.trim() ||
+    clientAddress ||
+    'unknown-client';
   const rateLimit = checkRateLimit(clientIp);
   if (!rateLimit.allowed) {
     return new Response(
@@ -77,6 +94,9 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         headers: {
           'Content-Type': 'application/json',
           'Retry-After': String(rateLimit.retryAfterSeconds),
+          'X-RateLimit-Limit': String(MAX_REQUESTS_PER_MINUTE),
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': String(rateLimit.resetAt),
         },
       }
     );
@@ -177,6 +197,9 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         headers: {
           'Content-Type': 'application/json',
           'Cache-Control': 'no-store, max-age=0',
+          'X-RateLimit-Limit': String(MAX_REQUESTS_PER_MINUTE),
+          'X-RateLimit-Remaining': String(rateLimit.remaining),
+          'X-RateLimit-Reset': String(rateLimit.resetAt),
         },
       }
     );

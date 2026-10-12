@@ -372,3 +372,19 @@ Antigravity: inspect the current repository and environment, report findings, th
   - Vitest Unit Tests: **77/77 passing** across 6 test suites (+16 new tests in `tests/auth-and-access-control.test.ts`).
   - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
   - Production Build: Clean (`astro build` with `@astrojs/vercel`, 6 static routes prerendered + 4 serverless functions bundled in 5.89s).
+
+## 2026-10-13 — Phase 2: Synthetic-Document Persistence & Tenant Isolation Verification (feat/guest-health-copilot-mvp)
+- **Synthetic Document Workflow & Error Sanitization:**
+  - Connected minimal synthetic document workflow in [`src/pages/records.astro`](file:///c:/Projects/person/altrix-health-copilot/src/pages/records.astro): authenticated users can save sample synthetic lab reports and retrieve their private vault records via `/api/vault/documents`.
+  - Enforced strict payload size check (32 KB limit) on `POST /api/vault/documents`.
+  - Sanitized database error handling: responses return opaque error codes (`DATABASE_ERROR`) and user-friendly messages without leaking internal PostgreSQL connection strings or schema details.
+  - Real patient uploads and clinical report analysis remain strictly deferred.
+- **Provider & Explain Endpoint Hardening:**
+  - Refined in-memory rate limiter in [`src/pages/api/copilot/explain.ts`](file:///c:/Projects/person/altrix-health-copilot/src/pages/api/copilot/explain.ts) with automatic bucket pruning to prevent memory exhaustion, remaining count tracking, and standard rate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After`).
+  - Confirmed deterministic fallbacks: timeout (8s), unconfigured keys, and upstream 429 errors fall back to offline synthetic explanations.
+  - No real patient data is sent to the AI provider.
+- **Verification Quality Gates:**
+  - Vitest Unit Tests: **80/80 passing** across 6 test suites (+3 new tests for payload bounds, provider fallback, and document ownership).
+  - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
+  - Production Build: Clean (`astro build` with `@astrojs/vercel`, 6 static routes prerendered + 4 serverless functions bundled in 7.79s).
+

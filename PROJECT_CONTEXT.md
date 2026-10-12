@@ -39,20 +39,18 @@ Reviewed evidence determines what may be said; templates determine tone; AI may 
 10. Update this file and `docs/DEVELOPMENT_LOG.md` after each milestone with current status, test results, known issues, and the next exact task.
 
 ## Current implementation status
-Phase 1: Supabase Verification and Auth Integration completed on branch `feat/guest-health-copilot-mvp`:
+Phase 2: Synthetic-Document Persistence & Tenant Isolation Verification completed on branch `feat/guest-health-copilot-mvp`:
 - **Current Baseline:** `feat/guest-health-copilot-mvp` active; `develop`, `feat/timeline-iteration-3`, and `feat/review-page-iteration-2b` preserved intact.
-- **Phase 1 Deliverables:**
-  1. **Read-Only Verification Script:** Created `supabase/sql/03_verification_queries.sql` for safe, manual execution by the Product Manager in the Supabase SQL Editor.
-  2. **Canonical Environment Setup:** `.env.example` documents `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_PUBLISHABLE_KEY` with clear guidance. Zero credentials logged or requested.
-  3. **Supabase Auth Integration:** Implemented `src/lib/supabase/auth.ts` with email/password signup, login, logout, and session state persistence.
-  4. **Server-Side Protected Operations:** Implemented `GET /api/vault/documents`, `POST /api/vault/documents`, and `GET /api/auth/me` requiring valid Bearer tokens (`401 Unauthorized` when unauthenticated). The server overwrites `profile_id = user.id` from the verified token to prevent cross-user spoofing.
-  5. **Auth UI Page:** Implemented `src/pages/auth.astro` with Aura styling, signin/signup tabs, live session card, and clear guest reassurances.
-  6. **App Shell Integration:** Enhanced `TopBar.astro` and `Sidebar.astro` with dynamic session awareness and links to `/auth`.
-  7. **Guest Mode Independence:** Guest Health Guide (`/copilot`) remains 100% functional without an account or database connection.
-- **Quality Gates:** 77/77 Vitest unit tests pass, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
+- **Phase 2 Deliverables:**
+  1. **Synthetic Document Vault Workflow:** Connected minimal synthetic document workflow on `/records`. Authenticated users can save sample synthetic lab reports and retrieve only their private vault documents.
+  2. **Strict RLS Enforcement & Error Sanitization:** All database operations via `/api/vault/documents` use the authenticated user's JWT and enforce `auth.uid() = profile_id`. Server sanitizes all database errors (`DATABASE_ERROR`) without leaking internal PostgreSQL error details.
+  3. **No Real Document Uploads / OCR:** Real patient file uploads and clinical report analysis remain deferred.
+  4. **Hardened Gemini Provider & Explain Endpoint:** Rate limiter updated with memory pruning and `X-RateLimit-*` headers; 32 KB request bounds; 8s timeout; deterministic emergency and dosage guardrails; no real patient data sent to provider.
+  5. **Guest Mode Independence:** Guest Health Guide (`/copilot`) remains 100% functional without an account or database connection.
+- **Quality Gates:** 80/80 Vitest unit tests pass, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
 
 ## Current next task
-Deliver the Phase 1 Supabase Verification and Auth Integration report, provide exact verification query steps for the Product Manager, and await CTO review before starting Phase 2 integration work.
+Deliver the Phase 2 report with verification procedures for two-account tenant isolation, and await CTO review before implementing OCR or real medical-record processing.
 
 
 

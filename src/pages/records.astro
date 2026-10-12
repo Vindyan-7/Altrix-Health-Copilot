@@ -15,6 +15,8 @@ import {
   FileText,
   RotateCcw,
   Info,
+  Plus,
+  Database,
 } from '@lucide/astro';
 import Layout from '../layouts/Layout.astro';
 import { SYNTHETIC_REPORT_STATS } from '../fixtures/synthetic-lab-report';
@@ -78,6 +80,82 @@ const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
         >
           <span>Open Synthetic Report Fixture</span>
           <ArrowRight class="w-4 h-4" stroke-width={2} />
+        </a>
+      </div>
+    </div>
+
+    <!-- 2b. Supabase Private Vault Records (Protected Cloud Workflow) -->
+    <div id="cloud-vault-section" class="bg-white rounded-aura-panel border border-aura-border shadow-aura-card p-6 sm:p-7 space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-aura-border/40">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-800">
+            <Database class="w-4 h-4" stroke-width={2} />
+          </div>
+          <div>
+            <h2 class="text-base font-serif font-normal text-aura-text">
+              Private Cloud Vault (Supabase RLS)
+            </h2>
+            <p class="text-xs text-aura-text-muted">
+              PostgreSQL Row Level Security ensures only your authenticated user ID can read or insert your records.
+            </p>
+          </div>
+        </div>
+
+        <div id="vault-status-chip" class="self-start sm:self-auto">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-aura-surface-cream text-aura-text border border-black/5">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+            Guest Mode (Unauthenticated)
+          </span>
+        </div>
+      </div>
+
+      <!-- Authenticated Vault View (Hidden when guest) -->
+      <div id="vault-auth-view" class="hidden space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-aura-surface-blush border border-aura-border/60">
+          <div class="text-xs space-y-0.5">
+            <div class="font-bold text-aura-text">Active Cloud Session:</div>
+            <div id="vault-user-email" class="text-aura-text-muted font-mono text-[11px]">user@example.com</div>
+          </div>
+          <button
+            id="btn-save-sample-record"
+            type="button"
+            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-aura-action text-white text-xs font-semibold hover:bg-black transition shadow-xs cursor-pointer shrink-0"
+          >
+            <Plus class="w-3.5 h-3.5" />
+            <span>+ Save Sample Synthetic CBC to Vault</span>
+          </button>
+        </div>
+
+        <!-- Alert box for success / error messages -->
+        <div id="vault-alert" class="hidden rounded-xl p-3 text-xs flex items-start gap-2"></div>
+
+        <!-- Live Document Table / List -->
+        <div class="space-y-2">
+          <h3 class="text-xs font-bold text-aura-text uppercase tracking-wider">
+            Your Stored Vault Documents
+          </h3>
+          <div id="vault-documents-list" class="space-y-2">
+            <div class="text-xs text-aura-text-muted p-4 text-center bg-aura-surface-cream/30 rounded-xl border border-aura-border/30">
+              Loading your private vault records...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unauthenticated Guest View (Shown by default) -->
+      <div id="vault-guest-view" class="p-4 sm:p-5 rounded-xl bg-aura-surface-cream/40 border border-aura-border/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="space-y-1 text-xs">
+          <p class="font-bold text-aura-text">Want to test private document storage & multi-user isolation?</p>
+          <p class="text-aura-text-muted text-[11px]">
+            Sign in with an Altrix account to save synthetic records to your private Supabase vault and verify that other users cannot access them.
+          </p>
+        </div>
+        <a
+          href="/auth"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-aura-action text-white text-xs font-semibold hover:bg-black transition shadow-xs shrink-0"
+        >
+          <span>Sign In / Create Account</span>
+          <ArrowRight class="w-3.5 h-3.5" />
         </a>
       </div>
     </div>
@@ -548,5 +626,183 @@ const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
         }, 350);
       }
     }, 280);
+  }
+
+  // --- Supabase Cloud Vault Document Management ---
+  import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase/client';
+
+  const vaultStatusChip = document.getElementById('vault-status-chip');
+  const vaultAuthView = document.getElementById('vault-auth-view');
+  const vaultGuestView = document.getElementById('vault-guest-view');
+  const vaultUserEmail = document.getElementById('vault-user-email');
+  const vaultAlert = document.getElementById('vault-alert');
+  const vaultDocumentsList = document.getElementById('vault-documents-list');
+  const btnSaveSampleRecord = document.getElementById('btn-save-sample-record');
+
+  function showVaultAlert(msg: string, isError: boolean = false) {
+    if (!vaultAlert) return;
+    vaultAlert.className = isError
+      ? 'rounded-xl p-3 text-xs flex items-start gap-2 bg-rose-50 text-rose-900 border border-rose-200'
+      : 'rounded-xl p-3 text-xs flex items-start gap-2 bg-emerald-50 text-emerald-900 border border-emerald-200';
+    vaultAlert.textContent = msg;
+    vaultAlert.classList.remove('hidden');
+  }
+
+  async function loadUserDocuments(token: string) {
+    if (!vaultDocumentsList) return;
+    try {
+      const res = await fetch('/api/vault/documents', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        vaultDocumentsList.innerHTML = `
+          <div class="text-xs text-rose-700 p-3 bg-rose-50 rounded-xl border border-rose-200">
+            Failed to load documents from vault. Please try again.
+          </div>
+        `;
+        return;
+      }
+
+      const data = await res.json();
+      const docs = data.documents || [];
+
+      if (docs.length === 0) {
+        vaultDocumentsList.innerHTML = `
+          <div class="text-xs text-aura-text-muted p-4 text-center bg-aura-surface-cream/30 rounded-xl border border-aura-border/30">
+            No documents saved in your vault yet. Click "+ Save Sample Synthetic CBC to Vault" above to add your first record.
+          </div>
+        `;
+        return;
+      }
+
+      vaultDocumentsList.innerHTML = docs.map((doc: any) => `
+        <div class="flex items-center justify-between p-3.5 rounded-xl bg-white border border-aura-border/60 shadow-2xs hover:border-aura-accent-orange/40 transition">
+          <div class="space-y-0.5">
+            <div class="text-xs font-bold text-aura-text flex items-center gap-2">
+              <span>${doc.original_filename_sanitized || 'synthetic_report.pdf'}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                ${doc.is_synthetic_demo ? 'Synthetic Demo' : 'Stored Record'}
+              </span>
+            </div>
+            <div class="text-[11px] text-aura-text-muted flex items-center gap-2">
+              <span>${doc.source_facility || 'Clinical Facility'}</span>
+              <span>•</span>
+              <span>${doc.document_date || new Date(doc.created_at).toLocaleDateString()}</span>
+            </div>
+          </div>
+          <a
+            href="/review"
+            class="text-xs font-semibold px-3 py-1.5 rounded-full bg-aura-surface-cream hover:bg-aura-surface-cream-light text-aura-text transition border border-black/5"
+          >
+            Review Document →
+          </a>
+        </div>
+      `).join('');
+    } catch {
+      vaultDocumentsList.innerHTML = `
+        <div class="text-xs text-rose-700 p-3 bg-rose-50 rounded-xl border border-rose-200">
+          Network error loading vault documents.
+        </div>
+      `;
+    }
+  }
+
+  async function initVaultSession() {
+    const supabase = getSupabaseClient();
+    if (!supabase || !isSupabaseConfigured) return;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user && session?.access_token) {
+        if (vaultStatusChip) {
+          vaultStatusChip.innerHTML = `
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              Authenticated: ${session.user.email?.split('@')[0]}
+            </span>
+          `;
+        }
+        if (vaultUserEmail) vaultUserEmail.textContent = session.user.email || session.user.id;
+        if (vaultAuthView) vaultAuthView.classList.remove('hidden');
+        if (vaultGuestView) vaultGuestView.classList.add('hidden');
+
+        await loadUserDocuments(session.access_token);
+      }
+    } catch {
+      // Graceful fallback
+    }
+  }
+
+  initVaultSession();
+
+  const supabaseClient = getSupabaseClient();
+  if (supabaseClient) {
+    supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user && session?.access_token) {
+        if (vaultStatusChip) {
+          vaultStatusChip.innerHTML = `
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              Authenticated: ${session.user.email?.split('@')[0]}
+            </span>
+          `;
+        }
+        if (vaultUserEmail) vaultUserEmail.textContent = session.user.email || session.user.id;
+        if (vaultAuthView) vaultAuthView.classList.remove('hidden');
+        if (vaultGuestView) vaultGuestView.classList.add('hidden');
+        await loadUserDocuments(session.access_token);
+      } else {
+        if (vaultAuthView) vaultAuthView.classList.add('hidden');
+        if (vaultGuestView) vaultGuestView.classList.remove('hidden');
+      }
+    });
+  }
+
+  if (btnSaveSampleRecord) {
+    btnSaveSampleRecord.addEventListener('click', async () => {
+      const supabase = getSupabaseClient();
+      if (!supabase) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        showVaultAlert('Please sign in to save records to your vault.', true);
+        return;
+      }
+
+      btnSaveSampleRecord.textContent = 'Saving to vault...';
+      try {
+        const res = await fetch('/api/vault/documents', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            document_type: 'lab_report',
+            storage_path: `vault/${session.user.id}/sample_cbc_panel_${Date.now()}.pdf`,
+            original_filename_sanitized: 'sample_cbc_metabolic_panel.pdf',
+            mime_type: 'application/pdf',
+            file_size_bytes: 148480,
+            document_date: '2026-10-12',
+            source_facility: 'Apollo Diagnostics (Synthetic Demo)',
+            is_synthetic_demo: true,
+          }),
+        });
+
+        const json = await res.json();
+        if (res.ok) {
+          showVaultAlert('Synthetic document successfully created in your private vault!');
+          await loadUserDocuments(session.access_token);
+        } else {
+          showVaultAlert(json.error || 'Failed to save document record.', true);
+        }
+      } catch {
+        showVaultAlert('Network error while saving document.', true);
+      } finally {
+        btnSaveSampleRecord.textContent = '+ Save Sample Synthetic CBC to Vault';
+      }
+    });
   }
 </script>
