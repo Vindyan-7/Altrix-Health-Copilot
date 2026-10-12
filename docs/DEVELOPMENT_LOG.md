@@ -207,25 +207,48 @@ Antigravity: inspect the current repository and environment, report findings, th
   - OCR work develops in isolated branch `feat/ocr-extraction-pipeline` branched from approved baseline.
   - Frontend work continues in `feat/timeline-iteration-3` or `main`.
 
-## 2026-10-12 — Checkpoint 3: Extraction Contract Finalization & Parallel Governance (develop)
-- **Baseline Confirmed:**
-  - `develop` established on base commit `9eff6ec` + docs commit `6f6380a`, synchronized with `origin/develop`.
-  - Preserved all prior branches (`feat/review-page-iteration-2b`, `feat/records-page-iteration-2a`, `feat/lucide-icons-iteration-1`).
-- **Approved Extraction Contract Principles:**
-  - Explicit synthetic/real document identity (`isSyntheticDemo: false` for real OCR).
-  - Quantitative OCR extraction confidence (`0.0` - `1.0`) distinct from physical optical degradation flag (`isUncertain: boolean`).
-  - Strict independence between optical degradation flags and human review status (`reviewStatus: 'unreviewed' | 'confirmed' | 'corrected'`).
-  - Verbatim provenance required (`rawSnippet`, `page`, relative percentage `boundingBox`).
-  - Prohibition of invented reference ranges; fallback to `interpretation: 'unspecified'` when missing.
-  - Typed `AIProviderError` hierarchy with HTTP status codes; strict prohibition of silent synthetic fallback upon provider failure.
-- **Server Runtime Audit:**
-  - Current Astro config remains `output: 'static'` without an adapter.
-  - While Astro dev server processes dynamic endpoints in memory, production static builds cannot execute runtime dynamic file upload endpoints (`POST /api/documents/extract`) without a server adapter.
-  - Adapter selection is safely deferred until deployment target is decided; OCR provider unit tests proceed via Vitest independently.
-- **Parallel Work Streams Ready:**
-  - Frontend: `feat/timeline-iteration-3` (Vindyan / Antigravity)
-  - OCR Pipeline: `feat/ocr-extraction-pipeline` (Team member)
-  - Copilot: `feat/copilot-workflow` (Vindyan)
+## 2026-10-12 — Emergency MVP Sprint: Guest Health Guide (feat/guest-health-copilot-mvp)
+- **Objective:** Turn the existing Copilot page into a working, guest-accessible, source-backed Health Information Assistant that operates safely without AI API keys, without login, and without requiring personal medical records for an immediate hackathon demo.
+- **Branch:** `feat/guest-health-copilot-mvp` branched cleanly from `origin/develop` (`a9c7c91`), strictly preserving all prior history and branches.
+- **Knowledge Catalogue Implemented:**
+  - `src/data/health-guide-types.ts`: TypeScript contracts for `HealthGuide`, `GuideCategory`, `SupportedLocale`, and `IntentMatchResult`.
+  - `src/data/health-guides-en.ts`: Curated English guides covering 7 core topics with authoritative citations (CDC, MedlinePlus, AHA, India Emergency 112/108):
+    1. Fever & Body Warmth (Adult vs Child guidance, hydration, CDC/MedlinePlus citations)
+    2. Cold, Cough & Flu-like Symptoms (Red flags, home self-care, MedlinePlus citations)
+    3. Headache & Migraine (Sudden thunderclap red flags, resting guidance)
+    4. Stomach Pain, Acidity & Indigestion (Rigid abdomen/appendicitis warning signs, bland hydration)
+    5. Safe Medicine Use & Over-the-counter Guidance (Dosage block, read label instructions, no double-dosing)
+    6. Chest Pain & Heart/Stroke Red Flags (Immediate critical emergency warning signs: FAST stroke protocol, 112/108/911 call guidance)
+    7. Hands-Only CPR & Basic First Aid (AHA steps: 100-120 bpm, center of chest)
+    8. General Preventive Wellness (Hydration, sleep, balanced nutrition)
+  - `src/data/health-guides-te.ts`: Curated Telugu translations for all topics with verified local emergency numbers (112, 108).
+- **Deterministic Routing Engine:**
+  - `src/lib/ai/guest-router.ts`:
+    - Gate 1: Critical Emergency Red Flags (chest pain, stroke, breathing difficulty, severe trauma, unconsciousness) -> immediately triggers critical escalation advising 112/108/911, bypassing turn budget.
+    - Gate 2: Medication Dosage & Prescription Interception -> blocks individualized dosing, advising pharmacist/doctor review and packaging instructions.
+    - Gate 3 & 4: Multilingual Synonym & Keyword Matching -> matches English and Telugu terms to curated catalogue guides.
+    - Gate 5: Safe Fallback for Unsupported/Out-of-Scope Queries -> provides structured guidance explaining limitations with suggested topic chips.
+- **Turn Budget & Session Management:**
+  - 6-turn budget per guest session with discreet pill counter (`X turns remaining`).
+  - Critical emergency bypass ensures emergency escalation can always be triggered even if turn budget is depleted.
+  - "Start New Topic" action resets the transient guest session cleanly without network requests or storage persistence.
+- **Copilot UI Alignment (`src/pages/copilot.astro`):**
+  - Integrated Aura visual system: Deep aubergine, warm blush, cream cards, DM Serif and DM Sans typography, Lucide icons.
+  - Guest Mode banner with clear educational disclaimer and privacy assurance (no login required, no data stored).
+  - Prominent emergency 112/108/911 banner at top of chat.
+  - Interactive topic selector chips for one-click exploration across 5 health categories.
+  - Bilingual switcher (English / తెలుగు) with dynamic topic chip updates.
+  - Structured chat response cards displaying:
+    - Urgent warning signs callout box (amber/red).
+    - Practical home self-care tips.
+    - Clear next steps & when to see a doctor.
+    - Verified external authority citation pills (CDC, MedlinePlus, AHA, India 112).
+    - Non-clinical educational disclaimer.
+- **Verification & Quality Gates:**
+  - Vitest Unit Tests: **39/39 passing** (20 new tests in `tests/guest-router.test.ts` + 19 existing tests).
+  - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
+  - Production Build: Clean (`astro build`, 5 static pages + 1 API route built cleanly in ~4s).
+
 
 
 

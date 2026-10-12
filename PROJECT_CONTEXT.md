@@ -39,20 +39,20 @@ Reviewed evidence determines what may be said; templates determine tone; AI may 
 10. Update this file and `docs/DEVELOPMENT_LOG.md` after each milestone with current status, test results, known issues, and the next exact task.
 
 ## Current implementation status
-Iteration 2B & Review Workflow Integrity Fix completed; Checkpoint 3 established on branch `develop` (base commit `9eff6ec` + docs commit `6f6380a`):
-- **Current Baseline:** `develop` is synchronized with `origin/develop` and preserves all prior feature branches.
-- **Approved Extraction Contract Rules:**
-  1. **Explicit Identity:** Documents must explicitly report `isSyntheticDemo: false` for real extractions; synthetic fixtures remain `isSyntheticDemo: true`.
-  2. **Confidence vs Optical Uncertainty:** `confidence` (0 to 1 score) is distinct from `isUncertain` (boolean flag for degraded print/faint ink/smudges).
-  3. **Uncertainty vs Review Status:** Optical uncertainty flags are strictly separated from user `reviewStatus` (`unreviewed`, `confirmed`, `corrected`). User review does NOT erase optical warnings.
-  4. **Source Provenance Integrity:** Every extracted field must link to `rawSnippet`, `page`, and relative bounding box coordinates (`0-100%`). OCR must never fabricate missing provenance.
-  5. **No Invented Reference Ranges:** If a lab report omits reference intervals, `referenceRange` is omitted/null and interpretation evaluates to `unspecified`. OCR must never infer biological normalcy without source ranges.
-  6. **Typed Errors & No Silent Fallbacks:** Real extraction failures (quota, timeout, invalid format) throw typed `AIProviderError` with structured status codes. Silent substitution of synthetic fixtures is strictly prohibited.
-- **Server Runtime Status:** Current Astro config remains static (`output: 'static'`). Static builds alone cannot host the dynamic `POST /api/documents/extract` endpoint in production without a server adapter. Adapter selection is deferred until the deployment target is confirmed.
-- **Quality Gates:** 19/19 Vitest unit tests pass, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly.
+Guest Health Guide MVP Sprint completed on branch `feat/guest-health-copilot-mvp` (branched from `origin/develop` at `a9c7c91`):
+- **Current Baseline:** `feat/guest-health-copilot-mvp` active; `develop`, `feat/timeline-iteration-3`, and `feat/review-page-iteration-2b` preserved intact.
+- **Guest Health Guide Capabilities:**
+  1. **Deterministic Router:** Multilingual symptom/keyword matching across English and Telugu without paid AI API keys.
+  2. **Emergency Red Flag Escalation:** Immediate advice for 112/108 (India) or 911 (US) on chest pain, stroke (FAST), severe breathing difficulty; bypasses turn budget.
+  3. **Dosage Block:** Requests for individualized medication dosing/titration are safely blocked with authoritative medication safety guidelines.
+  4. **Turn Budget:** 6 turns per guest session with dynamic counter, session reset, and emergency bypass.
+  5. **Verified Health Catalogue:** 7 core topics (Fever, Cold/Cough, Headache, Stomach Pain, Safe Medicine Use, Chest Pain/Emergency Signs, CPR & First Aid, Preventive Wellness) with CDC, MedlinePlus, AHA, and 112 citations.
+  6. **Bilingual Support:** Complete English and Telugu curated translations for topics, red flags, and emergency numbers.
+- **Quality Gates:** 39/39 Vitest unit tests pass (including 20 guest-router tests), TypeScript strict mode passes (`tsc --noEmit`), and static production build passes cleanly (`astro build`).
 
 ## Current next task
-Await CTO (ChatGPT) and Product Manager (Vindyan) sign-off on the proposed TypeScript/Zod contract diff before editing shared files or branching into `feat/timeline-iteration-3`.
+Commit and push `feat/guest-health-copilot-mvp`, present Vercel preview deployment instructions, and await review from Product Manager (Vindyan) and CTO (ChatGPT).
+
 
 
 

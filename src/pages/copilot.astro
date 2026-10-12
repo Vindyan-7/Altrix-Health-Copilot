@@ -3,84 +3,108 @@ import {
   Bot,
   ShieldAlert,
   Send,
-  FileSpreadsheet,
+  Sparkles,
   Pill,
+  HeartPulse,
+  Flame,
+  Wind,
   Stethoscope,
   AlertTriangle,
-  ShieldBan,
-  MapPin,
-  Activity,
-  CheckCircle2,
+  RotateCcw,
+  ExternalLink,
+  BookOpen,
   Info,
+  CheckCircle2,
+  PhoneCall,
+  Clock,
+  Sparkle,
 } from '@lucide/astro';
 import Layout from '../layouts/Layout.astro';
-import { SYNTHETIC_REPORT_STATS } from '../fixtures/synthetic-lab-report';
-
-const outOfRangeCount = SYNTHETIC_REPORT_STATS.outOfRangeCount;
-const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
 ---
 
-<Layout title="Guided Health Copilot" subtext="Evidence-grounded assistant with clinical safety boundaries">
+<Layout title="Guest Health Guide" subtext="Source-backed health education & emergency first aid">
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
     <!-- Header -->
     <div class="space-y-2 pb-2 border-b border-aura-border/30">
+      <nav class="flex items-center gap-2 text-xs text-aura-text-muted mb-1.5">
+        <a href="/" class="hover:text-aura-text transition">Dashboard</a>
+        <span>/</span>
+        <span class="text-aura-text font-semibold">Guest Health Guide</span>
+      </nav>
       <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-aura-surface-cream text-aura-text border border-black/5 shadow-2xs">
         <Bot class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
-        <span>Evidence-Grounded Assistant</span>
+        <span>Guest Mode • No Login or Records Required</span>
       </div>
       <h1 class="text-2xl sm:text-3xl font-serif font-normal text-aura-text tracking-tight">
-        Altrix Health Copilot
+        Altrix Guest Health Guide
       </h1>
       <p class="text-aura-text-muted text-xs sm:text-sm max-w-2xl leading-relaxed">
-        Select a guided topic below or ask about your records. Our assistant uses curated medical knowledge templates,
-        never guesses missing values, and strictly respects clinical safety boundaries.
+        Immediate, source-backed medical knowledge for common symptoms, medicine safety principles, and emergency first aid.
+        Operates securely without AI keys, personal data, or sign-up.
       </p>
     </div>
 
-    <!-- Safety Red Flag Banner (High Priority Visibility) -->
-    <div class="bg-rose-50/80 border border-rose-200 rounded-2xl p-4 text-xs text-rose-950 flex items-start gap-3 shadow-2xs">
+    <!-- Red Flag Emergency Notice Banner (High Priority Visibility) -->
+    <div class="bg-rose-50/90 border border-rose-200 rounded-2xl p-4 text-xs text-rose-950 flex items-start gap-3 shadow-2xs">
       <ShieldAlert class="w-5 h-5 text-rose-600 shrink-0 mt-0.5" stroke-width={2} />
       <div class="space-y-1">
-        <strong class="font-bold text-rose-900">Deterministic Safety Routing Active</strong>
-        <p class="text-rose-800 leading-relaxed">
-          Urgent symptoms trigger immediate emergency guidance without waiting for an AI response.
-          The copilot provides general health education and does not prescribe, diagnose, or formulate individualized drug doses.
+        <div class="flex items-center gap-2">
+          <strong class="font-bold text-rose-900 text-xs sm:text-sm">Emergency Warning Notice</strong>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-200 text-rose-900">
+            India: 112 / 108 • US: 911
+          </span>
+        </div>
+        <p class="text-rose-800 leading-relaxed text-[11.5px] sm:text-xs">
+          If you or someone nearby is experiencing chest pain, difficulty breathing, slurred speech, or loss of consciousness, 
+          call emergency services immediately. A digital assistant cannot diagnose emergencies or prescribe medicines.
         </p>
       </div>
     </div>
 
-    <!-- Interactive Copilot Container -->
-    <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card overflow-hidden flex flex-col min-h-[580px]">
-      <!-- Chat Header -->
-      <div class="bg-aura-surface-blush border-b border-aura-border px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+    <!-- Main Copilot Chat Shell -->
+    <div class="bg-aura-surface rounded-aura-panel border border-aura-border/40 shadow-aura-card overflow-hidden flex flex-col min-h-[620px]">
+      <!-- Shell Header: Status, Turns Counter, Language Switcher -->
+      <div class="bg-aura-surface-blush border-b border-aura-border px-5 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-full bg-aura-sidebar text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
-            <Activity class="w-4 h-4 text-aura-accent-orange" stroke-width={2.2} />
+            <HeartPulse class="w-4 h-4 text-aura-accent-orange" stroke-width={2.2} />
           </div>
           <div>
-            <div class="font-bold text-aura-text text-sm">Altrix Clinical Copilot</div>
-            <div class="text-[11px] text-emerald-700 font-medium flex items-center gap-1.5">
-              <CheckCircle2 class="w-3 h-3 text-emerald-600" stroke-width={2.2} />
-              <span>Offline Verified Templates Ready</span>
+            <div class="font-bold text-aura-text text-xs sm:text-sm flex items-center gap-1.5">
+              <span>Altrix Health Guide</span>
+              <span class="px-2 py-0.2 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
+                Verified Local Knowledge
+              </span>
+            </div>
+            <div class="text-[11px] text-aura-text-muted flex items-center gap-1">
+              <span>CDC • MedlinePlus • AHA Sourced</span>
             </div>
           </div>
         </div>
 
-        <!-- Language Selector -->
-        <div class="flex items-center gap-2">
-          <span class="text-xs text-aura-text-muted">Language:</span>
-          <div class="inline-flex rounded-full p-0.5 bg-white border border-aura-border text-xs font-semibold">
+        <div class="flex items-center gap-3">
+          <!-- Transient Guest Turn Budget Counter -->
+          <div
+            id="turn-counter-badge"
+            class="px-2.5 py-1 rounded-full text-[11px] font-medium bg-white text-aura-text-muted border border-aura-border shadow-2xs"
+            title="Normal guest conversations allow 6 turns. Emergencies bypass this limit."
+          >
+            Session: <strong id="remaining-turns-text" class="text-aura-text font-bold">6 turns remaining</strong>
+          </div>
+
+          <!-- Language Selector -->
+          <div class="inline-flex rounded-full p-0.5 bg-white border border-aura-border text-xs font-semibold shadow-2xs">
             <button
-              id="chat-lang-en"
+              id="lang-btn-en"
               type="button"
-              class="px-2.5 py-1 rounded-full bg-aura-sidebar text-white shadow-2xs transition cursor-pointer"
+              class="px-3 py-1 rounded-full bg-aura-sidebar text-white shadow-2xs transition cursor-pointer"
             >
               English
             </button>
             <button
-              id="chat-lang-te"
+              id="lang-btn-te"
               type="button"
-              class="px-2.5 py-1 rounded-full text-aura-text-muted hover:text-aura-text transition cursor-pointer"
+              class="px-3 py-1 rounded-full text-aura-text-muted hover:text-aura-text transition cursor-pointer"
             >
               తెలుగు
             </button>
@@ -88,112 +112,139 @@ const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
         </div>
       </div>
 
-      <!-- Chat Messages Scroll Area -->
-      <div id="chat-messages" class="flex-grow p-6 space-y-4 overflow-y-auto max-h-[420px]">
-        <!-- Welcome Message from Assistant -->
+      <!-- Scrollable Chat Messages Container -->
+      <div id="chat-messages" class="flex-grow p-4 sm:p-6 space-y-4 overflow-y-auto max-h-[460px] bg-aura-canvas/40">
+        <!-- Initial Welcome Bubble -->
         <div class="flex items-start gap-3">
-          <div class="w-7 h-7 rounded-full bg-aura-sidebar text-white flex items-center justify-center font-bold text-xs shrink-0 mt-1 shadow-xs">
-            <Activity class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
+          <div class="w-8 h-8 rounded-full bg-aura-sidebar text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
+            <Bot class="w-4 h-4 text-aura-accent-orange" stroke-width={2} />
           </div>
-          <div class="bg-aura-surface-blush rounded-2xl rounded-tl-xs p-4 max-w-xl text-xs sm:text-sm text-aura-text space-y-2 leading-relaxed border border-aura-border/40">
-            <p id="welcome-text">
-              "Hi, I'm here to help you understand your health information. You can explore a report, learn about a medicine in general, or organize your health history. What would you like help with today?"
+          <div class="bg-white rounded-2xl rounded-tl-xs p-4 sm:p-5 max-w-xl text-xs sm:text-sm text-aura-text space-y-3 leading-relaxed border border-aura-border/60 shadow-2xs">
+            <p id="welcome-message" class="font-medium">
+              Hello! I am your <strong>Altrix Guest Health Guide</strong>. You can freely ask about common symptoms, safe medicine use principles, or emergency first aid below without logging in.
             </p>
-            <div class="text-[11px] text-aura-text-subtle pt-1 border-t border-aura-border/60">
-              Source: Approved Response Catalog • Template #1
+            <div class="p-3 rounded-xl bg-aura-surface-blush border border-aura-border/60 text-[11.5px] text-aura-text-muted space-y-1">
+              <strong class="text-aura-text block">Clinical Boundary Notice:</strong>
+              I provide curated educational information from authoritative sources (CDC, MedlinePlus, AHA). I cannot diagnose, provide personal doses, or replace clinical consultations.
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Quick Guided Topic Buttons (Grouped with Clear Prioritization) -->
-      <div class="p-4 bg-aura-surface-cream/40 border-t border-aura-border space-y-3">
-        <!-- Group 1: General Health Guidance (Primary) -->
-        <div class="space-y-1.5">
-          <div class="text-[11px] font-bold uppercase tracking-wider text-aura-text-subtle">
-            Report & Health Guidance
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <button
-              type="button"
-              class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-aura-surface-blush text-xs font-medium text-aura-text transition cursor-pointer"
-              data-intent="reports"
-            >
-              <FileSpreadsheet class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
-              <span>Understand My Lab Report</span>
-            </button>
-            <button
-              type="button"
-              class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-aura-surface-blush text-xs font-medium text-aura-text transition cursor-pointer"
-              data-intent="questions"
-            >
-              <Stethoscope class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
-              <span>Questions to Ask My Doctor</span>
-            </button>
-            <button
-              type="button"
-              class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-aura-surface-blush text-xs font-medium text-aura-text transition cursor-pointer"
-              data-intent="medicines"
-            >
-              <Pill class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
-              <span>Medicine Information (Paracetamol)</span>
-            </button>
-          </div>
+      <!-- Categorized Quick-Reply Topic Dock -->
+      <div class="p-4 bg-aura-surface-blush/80 border-t border-aura-border space-y-3">
+        <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-aura-text-subtle">
+          <span id="topic-dock-title">Guided Health Topics • Tap to explore:</span>
+          <span class="text-[10px] lowercase font-normal">no records needed</span>
         </div>
 
-        <!-- Group 2: Safety Boundary Demonstrations -->
-        <div class="space-y-1.5 pt-1 border-t border-aura-border/40">
-          <div class="text-[11px] font-bold uppercase tracking-wider text-rose-800">
-            Safety Guardrail Demonstrations
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <button
-              type="button"
-              class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-rose-300 hover:border-rose-500 hover:bg-rose-50 text-xs font-medium text-rose-900 transition cursor-pointer"
-              data-intent="emergency_demo"
-            >
-              <AlertTriangle class="w-3.5 h-3.5 text-rose-600" stroke-width={2} />
-              <span>Safety Demo: Urgent Symptoms Test</span>
-            </button>
-            <button
-              type="button"
-              class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-amber-300 hover:border-amber-500 hover:bg-amber-50 text-xs font-medium text-amber-900 transition cursor-pointer"
-              data-intent="dosing_demo"
-            >
-              <ShieldBan class="w-3.5 h-3.5 text-amber-600" stroke-width={2} />
-              <span>Safety Demo: Dosage Request Test</span>
-            </button>
-            <button
-              type="button"
-              class="chip-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-aura-surface-blush text-xs font-medium text-aura-text transition cursor-pointer"
-              data-intent="care_finder"
-            >
-              <MapPin class="w-3.5 h-3.5 text-aura-accent-orange" stroke-width={2} />
-              <span>Mock Healthcare Finder (Demo Flow)</span>
-            </button>
-          </div>
+        <!-- 5 Curated Categories Grid -->
+        <div class="flex flex-wrap gap-2 text-xs">
+          <!-- 1. Symptoms -->
+          <button
+            type="button"
+            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
+            data-guide="fever"
+          >
+            <Flame class="w-3.5 h-3.5 text-aura-accent-orange" />
+            <span class="topic-chip-label">Fever Guidance</span>
+          </button>
+          <button
+            type="button"
+            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
+            data-guide="cold-cough"
+          >
+            <Wind class="w-3.5 h-3.5 text-aura-accent-orange" />
+            <span class="topic-chip-label">Cold & Cough</span>
+          </button>
+          <button
+            type="button"
+            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
+            data-guide="headache"
+          >
+            <Stethoscope class="w-3.5 h-3.5 text-aura-accent-orange" />
+            <span class="topic-chip-label">Headache / Migraine</span>
+          </button>
+          <button
+            type="button"
+            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
+            data-guide="stomach-pain"
+          >
+            <HeartPulse class="w-3.5 h-3.5 text-aura-accent-orange" />
+            <span class="topic-chip-label">Stomach Pain</span>
+          </button>
+
+          <!-- 2. Medicine Information -->
+          <button
+            type="button"
+            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
+            data-guide="medicine-info"
+          >
+            <Pill class="w-3.5 h-3.5 text-indigo-600" />
+            <span class="topic-chip-label">Safe Medicine Use</span>
+          </button>
+
+          <!-- 3. Emergency Signs -->
+          <button
+            type="button"
+            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-50 border border-rose-300 hover:border-rose-500 text-rose-900 font-semibold shadow-2xs transition cursor-pointer"
+            data-guide="emergency-signs"
+          >
+            <AlertTriangle class="w-3.5 h-3.5 text-rose-600" />
+            <span class="topic-chip-label">Heart Attack & Stroke Signs (112)</span>
+          </button>
+
+          <!-- 4. First Aid -->
+          <button
+            type="button"
+            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 hover:border-emerald-600 text-emerald-900 font-semibold shadow-2xs transition cursor-pointer"
+            data-guide="cpr"
+          >
+            <HeartPulse class="w-3.5 h-3.5 text-emerald-700" />
+            <span class="topic-chip-label">Hands-Only CPR Steps</span>
+          </button>
+
+          <!-- 5. General Wellness -->
+          <button
+            type="button"
+            class="topic-chip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-aura-border hover:border-aura-sidebar hover:bg-white text-aura-text font-medium shadow-2xs transition cursor-pointer"
+            data-guide="wellness"
+          >
+            <Sparkle class="w-3.5 h-3.5 text-aura-accent-orange" />
+            <span class="topic-chip-label">Preventive Wellness</span>
+          </button>
         </div>
       </div>
 
-      <!-- Chat Input Area -->
+      <!-- Chat Input Field -->
       <div class="p-4 bg-white border-t border-aura-border">
         <form id="chat-form" class="flex gap-2">
           <input
             id="chat-input"
             type="text"
-            placeholder="Ask about your records, e.g. 'What does elevated fasting glucose mean?'"
-            class="flex-grow px-4 py-2.5 rounded-full border border-aura-border text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-aura-sidebar-active placeholder-aura-text-subtle"
+            placeholder="Type a health question, e.g. 'What are warning signs of high fever?'"
+            class="flex-grow px-4 py-2.5 rounded-full border border-aura-border text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-aura-sidebar placeholder:text-aura-text-subtle bg-white"
+            aria-label="Ask health question"
           />
           <button
+            id="chat-submit"
             type="submit"
-            class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-aura-action hover:bg-aura-action-hover text-white font-semibold text-sm transition shadow-xs cursor-pointer"
+            class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-aura-action hover:bg-aura-action-hover text-white font-semibold text-xs sm:text-sm transition shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
           >
             <span>Send</span>
             <Send class="w-3.5 h-3.5" stroke-width={2} />
           </button>
         </form>
-        <div class="text-[11px] text-aura-text-subtle text-center mt-2">
-          Altrix Copilot provides educational information from verified medical knowledge sources. It does not replace medical advice.
+
+        <div class="flex items-center justify-between text-[11px] text-aura-text-subtle mt-2 px-1">
+          <span>Sources: MedlinePlus, CDC, American Heart Association</span>
+          <button
+            type="button"
+            id="btn-restart-chat"
+            class="hover:text-aura-text underline cursor-pointer"
+          >
+            Restart Session
+          </button>
         </div>
       </div>
     </div>
@@ -201,96 +252,145 @@ const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
 </Layout>
 
 <script>
-  let currentLocale: 'en' | 'te' = 'en';
+  import { routeGuestQuery, getGuideById } from '../lib/ai/guest-router';
+  import type { SupportedLocale, HealthGuide } from '../data/health-guide-types';
+
+  let currentLocale: SupportedLocale = 'en';
+  let guestTurnsUsed = 0;
+  const MAX_GUEST_TURNS = 6;
 
   const chatMessages = document.getElementById('chat-messages');
   const chatForm = document.getElementById('chat-form') as HTMLFormElement | null;
   const chatInput = document.getElementById('chat-input') as HTMLInputElement | null;
-  const chipButtons = document.querySelectorAll('.chip-btn');
-  const chatLangEn = document.getElementById('chat-lang-en');
-  const chatLangTe = document.getElementById('chat-lang-te');
-  const welcomeText = document.getElementById('welcome-text');
+  const chatSubmit = document.getElementById('chat-submit') as HTMLButtonElement | null;
+  const langBtnEn = document.getElementById('lang-btn-en');
+  const langBtnTe = document.getElementById('lang-btn-te');
+  const welcomeMessage = document.getElementById('welcome-message');
+  const remainingTurnsText = document.getElementById('remaining-turns-text');
+  const btnRestartChat = document.getElementById('btn-restart-chat');
+  const topicChips = document.querySelectorAll('.topic-chip');
 
-  // Telugu / English greeting switch
-  chatLangEn?.addEventListener('click', () => {
-    currentLocale = 'en';
-    chatLangEn.classList.add('bg-aura-sidebar', 'text-white', 'shadow-2xs');
-    chatLangEn.classList.remove('text-aura-text-muted');
-    chatLangTe?.classList.remove('bg-aura-sidebar', 'text-white', 'shadow-2xs');
-    chatLangTe?.classList.add('text-aura-text-muted');
-    if (welcomeText) {
-      welcomeText.textContent = '"Hi, I\'m here to help you understand your health information. You can explore a report, learn about a medicine in general, or organize your health history. What would you like help with today?"';
+  function updateTurnsDisplay() {
+    if (!remainingTurnsText) return;
+    const remaining = Math.max(0, MAX_GUEST_TURNS - guestTurnsUsed);
+    remainingTurnsText.textContent = `${remaining} turn${remaining === 1 ? '' : 's'} remaining`;
+
+    if (remaining === 0) {
+      remainingTurnsText.classList.add('text-amber-700');
+    } else {
+      remainingTurnsText.classList.remove('text-amber-700');
     }
-  });
+  }
 
-  chatLangTe?.addEventListener('click', () => {
-    currentLocale = 'te';
-    chatLangTe.classList.add('bg-aura-sidebar', 'text-white', 'shadow-2xs');
-    chatLangTe.classList.remove('text-aura-text-muted');
-    chatLangEn?.classList.remove('bg-aura-sidebar', 'text-white', 'shadow-2xs');
-    chatLangEn?.classList.add('text-aura-text-muted');
-    if (welcomeText) {
-      welcomeText.textContent = '"నమస్కారం, మీ ఆరోగ్య సమాచారాన్ని అర్థం చేసుకోవడంలో నేను సహాయం చేస్తాను. మీరు రిపోర్టును పరిశీలించవచ్చు, మందుల గురించి సాధారణ సమాచారం తెలుసుకోవచ్చు లేదా మీ ఆరోగ్య చరిత్రను నిర్వహించవచ్చు. ఈ రోజు మీకు ఎలా సహాయపడగలను?"';
-    }
-  });
-
-  // Guided topic click handlers
-  chipButtons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const intent = btn.getAttribute('data-intent');
-      if (intent) {
-        handleIntent(intent);
-      }
-    });
-  });
-
-  // Free text submit handler
-  chatForm?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const query = chatInput?.value?.trim();
-    if (!query) return;
-
-    appendUserMessage(query);
-    if (chatInput) chatInput.value = '';
-
-    // Route query
-    routeUserQuery(query);
-  });
-
-  function appendUserMessage(text: string) {
+  function appendUserBubble(text: string) {
     if (!chatMessages) return;
-    const userDiv = document.createElement('div');
-    userDiv.className = 'flex items-start justify-end gap-3';
-    userDiv.innerHTML = `
-      <div class="bg-aura-sidebar text-white rounded-2xl rounded-tr-xs p-4 max-w-xl text-xs sm:text-sm leading-relaxed shadow-xs">
+    const div = document.createElement('div');
+    div.className = 'flex items-start justify-end gap-3';
+    div.innerHTML = `
+      <div class="bg-aura-sidebar text-white rounded-2xl rounded-tr-xs p-3.5 sm:p-4 max-w-lg text-xs sm:text-sm leading-relaxed shadow-2xs">
         ${escapeHtml(text)}
       </div>
       <div class="w-7 h-7 rounded-full bg-aura-accent-purple text-aura-accent-purple-strong flex items-center justify-center font-bold text-xs shrink-0 mt-1 border border-aura-border">
-        PS
+        G
       </div>
     `;
-    chatMessages.appendChild(userDiv);
+    chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  function appendAssistantMessage(htmlContent: string, sourceMeta: string, isAlert = false) {
+  function appendGuideBubble(guide: HealthGuide, isAlert = false) {
     if (!chatMessages) return;
-    const assistantDiv = document.createElement('div');
-    assistantDiv.className = 'flex items-start gap-3';
-    const bgClass = isAlert ? 'bg-rose-50 border border-rose-200 text-rose-950' : 'bg-aura-surface-blush border border-aura-border/40 text-aura-text';
+    const div = document.createElement('div');
+    div.className = 'flex items-start gap-3';
+    const bgClass = isAlert
+      ? 'bg-rose-50 border-rose-300 text-rose-950 shadow-md'
+      : 'bg-white border-aura-border text-aura-text shadow-2xs';
 
-    assistantDiv.innerHTML = `
-      <div class="w-7 h-7 rounded-full ${isAlert ? 'bg-rose-600' : 'bg-aura-sidebar'} text-white flex items-center justify-center font-bold text-xs shrink-0 mt-1 shadow-xs">
+    const warningHtml = guide.warningSigns && guide.warningSigns.length > 0
+      ? `
+        <div class="p-3 rounded-xl ${isAlert ? 'bg-rose-100/80 border-rose-300 text-rose-950 font-medium' : 'bg-amber-50 border-amber-200 text-amber-950'} border text-[11.5px] space-y-1">
+          <strong class="flex items-center gap-1.5 font-bold text-xs ${isAlert ? 'text-rose-900' : 'text-amber-900'}">
+            <span>⚠ Warning Signs:</span>
+          </strong>
+          <ul class="list-disc pl-4 space-y-0.5">
+            ${guide.warningSigns.map((w) => `<li>${escapeHtml(w)}</li>`).join('')}
+          </ul>
+        </div>
+      `
+      : '';
+
+    const detailsHtml = guide.details && guide.details.length > 0
+      ? `
+        <div class="space-y-1 text-xs sm:text-[13px] text-aura-text-muted">
+          <strong class="text-aura-text block font-semibold text-xs">Self-Care & Important Considerations:</strong>
+          <ul class="list-disc pl-4 space-y-1">
+            ${guide.details.map((d) => `<li>${escapeHtml(d)}</li>`).join('')}
+          </ul>
+        </div>
+      `
+      : '';
+
+    const nextStepsHtml = guide.nextSteps && guide.nextSteps.length > 0
+      ? `
+        <div class="space-y-1 text-xs sm:text-[13px]">
+          <strong class="text-aura-text block font-semibold text-xs">Recommended Next Steps:</strong>
+          <ul class="list-disc pl-4 space-y-0.5 text-aura-text-muted">
+            ${guide.nextSteps.map((s) => `<li>${escapeHtml(s)}</li>`).join('')}
+          </ul>
+        </div>
+      `
+      : '';
+
+    div.innerHTML = `
+      <div class="w-8 h-8 rounded-full ${isAlert ? 'bg-rose-600' : 'bg-aura-sidebar'} text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
         ${isAlert ? '!' : '+'}
       </div>
-      <div class="${bgClass} rounded-2xl rounded-tl-xs p-4 max-w-xl text-xs sm:text-sm space-y-2 leading-relaxed">
+      <div class="${bgClass} rounded-2xl rounded-tl-xs p-4 sm:p-5 max-w-xl space-y-3 leading-relaxed border">
+        <div>
+          <h3 class="font-serif font-bold text-base sm:text-lg text-aura-text">${escapeHtml(guide.title)}</h3>
+          <p class="text-xs sm:text-[13px] text-aura-text-muted mt-1 leading-relaxed">${escapeHtml(guide.summary)}</p>
+        </div>
+
+        ${warningHtml}
+        ${detailsHtml}
+        ${nextStepsHtml}
+
+        <div class="pt-2.5 border-t border-aura-border/60 flex flex-wrap items-center justify-between gap-2 text-[10.5px] text-aura-text-subtle">
+          <span>Source: <a href="${guide.sourceUrl}" target="_blank" rel="noopener noreferrer" class="text-aura-accent-orange font-bold hover:underline inline-flex items-center gap-0.5">${escapeHtml(guide.sourceName)}</a></span>
+          <span>Reviewed: ${guide.reviewedDate}</span>
+        </div>
+
+        <div class="p-2 rounded-lg bg-aura-surface-blush text-[10.5px] text-aura-text-subtle leading-tight">
+          ${escapeHtml(guide.clinicalDisclaimer)}
+        </div>
+      </div>
+    `;
+
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function appendCustomAssistantBubble(htmlContent: string, sourceMeta: string, isAlert = false) {
+    if (!chatMessages) return;
+    const div = document.createElement('div');
+    div.className = 'flex items-start gap-3';
+    const bgClass = isAlert
+      ? 'bg-rose-50 border-rose-300 text-rose-950'
+      : 'bg-white border-aura-border text-aura-text shadow-2xs';
+
+    div.innerHTML = `
+      <div class="w-8 h-8 rounded-full ${isAlert ? 'bg-rose-600' : 'bg-aura-sidebar'} text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
+        ${isAlert ? '!' : '+'}
+      </div>
+      <div class="${bgClass} rounded-2xl rounded-tl-xs p-4 sm:p-5 max-w-xl text-xs sm:text-sm space-y-2.5 leading-relaxed border">
         <div>${htmlContent}</div>
-        <div class="text-[11px] text-aura-text-subtle pt-1 border-t border-aura-border/60">
+        <div class="text-[11px] text-aura-text-subtle pt-2 border-t border-aura-border/60">
           ${sourceMeta}
         </div>
       </div>
     `;
-    chatMessages.appendChild(assistantDiv);
+
+    chatMessages.appendChild(div);
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
@@ -298,95 +398,171 @@ const uncertainCount = SYNTHETIC_REPORT_STATS.uncertainFieldsCount;
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
-  // Deterministic routing logic with safety layers
-  function routeUserQuery(query: string) {
-    const lower = query.toLowerCase();
+  function handleUserQuery(query: string) {
+    const trimmed = query.trim();
+    if (!trimmed) return;
 
-    // 1. Conservative Emergency Red Flag Detection
-    const emergencyKeywords = ['chest pain', 'heart attack', 'cannot breathe', 'difficulty breathing', 'severe bleeding', 'unconscious', 'stroke', 'emergency'];
-    const isEmergency = emergencyKeywords.some((kw) => lower.includes(kw));
+    appendUserBubble(trimmed);
+    if (chatInput) chatInput.value = '';
 
-    if (isEmergency) {
-      appendAssistantMessage(
-        `<strong>Immediate Emergency Medical Notice:</strong><br/><br/>
-         Your symptoms may require urgent medical evaluation. Please contact your local emergency service (e.g., <strong>108 / 112</strong> in India or <strong>911</strong> in the US) or proceed immediately to the nearest hospital emergency department.
-         If possible, ask someone nearby to assist you. Altrix cannot assess emergencies through chat.`,
-        'Safety Policy: emergency-red-flags.md • Deterministic Routing (No LLM called)',
-        true
-      );
+    // Route message through deterministic safety engine
+    const result = routeGuestQuery(trimmed, currentLocale);
+
+    // Emergency queries ALWAYS bypass turn counter limit
+    if (result.isEmergency) {
+      if (result.guide) {
+        appendGuideBubble(result.guide, true);
+      } else {
+        appendCustomAssistantBubble(
+          `<strong>Critical Emergency Medical Notice:</strong><br/><br/>
+           Your symptoms suggest an urgent emergency. Please call <strong>112 / 108</strong> (India) or <strong>911</strong> (US) immediately or proceed to the nearest hospital emergency department.
+           Do not wait to see if symptoms improve on their own.`,
+          'American Heart Association & Emergency Response Guidelines',
+          true
+        );
+      }
       return;
     }
 
-    // 2. Individualized Dosage / Treatment Request Detection
-    const dosingKeywords = ['how much should i take', 'dosage', 'dose for my child', 'what dose', 'how many tablets', 'stop taking my'];
-    const isDosing = dosingKeywords.some((kw) => lower.includes(kw));
-
-    if (isDosing) {
-      appendAssistantMessage(
-        `"I want to help you use reliable information safely. I cannot choose a dose for you based on symptoms or adjust your medication schedule. Please follow your prescription or the medicine's official packaging instructions, and check with a doctor or pharmacist if anything is unclear. If you share the wording on your existing label, I can help explain what it says without changing it."`,
-        'Safety Policy: assistant-boundaries.md • Approved Template #7',
+    // Check normal guest turn limit
+    if (guestTurnsUsed >= MAX_GUEST_TURNS) {
+      appendCustomAssistantBubble(
+        `<div class="space-y-2">
+           <strong class="font-bold text-aura-text block">Guest Session Limit Reached:</strong>
+           <p class="text-xs text-aura-text-muted leading-relaxed">
+             You have reached the 6-turn guest consultation limit for this browser session. 
+             You can tap <strong>Restart Session</strong> below to begin a new health guide topic, or sign in when account services become available.
+           </p>
+           <div class="pt-2">
+             <button type="button" onclick="document.getElementById('btn-restart-chat')?.click()" class="px-4 py-2 rounded-full text-xs font-semibold bg-aura-action text-white hover:bg-aura-action-hover cursor-pointer">
+               Restart Session
+             </button>
+           </div>
+         </div>`,
+        'Session Governance: 6-turn guest budget completed',
         false
       );
       return;
     }
 
-    // 3. Fallback educational response
-    appendAssistantMessage(
-      `"I have received your question regarding <em>${escapeHtml(query)}</em>. In accordance with Altrix clinical safety guidelines, I provide educational explanations grounded in your uploaded documents. You can review your lab findings directly or ask your doctor the recommended questions on the <a href='/review' class='text-aura-accent-orange font-bold underline'>Review screen</a>."`,
-      'Curated Knowledge Router • Mode: Educational',
-      false
+    // Increment budget
+    guestTurnsUsed++;
+    updateTurnsDisplay();
+
+    // Blocked dosage requests
+    if (result.intent === 'blocked_dosage_request') {
+      const dosageNotice = currentLocale === 'te'
+        ? `<strong>క్లినికల్ భద్రతా నియమం:</strong><br/><br/>
+           నేను లక్షణాల ఆధారంగా వ్యక్తిగత మందుల మోతాదు (డైలీ డోస్) నిర్ణయించలేను. దయచేసి మీ ప్రిస్క్రిప్షన్ లేదా మందుల ప్యాకేజీపై ఉన్న అధికారిక తయారీదారుల సూచనలను మాత్రమే పాటించండి. సందేహాలు ఉంటే మీ డాక్టర్ లేదా ఫార్మసిస్ట్‌ను సంప్రదించండి.`
+        : `<strong>Clinical Safety Policy — No Individualized Dosing:</strong><br/><br/>
+           "I want to help you use reliable information safely. I cannot choose a dose for you based on symptoms or adjust your medication schedule. Please follow your prescription or the medicine's official packaging instructions, and check with a licensed doctor or pharmacist if anything is unclear."`;
+
+      appendCustomAssistantBubble(
+        dosageNotice,
+        'Safety Guardrail: assistant-boundaries.md • Sourced Medication Guidance'
+      );
+
+      if (result.guide) {
+        appendGuideBubble(result.guide);
+      }
+      return;
+    }
+
+    // Curated guide matched
+    if (result.matched && result.guide) {
+      appendGuideBubble(result.guide);
+      return;
+    }
+
+    // Unsupported query
+    const unsupportedNotice = currentLocale === 'te'
+      ? `<p>మీరు అడిగిన ప్రశ్న (<em>"${escapeHtml(trimmed)}"</em>) మా వద్ద ఉన్న ప్రామాణిక ఆరోగ్య మార్గదర్శకాలలో అందుబాటులో లేదు.</p>
+         <p class="text-xs text-aura-text-muted mt-1.5">క్లినికల్ భద్రత దృష్ట్యా, మేము తప్పుడు లేదా నిరూపించబడని సమాచారాన్ని అందించము. దయచేసి క్రింది టాపిక్ బటన్ల నుండి ఒకదాన్ని ఎంచుకోండి లేదా వైద్యుడిని సంప్రదించండి.</p>`
+      : `<p>I have received your query regarding <em>"${escapeHtml(trimmed)}"</em>. This topic is not covered in our current curated medical guide catalogue.</p>
+         <p class="text-xs text-aura-text-muted mt-1.5">To preserve clinical accuracy, Altrix never fabricates unsupported medical guidance. Please explore one of our verified guides below or consult your licensed healthcare professional.</p>`;
+
+    appendCustomAssistantBubble(
+      unsupportedNotice,
+      'Altrix Curated Knowledge Gateway • Strict Evidence Boundary'
     );
   }
 
-  function handleIntent(intent: string) {
-    if (intent === 'reports') {
-      appendUserMessage('Can you help me understand my latest lab report?');
-      if (currentLocale === 'te') {
-        appendAssistantMessage(
-          `మీ ఇటీవలి బ్లడ్ రిపోర్టులో 5 పారామితులు ప్రామాణిక పరిధి కంటే భిన్నంగా ఉన్నాయి: <strong>హీమోగ్లోబిన్ (11.2 g/dL)</strong>, <strong>ప్లేట్‌లెట్లు (145,000 /cumm)</strong>, <strong>ఫాస్టింగ్ బ్లడ్ షుగర్ (118 mg/dL)</strong>, <strong>HbA1c (6.2%)</strong>, మరియు <strong>TSH (5.4 uIU/mL)</strong>. పూర్తి వివరాలను పరిశీలించడానికి <a href="/review" class="text-aura-accent-orange font-bold underline">రిపోర్ట్ రివ్యూ పేజీని చూడండి</a>.`,
-          'Source: Synthetic CBC Fixture • Telugu Template'
-        );
-      } else {
-        appendAssistantMessage(
-          `In your synthetic report, 5 parameters differ from laboratory reference ranges: <strong>Hemoglobin (11.2 g/dL)</strong> is slightly low, while <strong>Fasting Blood Sugar (118 mg/dL)</strong>, <strong>HbA1c (6.2%)</strong>, and <strong>TSH (5.4 uIU/mL)</strong> are elevated, and <strong>Platelet Count (145k)</strong> is slightly below baseline with optical uncertainty. You can inspect the bounding boxes and edit values on the <a href="/review" class="text-aura-accent-orange font-bold underline">Report Review Screen</a>.`,
-          'Source: Synthetic CBC Fixture • Grounded Evidence'
-        );
-      }
-    } else if (intent === 'medicines') {
-      appendUserMessage('Tell me general information about Paracetamol (Acetaminophen)');
-      appendAssistantMessage(
-        `<strong>Paracetamol (Acetaminophen):</strong><br/>
-         • <em>General Purpose:</em> A widely used analgesic (pain reliever) and antipyretic (fever reducer).<br/>
-         • <em>Key Precautions:</em> Do not exceed recommended daily limits. Avoid combining multiple products containing acetaminophen to protect liver health.<br/>
-         • <em>Prescription Guidance:</em> Always consult your physician or pharmacist for individualized clinical suitability.`,
-        'Curated Source: knowledge/medicines/medicine-information-template.md'
-      );
-    } else if (intent === 'questions') {
-      appendUserMessage('What questions should I ask my doctor about my test results?');
-      appendAssistantMessage(
-        `Here are grounded questions prepared for your next appointment:<br/>
-         1. <em>"My fasting sugar is 118 mg/dL with HbA1c at 6.2%. What dietary or lifestyle modifications do you recommend at this stage?"</em><br/>
-         2. <em>"My hemoglobin came in at 11.2 g/dL. Would you suggest testing ferritin or dietary iron adjustments?"</em><br/>
-         3. <em>"Should my TSH level (5.4 uIU/mL) be re-tested along with a thyroid panel?"</em>`,
-        'Evidence-Grounded Question Generator'
-      );
-    } else if (intent === 'emergency_demo') {
-      appendUserMessage('I am experiencing severe chest pain and trouble breathing');
-      routeUserQuery('I am experiencing severe chest pain and trouble breathing');
-    } else if (intent === 'dosing_demo') {
-      appendUserMessage('How many tablets of 500mg paracetamol should I give my child right now?');
-      routeUserQuery('How many tablets of 500mg paracetamol should I give my child right now?');
-    } else if (intent === 'care_finder') {
-      appendUserMessage('Can I find healthcare nearby or book an appointment?');
-      appendAssistantMessage(
-        `<strong>Demo Mock Healthcare Provider Journey:</strong><br/>
-         We can help locate medical clinics by PIN code or city. <br/><br/>
-         <em>Demo Facility Available:</em> Metro Diagnostic & Multispeciality Clinic (5.2 km away).<br/>
-         <div class="bg-aura-surface-cream p-2.5 rounded-xl border border-black/5 mt-2 text-xs text-aura-text">
-           <strong>Demo Limitation Notice:</strong> This is an illustrative booking flow prototype. No real appointment has been scheduled and no clinical facility has been contacted.
-         </div>`,
-        'Knowledge Source: knowledge/responses/response-catalog.md • Template #11'
-      );
+  // Language buttons
+  langBtnEn?.addEventListener('click', () => {
+    currentLocale = 'en';
+    langBtnEn.classList.add('bg-aura-sidebar', 'text-white', 'shadow-2xs');
+    langBtnEn.classList.remove('text-aura-text-muted');
+    langBtnTe?.classList.remove('bg-aura-sidebar', 'text-white', 'shadow-2xs');
+    langBtnTe?.classList.add('text-aura-text-muted');
+    if (welcomeMessage) {
+      welcomeMessage.innerHTML = 'Hello! I am your <strong>Altrix Guest Health Guide</strong>. You can freely ask about common symptoms, safe medicine use principles, or emergency first aid below without logging in.';
     }
-  }
+  });
+
+  langBtnTe?.addEventListener('click', () => {
+    currentLocale = 'te';
+    langBtnTe.classList.add('bg-aura-sidebar', 'text-white', 'shadow-2xs');
+    langBtnTe.classList.remove('text-aura-text-muted');
+    langBtnEn?.classList.remove('bg-aura-sidebar', 'text-white', 'shadow-2xs');
+    langBtnEn?.classList.add('text-aura-text-muted');
+    if (welcomeMessage) {
+      welcomeMessage.innerHTML = 'నమస్కారం! నేను మీ <strong>ఆల్ట్రిక్స్ హెల్త్ గైడ్</strong>. లాగిన్ లేకుండానే సాధారణ లక్షణాలు, మందుల భద్రత మరియు అత్యవసర ప్రథమ చికిత్స సమాచారాన్ని ఇక్కడ తెలుసుకోవచ్చు.';
+    }
+  });
+
+  // Topic chip click handlers
+  topicChips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const guideId = chip.getAttribute('data-guide');
+      if (!guideId) return;
+
+      const guide = getGuideById(guideId, currentLocale);
+      if (!guide) return;
+
+      appendUserBubble(guide.title);
+
+      if (guide.category === 'emergency') {
+        appendGuideBubble(guide, true);
+      } else {
+        if (guestTurnsUsed < MAX_GUEST_TURNS) {
+          guestTurnsUsed++;
+          updateTurnsDisplay();
+        }
+        appendGuideBubble(guide, false);
+      }
+    });
+  });
+
+  // Form submit
+  chatForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (chatInput) {
+      handleUserQuery(chatInput.value);
+    }
+  });
+
+  // Restart chat
+  btnRestartChat?.addEventListener('click', () => {
+    guestTurnsUsed = 0;
+    updateTurnsDisplay();
+    if (chatMessages) {
+      chatMessages.innerHTML = '';
+      const div = document.createElement('div');
+      div.className = 'flex items-start gap-3';
+      div.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-aura-sidebar text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
+          +
+        </div>
+        <div class="bg-white rounded-2xl rounded-tl-xs p-4 sm:p-5 max-w-xl text-xs sm:text-sm text-aura-text space-y-2 leading-relaxed border border-aura-border/60 shadow-2xs">
+          <p class="font-medium">
+            Session refreshed. You have 6 turns available. Select any guided topic below or type your question.
+          </p>
+        </div>
+      `;
+      chatMessages.appendChild(div);
+    }
+  });
+
+  // Initialize turns counter
+  updateTurnsDisplay();
 </script>
