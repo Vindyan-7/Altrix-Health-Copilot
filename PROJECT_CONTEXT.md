@@ -39,19 +39,20 @@ Reviewed evidence determines what may be said; templates determine tone; AI may 
 10. Update this file and `docs/DEVELOPMENT_LOG.md` after each milestone with current status, test results, known issues, and the next exact task.
 
 ## Current implementation status
-Pre-Migration Gate & Hardening milestone completed on branch `feat/guest-health-copilot-mvp`:
+Phase 1: Supabase Verification and Auth Integration completed on branch `feat/guest-health-copilot-mvp`:
 - **Current Baseline:** `feat/guest-health-copilot-mvp` active; `develop`, `feat/timeline-iteration-3`, and `feat/review-page-iteration-2b` preserved intact.
-- **Pre-Migration Gate Deliverables:**
-  1. **Canonical Environment Setup:** Standardized `.env.example` with exact placeholders: `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `GEMINI_API_KEY`, `GEMINI_MODEL=gemini-1.5-flash`.
-  2. **Vercel Runtime Architecture:** Configured official `@astrojs/vercel` adapter for Astro 5. Static UI pages remain 100% prerendered while API endpoints (`/api/health.json`, `/api/copilot/explain`) run serverless.
-  3. **Supabase Client & Auth Prep:** Added `src/lib/supabase/client.ts` using strictly the publishable key. Service-role key prohibited. Guest mode operates without authentication requirement.
-  4. **Server-Side Gemini AI Provider:** Implemented `src/lib/ai/gemini-provider.ts` configured for `gemini-1.5-flash`, with strict Zod validation, 8s timeout, and automatic fallback to deterministic explanations. Safety gates execute ahead of model calls.
-  5. **Supabase SQL Hardened & 100% Idempotent:** Migrations `01_initial_schema.sql` and `02_rls_and_storage_policies.sql` verified with RLS on all tables, `DROP POLICY IF EXISTS` guards on all 16 policies, `set search_path = public` on auth trigger, storage vault policies, and execution guide in `supabase/README.md`.
-  6. **Explain Endpoint Hardened:** Added 32 KB payload limit (`413 Payload Too Large`), in-memory rate limiting (max 10 requests per minute per IP, `429 Too Many Requests`), and deterministic triage priority for medical emergency red flags and dosage requests.
-- **Quality Gates:** 61/61 Vitest unit tests pass, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
+- **Phase 1 Deliverables:**
+  1. **Read-Only Verification Script:** Created `supabase/sql/03_verification_queries.sql` for safe, manual execution by the Product Manager in the Supabase SQL Editor.
+  2. **Canonical Environment Setup:** `.env.example` documents `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_PUBLISHABLE_KEY` with clear guidance. Zero credentials logged or requested.
+  3. **Supabase Auth Integration:** Implemented `src/lib/supabase/auth.ts` with email/password signup, login, logout, and session state persistence.
+  4. **Server-Side Protected Operations:** Implemented `GET /api/vault/documents`, `POST /api/vault/documents`, and `GET /api/auth/me` requiring valid Bearer tokens (`401 Unauthorized` when unauthenticated). The server overwrites `profile_id = user.id` from the verified token to prevent cross-user spoofing.
+  5. **Auth UI Page:** Implemented `src/pages/auth.astro` with Aura styling, signin/signup tabs, live session card, and clear guest reassurances.
+  6. **App Shell Integration:** Enhanced `TopBar.astro` and `Sidebar.astro` with dynamic session awareness and links to `/auth`.
+  7. **Guest Mode Independence:** Guest Health Guide (`/copilot`) remains 100% functional without an account or database connection.
+- **Quality Gates:** 77/77 Vitest unit tests pass, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
 
 ## Current next task
-Deliver the CTO Pre-Migration Gate report, provide the exact manual SQL execution steps for the Product Manager (Vindyan), and await CTO authorization before executing database migrations or connecting live credentials.
+Deliver the Phase 1 Supabase Verification and Auth Integration report, provide exact verification query steps for the Product Manager, and await CTO review before starting Phase 2 integration work.
 
 
 

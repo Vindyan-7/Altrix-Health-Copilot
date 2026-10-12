@@ -346,3 +346,29 @@ Antigravity: inspect the current repository and environment, report findings, th
   - Vitest Unit Tests: **61/61 passing** across 5 test suites (+6 new tests in `tests/explain-api.test.ts`).
   - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
   - Production Build: Clean (`astro build` with `@astrojs/vercel`, 5 static routes prerendered + 2 serverless functions bundled in 5.27s).
+
+## 2026-10-12 — Phase 1: Supabase Verification and Auth Integration (feat/guest-health-copilot-mvp)
+- **Read-Only Database Verification:**
+  - Created `supabase/sql/03_verification_queries.sql` providing non-destructive queries for tables, RLS enablement, policies, trigger attachment, and private storage bucket.
+- **Supabase Authentication Engine:**
+  - Implemented `src/lib/supabase/auth.ts`:
+    - `signUpUser(email, password, language)`: Validates email format, password length >= 6, passes language to profile trigger.
+    - `signInUser(email, password)`: Email/password authentication with session persistence.
+    - `signOutUser()`: Clean session termination.
+    - `getCurrentUser()`: Browser session retrieval.
+    - `verifyAccessToken(token)`: Server-side cryptographic token validation using Supabase Auth.
+    - `getAuthenticatedClient(token)`: Scoped client sending user JWT for RLS enforcement (`auth.uid()`).
+- **Protected Server Endpoints (Authorization != Hiding UI):**
+  - Implemented `GET /api/vault/documents` and `POST /api/vault/documents` requiring valid Bearer tokens (returning `401 Unauthorized` when unauthenticated).
+  - Implemented `GET /api/auth/me` returning verified user session info or `401 Unauthorized`.
+  - Server automatically overwrites `profile_id = user.id` on document creation, defeating spoofing attempts.
+- **User Interface (`src/pages/auth.astro`):**
+  - Aura design system alignment (blush, cream, DM Serif Display).
+  - Sign In and Sign Up tabs with accessible form validation and live alerts.
+  - Active session view with user ID and Sign Out action.
+  - Explicit reassurance and prominent direct button to Guest Health Copilot (`/copilot`).
+  - Integrated into `TopBar.astro` and `Sidebar.astro` with dynamic session awareness.
+- **Quality Gates:**
+  - Vitest Unit Tests: **77/77 passing** across 6 test suites (+16 new tests in `tests/auth-and-access-control.test.ts`).
+  - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
+  - Production Build: Clean (`astro build` with `@astrojs/vercel`, 6 static routes prerendered + 4 serverless functions bundled in 5.89s).

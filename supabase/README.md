@@ -70,20 +70,24 @@
    - Click **Run**.
    - Confirm output displays `Success. No rows returned`.
 5. **Step 3 — Run Post-Migration Verification Queries:**
-   Run the following verification script in SQL Editor:
-   ```sql
-   -- Verify all 6 tables have RLS enabled
-   select tablename, rowsecurity
-   from pg_tables
-   where schemaname = 'public'
-   order by tablename;
+   - Click **New query**.
+   - Copy and paste the entire content of [`supabase/sql/03_verification_queries.sql`](file:///c:/Projects/person/altrix-health-copilot/supabase/sql/03_verification_queries.sql).
+   - Click **Run**.
+   - Verify that:
+     - All 6 tables display `rowsecurity = true`.
+     - `audit_events` returns 0 rows for UPDATE or DELETE policies (strictly append-only).
+     - `handle_new_user` function displays `prosecdef = true` and `proconfig = {search_path=public}`.
+     - `on_auth_user_created` trigger is present on `auth.users`.
+     - `health_documents_vault` displays `public = false` and `file_size_limit = 10485760`.
+     - Storage object policies enforce personal folder access only: `(storage.foldername(name))[1] = auth.uid()::text`.
 
-   -- Verify private storage bucket exists
-   select id, name, public, file_size_limit
-   from storage.buckets
-   where id = 'health_documents_vault';
-   ```
-   All 6 tables should show `rowsecurity = true`, and `health_documents_vault` should show `public = false`.
+6. **Authentication & Protected API Endpoints:**
+   - Authenticated sessions use Supabase Auth with automatic session persistence.
+   - User profile creation trigger populates `profiles` table automatically on `auth.users` insert.
+   - Server-side token validation is enforced via [`verifyAccessToken`](file:///c:/Projects/person/altrix-health-copilot/src/lib/supabase/auth.ts) and [`getAuthenticatedClient`](file:///c:/Projects/person/altrix-health-copilot/src/lib/supabase/client.ts).
+   - Protected API endpoints (`GET /api/vault/documents`, `POST /api/vault/documents`, `GET /api/auth/me`) reject unauthenticated requests with `401 Unauthorized`.
+   - Client-side spoofing of `profile_id` is prevented on the server by pinning records to `user.id` from the verified JWT.
 
-6. **Guest Mode Integrity:**
-   - Confirm that the guest-accessible Copilot continues functioning completely independently without requiring a user login or active database connection.
+7. **Guest Mode Integrity:**
+   - The guest-accessible Health Copilot (`/copilot`) continues functioning completely independently with zero database or login dependency.
+

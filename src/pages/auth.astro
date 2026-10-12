@@ -1,0 +1,406 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { isSupabaseConfigured } from '../lib/supabase/client';
+import { UserCheck, LogIn, UserPlus, LogOut, ShieldCheck, Info, MessageSquare, AlertTriangle, ArrowRight } from '@lucide/astro';
+---
+
+<Layout
+  title="Account & Authentication"
+  description="Sign in or create an Altrix account to manage private health records with Supabase Row Level Security."
+>
+  <div class="max-w-2xl mx-auto py-4 sm:py-8 space-y-6">
+    <!-- Header -->
+    <div class="space-y-2">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-aura-surface-cream text-aura-text text-xs font-semibold border border-black/5">
+        <ShieldCheck class="w-3.5 h-3.5 text-aura-accent-purple-strong" />
+        <span>Supabase Auth & Row Level Security</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-serif font-bold text-aura-text tracking-tight">
+        Personal Health Account
+      </h1>
+      <p class="text-xs sm:text-sm text-aura-text-muted leading-relaxed">
+        Sign in to save personal health records and access your private health vault. Guest access remains 100% available without creating an account.
+      </p>
+    </div>
+
+    <!-- Guest Mode Callout (Prominent and reassuring) -->
+    <div class="rounded-2xl bg-aura-surface-blush border border-aura-border/60 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-xl bg-aura-accent-peach/50 flex items-center justify-center text-aura-accent-orange shrink-0 mt-0.5">
+          <MessageSquare class="w-4 h-4" />
+        </div>
+        <div class="space-y-0.5">
+          <h2 class="text-xs sm:text-sm font-bold text-aura-text">Looking for the Guest Copilot?</h2>
+          <p class="text-[11px] sm:text-xs text-aura-text-muted">
+            No login or personal records required. Get safe health information in English and Telugu right now.
+          </p>
+        </div>
+      </div>
+      <a
+        href="/copilot"
+        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-aura-action text-white text-xs font-semibold hover:bg-black transition shadow-xs shrink-0"
+      >
+        <span>Open Guest Copilot</span>
+        <ArrowRight class="w-3.5 h-3.5" />
+      </a>
+    </div>
+
+    <!-- Supabase Configuration Notice (if not configured) -->
+    {!isSupabaseConfigured && (
+      <div class="rounded-2xl bg-amber-50 border border-amber-200/80 p-4 text-xs text-amber-900 flex items-start gap-3">
+        <AlertTriangle class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+        <div class="space-y-1">
+          <p class="font-bold">Supabase is not configured yet in this environment.</p>
+          <p class="text-amber-800 text-[11px] leading-relaxed">
+            Authentication requires <code class="font-mono bg-amber-100 px-1 py-0.5 rounded">PUBLIC_SUPABASE_URL</code> and <code class="font-mono bg-amber-100 px-1 py-0.5 rounded">PUBLIC_SUPABASE_PUBLISHABLE_KEY</code>. You can continue using the prototype in guest mode without configuration.
+          </p>
+        </div>
+      </div>
+    )}
+
+    <!-- Live Authenticated Card (Shown when session exists) -->
+    <div id="auth-signed-in-card" class="hidden rounded-2xl bg-white border border-aura-border shadow-aura-card p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
+            <UserCheck class="w-5 h-5" />
+          </div>
+          <div>
+            <h2 class="text-sm font-bold text-aura-text">You are signed in</h2>
+            <p id="user-email-display" class="text-xs text-aura-text-muted font-mono"></p>
+          </div>
+        </div>
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          Active Session
+        </span>
+      </div>
+
+      <div class="p-3 bg-aura-surface-cream rounded-xl text-xs space-y-1 text-aura-text">
+        <div class="flex justify-between">
+          <span class="text-aura-text-muted">User ID:</span>
+          <span id="user-id-display" class="font-mono text-[11px]"></span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-aura-text-muted">Security:</span>
+          <span class="font-medium">Row Level Security (Tenant-Isolated)</span>
+        </div>
+      </div>
+
+      <div class="pt-2 flex items-center justify-between gap-3">
+        <a
+          href="/"
+          class="px-4 py-2 rounded-full bg-aura-sidebar-active text-aura-text text-xs font-semibold hover:bg-aura-surface-cream transition"
+        >
+          Go to Dashboard
+        </a>
+        <button
+          id="btn-sign-out"
+          type="button"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-red-200 text-red-600 text-xs font-semibold hover:bg-red-50 transition cursor-pointer"
+        >
+          <LogOut class="w-3.5 h-3.5" />
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Auth Form Card (Shown when signed out) -->
+    <div id="auth-form-card" class="rounded-2xl bg-white border border-aura-border shadow-aura-card p-6 space-y-6">
+      <!-- Tabs -->
+      <div class="flex border-b border-aura-border/60">
+        <button
+          id="tab-btn-signin"
+          type="button"
+          class="flex-1 py-3 text-xs sm:text-sm font-bold text-aura-text border-b-2 border-aura-action transition cursor-pointer flex items-center justify-center gap-2"
+        >
+          <LogIn class="w-4 h-4" />
+          <span>Sign In</span>
+        </button>
+        <button
+          id="tab-btn-signup"
+          type="button"
+          class="flex-1 py-3 text-xs sm:text-sm font-medium text-aura-text-muted hover:text-aura-text border-b-2 border-transparent transition cursor-pointer flex items-center justify-center gap-2"
+        >
+          <UserPlus class="w-4 h-4" />
+          <span>Create Account</span>
+        </button>
+      </div>
+
+      <!-- Live Error / Success Alert Box -->
+      <div id="auth-alert" class="hidden rounded-xl p-3 text-xs flex items-start gap-2.5">
+        <div id="auth-alert-icon" class="shrink-0 mt-0.5"></div>
+        <div id="auth-alert-text" class="flex-grow"></div>
+      </div>
+
+      <!-- Sign In Form -->
+      <form id="signin-form" class="space-y-4">
+        <div>
+          <label for="signin-email" class="block text-xs font-bold text-aura-text mb-1.5">
+            Email address
+          </label>
+          <input
+            id="signin-email"
+            name="email"
+            type="email"
+            required
+            autocomplete="email"
+            placeholder="you@example.com"
+            class="w-full h-10 px-3.5 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition"
+          />
+        </div>
+
+        <div>
+          <label for="signin-password" class="block text-xs font-bold text-aura-text mb-1.5">
+            Password
+          </label>
+          <input
+            id="signin-password"
+            name="password"
+            type="password"
+            required
+            autocomplete="current-password"
+            placeholder="••••••••"
+            class="w-full h-10 px-3.5 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition"
+          />
+        </div>
+
+        <button
+          id="btn-submit-signin"
+          type="submit"
+          class="w-full h-10 rounded-full bg-aura-action text-white text-xs font-semibold hover:bg-black transition shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <LogIn class="w-4 h-4" />
+          <span>Sign In to Your Vault</span>
+        </button>
+      </form>
+
+      <!-- Sign Up Form (Hidden by default) -->
+      <form id="signup-form" class="hidden space-y-4">
+        <div>
+          <label for="signup-email" class="block text-xs font-bold text-aura-text mb-1.5">
+            Email address
+          </label>
+          <input
+            id="signup-email"
+            name="email"
+            type="email"
+            required
+            autocomplete="email"
+            placeholder="you@example.com"
+            class="w-full h-10 px-3.5 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition"
+          />
+        </div>
+
+        <div>
+          <label for="signup-password" class="block text-xs font-bold text-aura-text mb-1.5">
+            Password <span class="text-aura-text-muted font-normal">(min. 6 characters)</span>
+          </label>
+          <input
+            id="signup-password"
+            name="password"
+            type="password"
+            required
+            minlength="6"
+            autocomplete="new-password"
+            placeholder="••••••••"
+            class="w-full h-10 px-3.5 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition"
+          />
+        </div>
+
+        <div>
+          <label for="signup-language" class="block text-xs font-bold text-aura-text mb-1.5">
+            Preferred Language
+          </label>
+          <select
+            id="signup-language"
+            name="preferred_language"
+            class="w-full h-10 px-3.5 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition"
+          >
+            <option value="en">English (Default)</option>
+            <option value="te">తెలుగు (Telugu)</option>
+          </select>
+          <p class="text-[11px] text-aura-text-muted mt-1">
+            Stored in your user profile for bilingual health explanations.
+          </p>
+        </div>
+
+        <button
+          id="btn-submit-signup"
+          type="submit"
+          class="w-full h-10 rounded-full bg-aura-action text-white text-xs font-semibold hover:bg-black transition shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <UserPlus class="w-4 h-4" />
+          <span>Create Private Health Vault</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { getSupabaseClient, isSupabaseConfigured } from '../lib/supabase/client';
+  import { signInUser, signUpUser, signOutUser } from '../lib/supabase/auth';
+
+  const tabBtnSignIn = document.getElementById('tab-btn-signin');
+  const tabBtnSignUp = document.getElementById('tab-btn-signup');
+  const formSignIn = document.getElementById('signin-form') as HTMLFormElement | null;
+  const formSignUp = document.getElementById('signup-form') as HTMLFormElement | null;
+  const authFormCard = document.getElementById('auth-form-card');
+  const signedInCard = document.getElementById('auth-signed-in-card');
+  const userEmailDisplay = document.getElementById('user-email-display');
+  const userIdDisplay = document.getElementById('user-id-display');
+  const btnSignOut = document.getElementById('btn-sign-out');
+
+  const alertBox = document.getElementById('auth-alert');
+  const alertText = document.getElementById('auth-alert-text');
+  const alertIcon = document.getElementById('auth-alert-icon');
+
+  function showAlert(message: string, isError: boolean = true) {
+    if (!alertBox || !alertText) return;
+    alertBox.className = isError
+      ? 'rounded-xl p-3 text-xs flex items-start gap-2.5 bg-red-50 text-red-800 border border-red-200'
+      : 'rounded-xl p-3 text-xs flex items-start gap-2.5 bg-emerald-50 text-emerald-800 border border-emerald-200';
+    alertText.textContent = message;
+    alertBox.classList.remove('hidden');
+  }
+
+  function hideAlert() {
+    if (alertBox) alertBox.classList.add('hidden');
+  }
+
+  // Switch tabs
+  if (tabBtnSignIn && tabBtnSignUp && formSignIn && formSignUp) {
+    tabBtnSignIn.addEventListener('click', () => {
+      tabBtnSignIn.className = 'flex-1 py-3 text-xs sm:text-sm font-bold text-aura-text border-b-2 border-aura-action transition cursor-pointer flex items-center justify-center gap-2';
+      tabBtnSignUp.className = 'flex-1 py-3 text-xs sm:text-sm font-medium text-aura-text-muted hover:text-aura-text border-b-2 border-transparent transition cursor-pointer flex items-center justify-center gap-2';
+      formSignIn.classList.remove('hidden');
+      formSignUp.classList.add('hidden');
+      hideAlert();
+    });
+
+    tabBtnSignUp.addEventListener('click', () => {
+      tabBtnSignUp.className = 'flex-1 py-3 text-xs sm:text-sm font-bold text-aura-text border-b-2 border-aura-action transition cursor-pointer flex items-center justify-center gap-2';
+      tabBtnSignIn.className = 'flex-1 py-3 text-xs sm:text-sm font-medium text-aura-text-muted hover:text-aura-text border-b-2 border-transparent transition cursor-pointer flex items-center justify-center gap-2';
+      formSignUp.classList.remove('hidden');
+      formSignIn.classList.add('hidden');
+      hideAlert();
+    });
+  }
+
+  // Check initial session
+  async function refreshSessionState() {
+    const supabase = getSupabaseClient();
+    if (!supabase || !isSupabaseConfigured) {
+      return;
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        if (signedInCard) signedInCard.classList.remove('hidden');
+        if (authFormCard) authFormCard.classList.add('hidden');
+        if (userEmailDisplay) userEmailDisplay.textContent = session.user.email || 'Authenticated User';
+        if (userIdDisplay) userIdDisplay.textContent = session.user.id;
+      } else {
+        if (signedInCard) signedInCard.classList.add('hidden');
+        if (authFormCard) authFormCard.classList.remove('hidden');
+      }
+    } catch {
+      // Graceful fallback to signed-out view
+    }
+  }
+
+  refreshSessionState();
+
+  // Listen to Auth State Changes
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        if (signedInCard) signedInCard.classList.remove('hidden');
+        if (authFormCard) authFormCard.classList.add('hidden');
+        if (userEmailDisplay) userEmailDisplay.textContent = session.user.email || 'Authenticated User';
+        if (userIdDisplay) userIdDisplay.textContent = session.user.id;
+      } else {
+        if (signedInCard) signedInCard.classList.add('hidden');
+        if (authFormCard) authFormCard.classList.remove('hidden');
+      }
+    });
+  }
+
+  // Handle Sign In submit
+  if (formSignIn) {
+    formSignIn.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideAlert();
+      const email = (document.getElementById('signin-email') as HTMLFormElement)?.value;
+      const password = (document.getElementById('signin-password') as HTMLFormElement)?.value;
+      const submitBtn = document.getElementById('btn-submit-signin') as HTMLButtonElement | null;
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing in...';
+      }
+
+      const result = await signInUser(email, password);
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign In to Your Vault';
+      }
+
+      if (result.error) {
+        showAlert(result.error.message, true);
+      } else {
+        showAlert('Signed in successfully. Redirecting...', false);
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 800);
+      }
+    });
+  }
+
+  // Handle Sign Up submit
+  if (formSignUp) {
+    formSignUp.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideAlert();
+      const email = (document.getElementById('signup-email') as HTMLFormElement)?.value;
+      const password = (document.getElementById('signup-password') as HTMLFormElement)?.value;
+      const lang = (document.getElementById('signup-language') as HTMLFormElement)?.value as 'en' | 'te';
+      const submitBtn = document.getElementById('btn-submit-signup') as HTMLButtonElement | null;
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating account...';
+      }
+
+      const result = await signUpUser(email, password, lang);
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Private Health Vault';
+      }
+
+      if (result.error) {
+        showAlert(result.error.message, true);
+      } else {
+        showAlert('Account created successfully! Check your email or sign in.', false);
+        if (formSignIn && tabBtnSignIn) {
+          tabBtnSignIn.click();
+        }
+      }
+    });
+  }
+
+  // Handle Sign Out
+  if (btnSignOut) {
+    btnSignOut.addEventListener('click', async () => {
+      btnSignOut.textContent = 'Signing out...';
+      await signOutUser();
+      if (signedInCard) signedInCard.classList.add('hidden');
+      if (authFormCard) authFormCard.classList.remove('hidden');
+      showAlert('You have been signed out.', false);
+    });
+  }
+</script>

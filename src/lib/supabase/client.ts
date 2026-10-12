@@ -43,6 +43,28 @@ export function getSupabaseClient(): SupabaseClient | null {
 }
 
 /**
+ * Creates a scoped Supabase client authenticated as the specific user.
+ * Used by serverless endpoints so all queries run under the user's RLS policies (auth.uid()).
+ */
+export function getAuthenticatedClient(accessToken: string): SupabaseClient | null {
+  if (!isSupabaseConfigured || !accessToken) {
+    return null;
+  }
+
+  return createClient(supabaseUrl, supabasePublishableKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${accessToken.trim()}`,
+      },
+    },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+}
+
+/**
  * Authentication State Helpers
  */
 export async function getAuthUser() {

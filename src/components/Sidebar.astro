@@ -8,6 +8,7 @@ import {
   MapPin,
   X,
   Activity,
+  UserCheck,
 } from '@lucide/astro';
 
 export interface Props {
@@ -102,11 +103,22 @@ function isCurrent(href: string) {
       );
     })}
 
-    <!-- Secondary Disabled Item (Demo boundary) -->
+    <!-- Account & Exploration Items -->
     <div class="pt-4 mt-4 border-t border-white/10 space-y-1">
       <div class="px-3 text-[10px] font-semibold tracking-wider text-aura-sidebar-text/70 uppercase">
-        Exploration
+        Security & Vault
       </div>
+      <a
+        href="/auth"
+        class={`flex items-center gap-3 px-3.5 py-2 rounded-full text-xs transition ${
+          isCurrent('/auth')
+            ? 'bg-aura-sidebar-active text-aura-text font-semibold shadow-xs'
+            : 'text-aura-sidebar-text hover:text-white hover:bg-white/5'
+        }`}
+      >
+        <UserCheck class="w-4 h-4 shrink-0" stroke-width={1.8} />
+        <span>Account & Auth</span>
+      </a>
       <a
         href="/copilot"
         class="flex items-center gap-3 px-3.5 py-2 rounded-full text-xs text-aura-sidebar-text hover:text-white hover:bg-white/5 transition"
@@ -117,22 +129,28 @@ function isCurrent(href: string) {
     </div>
   </nav>
 
-  <!-- Bottom Session Card -->
-  <div class="bg-aura-sidebar-deep rounded-2xl p-3.5 mt-auto border border-white/5 shadow-inner">
+  <!-- Bottom Session Card (links to /auth) -->
+  <a
+    href="/auth"
+    class="bg-aura-sidebar-deep hover:bg-black/40 transition rounded-2xl p-3.5 mt-auto border border-white/5 shadow-inner block group cursor-pointer"
+    title="View Account Details & Authentication State"
+  >
     <div class="flex items-center justify-between mb-1.5">
       <span class="text-[9.5px] font-semibold text-aura-sidebar-active tracking-wider uppercase">Active Session</span>
       <span class="inline-flex items-center gap-1 text-[10px] text-aura-sidebar-text">
         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-        Demo
+        Demo / Vault
       </span>
     </div>
-    <div class="text-white text-xs font-semibold truncate">Priya Sharma (34F)</div>
-    <div class="text-[11px] text-aura-sidebar-text leading-tight mt-0.5">Synthetic Adult Vault</div>
-    <div class="text-[10px] text-aura-sidebar-text/80 mt-2 pt-2 border-t border-white/5 flex items-center justify-between">
-      <span>Offline Mock Active</span>
-      <span class="text-aura-sidebar-active font-mono">v1.1</span>
+    <div class="text-white text-xs font-semibold truncate group-hover:text-aura-sidebar-active transition">
+      Priya Sharma (34F)
     </div>
-  </div>
+    <div class="text-[11px] text-aura-sidebar-text leading-tight mt-0.5">Synthetic Vault / Guest Mode</div>
+    <div class="text-[10px] text-aura-sidebar-text/80 mt-2 pt-2 border-t border-white/5 flex items-center justify-between">
+      <span>Manage Account</span>
+      <span class="text-aura-sidebar-active font-mono text-[11px]">→</span>
+    </div>
+  </a>
 </aside>
 
 <!-- Mobile Navigation Drawer Overlay (Hidden by default) -->
