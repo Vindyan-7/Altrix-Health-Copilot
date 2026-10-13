@@ -97,6 +97,49 @@ const isWorkspace = isWorkspaceProp !== undefined ? isWorkspaceProp : isWorkspac
         {!hideFooter && <Footer />}
       </div>
     )}
+    <!-- Global Tactile Navigation Loading Progress Bar -->
+    <div
+      id="global-page-progress"
+      class="fixed top-0 left-0 right-0 h-[3px] z-[9999] pointer-events-none opacity-0 transition-opacity duration-150 overflow-hidden"
+    >
+      <div
+        id="global-page-progress-bar"
+        class="h-full bg-gradient-to-r from-aura-accent-orange via-aura-accent-peach to-aura-sidebar w-full -translate-x-full transition-transform duration-500 ease-out"
+      ></div>
+    </div>
+
+    <script>
+      // Instant tactile feedback on link navigation
+      document.addEventListener('DOMContentLoaded', () => {
+        const progressBar = document.getElementById('global-page-progress-bar');
+        const progressContainer = document.getElementById('global-page-progress');
+
+        document.querySelectorAll('a[href]').forEach((link) => {
+          link.addEventListener('click', (e) => {
+            const anchor = link as HTMLAnchorElement;
+            const href = anchor.getAttribute('href');
+            if (
+              !href ||
+              href.startsWith('#') ||
+              href.startsWith('mailto:') ||
+              href.startsWith('tel:') ||
+              anchor.target === '_blank' ||
+              e.metaKey ||
+              e.ctrlKey ||
+              e.shiftKey
+            ) {
+              return;
+            }
+
+            if (progressContainer && progressBar) {
+              progressContainer.classList.remove('opacity-0');
+              progressContainer.classList.add('opacity-100');
+              progressBar.style.transform = 'translateX(-25%)';
+            }
+          });
+        });
+      });
+    </script>
   </body>
 </html>
 
@@ -159,5 +202,26 @@ const isWorkspace = isWorkspaceProp !== undefined ? isWorkspaceProp : isWorkspac
 
   h1, h2, h3, .font-serif {
     font-family: var(--font-display);
+  }
+
+  /* Universal Shimmer / Skeleton Animation */
+  @keyframes altrix-shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(240, 233, 239, 0.5) 25%,
+      rgba(255, 248, 250, 0.95) 50%,
+      rgba(240, 233, 239, 0.5) 75%
+    );
+    background-size: 200% 100%;
+    animation: altrix-shimmer 1.5s infinite linear;
   }
 </style>

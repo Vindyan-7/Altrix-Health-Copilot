@@ -24,6 +24,75 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
 
 <Layout title="Dashboard" description="Your authenticated health dashboard and personal health vault.">
   <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
+    <!-- 0. High-Fidelity Skeletal Loading Shell (Visible during initial session check) -->
+    <div id="dashboard-skeleton-view" class="space-y-6 sm:space-y-8">
+      <!-- Header Skeleton -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-2 border-b border-aura-border/40">
+        <div class="space-y-3 max-w-2xl">
+          <div class="h-5 w-48 rounded-full skeleton-shimmer"></div>
+          <div class="h-10 w-72 sm:w-80 rounded-xl skeleton-shimmer"></div>
+          <div class="h-4 w-96 max-w-full rounded-md skeleton-shimmer"></div>
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+          <div class="h-10 w-36 rounded-full skeleton-shimmer"></div>
+          <div class="h-10 w-32 rounded-full skeleton-shimmer"></div>
+        </div>
+      </div>
+
+      <!-- Account Security Pill Skeleton -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 border border-aura-border shadow-aura-card flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full skeleton-shimmer"></div>
+          <div class="space-y-1.5">
+            <div class="h-3.5 w-36 rounded-md skeleton-shimmer"></div>
+            <div class="h-3 w-48 rounded-md skeleton-shimmer"></div>
+          </div>
+        </div>
+        <div class="h-4 w-56 rounded-full skeleton-shimmer hidden sm:block"></div>
+      </div>
+
+      <!-- Vault Panel Skeleton -->
+      <div class="bg-aura-surface rounded-aura-panel p-6 border border-aura-border/40 shadow-aura-card space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-aura-border/40">
+          <div class="space-y-1.5">
+            <div class="h-3 w-24 rounded-md skeleton-shimmer"></div>
+            <div class="h-6 w-52 rounded-lg skeleton-shimmer"></div>
+          </div>
+          <div class="h-6 w-32 rounded-full skeleton-shimmer"></div>
+        </div>
+        <div class="space-y-3">
+          <div class="py-3.5 px-4 rounded-xl border border-aura-border/50 bg-white/60 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5 flex-1 min-w-0">
+              <div class="w-9 h-9 rounded-xl skeleton-shimmer shrink-0"></div>
+              <div class="space-y-2 flex-1 min-w-0">
+                <div class="h-3.5 w-48 skeleton-shimmer rounded-md"></div>
+                <div class="h-2.5 w-32 skeleton-shimmer rounded-md"></div>
+              </div>
+            </div>
+            <div class="h-7 w-24 skeleton-shimmer rounded-full shrink-0"></div>
+          </div>
+          <div class="py-3.5 px-4 rounded-xl border border-aura-border/50 bg-white/60 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5 flex-1 min-w-0">
+              <div class="w-9 h-9 rounded-xl skeleton-shimmer shrink-0"></div>
+              <div class="space-y-2 flex-1 min-w-0">
+                <div class="h-3.5 w-40 skeleton-shimmer rounded-md"></div>
+                <div class="h-2.5 w-28 skeleton-shimmer rounded-md"></div>
+              </div>
+            </div>
+            <div class="h-7 w-24 skeleton-shimmer rounded-full shrink-0"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cards Grid Skeleton -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        <div class="h-36 rounded-aura-card bg-white border border-aura-border/40 p-5 space-y-4 skeleton-shimmer"></div>
+        <div class="h-36 rounded-aura-card bg-white border border-aura-border/40 p-5 space-y-4 skeleton-shimmer"></div>
+        <div class="h-36 rounded-aura-card bg-white border border-aura-border/40 p-5 space-y-4 skeleton-shimmer"></div>
+        <div class="h-36 rounded-aura-card bg-white border border-aura-border/40 p-5 space-y-4 skeleton-shimmer"></div>
+      </div>
+    </div>
+
     <!-- Authenticated View (Rendered when valid Supabase session is active) -->
     <div id="dashboard-auth-view" class="hidden space-y-6 sm:space-y-8">
       <!-- 1. Header Greeting -->
@@ -109,10 +178,27 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
           </span>
         </div>
 
-        <!-- Dynamic Vault Content Container -->
+        <!-- Dynamic Vault Content Container with Preloaded Skeleton Shimmer -->
         <div id="dashboard-vault-content" class="space-y-3">
-          <div class="text-xs text-aura-text-muted p-6 text-center bg-aura-surface-cream/20 rounded-xl border border-aura-border/30">
-            Loading your stored vault documents...
+          <div class="py-3.5 px-4 rounded-xl border border-aura-border/50 bg-white/70 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5 flex-1 min-w-0">
+              <div class="w-9 h-9 rounded-xl skeleton-shimmer shrink-0"></div>
+              <div class="space-y-2 flex-1 min-w-0">
+                <div class="h-3.5 w-44 skeleton-shimmer rounded-md"></div>
+                <div class="h-2.5 w-28 skeleton-shimmer rounded-md"></div>
+              </div>
+            </div>
+            <div class="h-7 w-24 skeleton-shimmer rounded-full shrink-0"></div>
+          </div>
+          <div class="py-3.5 px-4 rounded-xl border border-aura-border/50 bg-white/70 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5 flex-1 min-w-0">
+              <div class="w-9 h-9 rounded-xl skeleton-shimmer shrink-0"></div>
+              <div class="space-y-2 flex-1 min-w-0">
+                <div class="h-3.5 w-52 skeleton-shimmer rounded-md"></div>
+                <div class="h-2.5 w-32 skeleton-shimmer rounded-md"></div>
+              </div>
+            </div>
+            <div class="h-7 w-24 skeleton-shimmer rounded-full shrink-0"></div>
           </div>
         </div>
       </div>
@@ -206,7 +292,7 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
     </div>
 
     <!-- Unauthenticated Gate View (Rendered when no active session exists) -->
-    <div id="dashboard-guest-view" class="max-w-2xl mx-auto py-12 space-y-8 text-center">
+    <div id="dashboard-guest-view" class="hidden max-w-2xl mx-auto py-12 space-y-8 text-center">
       <div class="w-16 h-16 mx-auto rounded-2xl bg-aura-surface-cream text-aura-text flex items-center justify-center shadow-xs border border-black/5">
         <Lock class="w-8 h-8 text-aura-accent-orange" stroke-width={1.8} />
       </div>
@@ -254,6 +340,7 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
 
   const authView = document.getElementById('dashboard-auth-view');
   const guestView = document.getElementById('dashboard-guest-view');
+  const skeletonView = document.getElementById('dashboard-skeleton-view');
   const greetingEl = document.getElementById('dashboard-user-greeting');
   const emailEl = document.getElementById('dashboard-user-email');
   const vaultContentEl = document.getElementById('dashboard-vault-content');
@@ -345,6 +432,7 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
   async function checkSession() {
     const supabase = getSupabaseClient();
     if (!supabase || !isSupabaseConfigured) {
+      if (skeletonView) skeletonView.classList.add('hidden');
       if (guestView) guestView.classList.remove('hidden');
       if (authView) authView.classList.add('hidden');
       return;
@@ -353,6 +441,7 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user && session?.access_token) {
+        if (skeletonView) skeletonView.classList.add('hidden');
         if (guestView) guestView.classList.add('hidden');
         if (authView) authView.classList.remove('hidden');
 
@@ -364,10 +453,12 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
 
         await loadUserRecords(session.access_token);
       } else {
+        if (skeletonView) skeletonView.classList.add('hidden');
         if (guestView) guestView.classList.remove('hidden');
         if (authView) authView.classList.add('hidden');
       }
     } catch {
+      if (skeletonView) skeletonView.classList.add('hidden');
       if (guestView) guestView.classList.remove('hidden');
       if (authView) authView.classList.add('hidden');
     }
@@ -378,6 +469,7 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
   const supabaseClient = getSupabaseClient();
   if (supabaseClient) {
     supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+      if (skeletonView) skeletonView.classList.add('hidden');
       if (session?.user && session?.access_token) {
         if (guestView) guestView.classList.add('hidden');
         if (authView) authView.classList.remove('hidden');

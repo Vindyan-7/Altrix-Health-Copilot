@@ -94,9 +94,26 @@ import Layout from '../layouts/Layout.astro';
           <h3 class="text-xs font-bold text-aura-text uppercase tracking-wider">
             Your Stored Vault Documents
           </h3>
-          <div id="vault-documents-list" class="space-y-2">
-            <div class="text-xs text-aura-text-muted p-4 text-center bg-aura-surface-cream/30 rounded-xl border border-aura-border/30">
-              Loading your private vault records...
+          <div id="vault-documents-list" class="space-y-2.5">
+            <div class="p-3.5 rounded-xl border border-aura-border/60 bg-white/70 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 flex-1 min-w-0">
+                <div class="w-8 h-8 rounded-lg skeleton-shimmer shrink-0"></div>
+                <div class="space-y-1.5 flex-1 min-w-0">
+                  <div class="h-3.5 w-48 rounded-md skeleton-shimmer"></div>
+                  <div class="h-2.5 w-32 rounded-md skeleton-shimmer"></div>
+                </div>
+              </div>
+              <div class="h-6 w-20 rounded-full skeleton-shimmer shrink-0"></div>
+            </div>
+            <div class="p-3.5 rounded-xl border border-aura-border/60 bg-white/70 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 flex-1 min-w-0">
+                <div class="w-8 h-8 rounded-lg skeleton-shimmer shrink-0"></div>
+                <div class="space-y-1.5 flex-1 min-w-0">
+                  <div class="h-3.5 w-40 rounded-md skeleton-shimmer"></div>
+                  <div class="h-2.5 w-28 rounded-md skeleton-shimmer"></div>
+                </div>
+              </div>
+              <div class="h-6 w-20 rounded-full skeleton-shimmer shrink-0"></div>
             </div>
           </div>
         </div>
