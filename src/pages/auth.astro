@@ -1,240 +1,463 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { isSupabaseConfigured } from '../lib/supabase/client';
-import { UserCheck, LogIn, UserPlus, LogOut, ShieldCheck, Info, MessageSquare, AlertTriangle, ArrowRight } from '@lucide/astro';
+import {
+  UserCheck,
+  LogIn,
+  UserPlus,
+  LogOut,
+  ShieldCheck,
+  Activity,
+  ArrowLeft,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  MessageSquare,
+  Lock,
+  FileCheck2,
+  AlertTriangle,
+  HeartPulse,
+} from '@lucide/astro';
+
+const requestedMode = Astro.url.searchParams.get('mode') || Astro.url.searchParams.get('tab');
+const isSignUpInitial = requestedMode === 'signup' || requestedMode === 'register';
 ---
 
 <Layout
   title="Account & Authentication"
   description="Sign in or create an Altrix account to manage private health records with Supabase Row Level Security."
+  hideNav={true}
+  hideFooter={true}
 >
-  <div class="max-w-2xl mx-auto py-4 sm:py-8 space-y-6">
-    <!-- Header -->
-    <div class="space-y-2">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-aura-surface-cream text-aura-text text-xs font-semibold border border-black/5">
-        <ShieldCheck class="w-3.5 h-3.5 text-aura-accent-purple-strong" />
-        <span>Supabase Auth & Row Level Security</span>
-      </div>
-      <h1 class="text-2xl sm:text-3xl font-serif font-bold text-aura-text tracking-tight">
-        Personal Health Account
-      </h1>
-      <p class="text-xs sm:text-sm text-aura-text-muted leading-relaxed">
-        Sign in to save personal health records and access your private health vault. Guest access remains 100% available without creating an account.
-      </p>
-    </div>
-
-    <!-- Guest Mode Callout (Prominent and reassuring) -->
-    <div class="rounded-2xl bg-aura-surface-blush border border-aura-border/60 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-      <div class="flex items-start gap-3">
-        <div class="w-9 h-9 rounded-xl bg-aura-accent-peach/50 flex items-center justify-center text-aura-accent-orange shrink-0 mt-0.5">
-          <MessageSquare class="w-4 h-4" />
-        </div>
-        <div class="space-y-0.5">
-          <h2 class="text-xs sm:text-sm font-bold text-aura-text">Looking for the Guest Copilot?</h2>
-          <p class="text-[11px] sm:text-xs text-aura-text-muted">
-            No login or personal records required. Get safe health information in English and Telugu right now.
-          </p>
-        </div>
-      </div>
+  <!-- Minimal Authentication Header -->
+  <header class="w-full bg-white/80 backdrop-blur-md border-b border-aura-border/60 sticky top-0 z-30 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+      <!-- Compact Altrix Brand -->
       <a
-        href="/copilot"
-        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-aura-action text-white text-xs font-semibold hover:bg-black transition shadow-xs shrink-0"
+        href="/"
+        class="flex items-center gap-2.5 group focus:outline-none focus:ring-2 focus:ring-aura-sidebar rounded-xl p-1"
+        aria-label="Altrix Health Home"
       >
-        <span>Open Guest Copilot</span>
-        <ArrowRight class="w-3.5 h-3.5" />
+        <div class="w-8 h-8 rounded-xl bg-aura-sidebar text-white flex items-center justify-center shadow-2xs group-hover:bg-aura-sidebar-deep transition">
+          <Activity class="w-4 h-4 text-aura-accent-orange" stroke-width={2.2} />
+        </div>
+        <div class="flex flex-col">
+          <span class="font-serif font-bold text-base sm:text-lg text-aura-text tracking-tight leading-tight">
+            Altrix Health
+          </span>
+          <span class="text-[9px] font-semibold text-aura-text-muted tracking-[0.16em] uppercase">
+            Personal Health Copilot
+          </span>
+        </div>
+      </a>
+
+      <!-- Back to website link -->
+      <a
+        href="/"
+        class="inline-flex items-center gap-1.5 text-xs font-semibold text-aura-text-muted hover:text-aura-action transition px-3.5 py-1.5 rounded-full hover:bg-aura-surface-blush focus:outline-none focus:ring-2 focus:ring-aura-sidebar"
+      >
+        <ArrowLeft class="w-3.5 h-3.5" />
+        <span>Back to website</span>
       </a>
     </div>
+  </header>
 
-    <!-- Supabase Configuration Notice (if not configured) -->
-    {!isSupabaseConfigured && (
-      <div class="rounded-2xl bg-amber-50 border border-amber-200/80 p-4 text-xs text-amber-900 flex items-start gap-3">
-        <AlertTriangle class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-        <div class="space-y-1">
-          <p class="font-bold">Supabase is not configured yet in this environment.</p>
-          <p class="text-amber-800 text-[11px] leading-relaxed">
-            Authentication requires <code class="font-mono bg-amber-100 px-1 py-0.5 rounded">PUBLIC_SUPABASE_URL</code> and <code class="font-mono bg-amber-100 px-1 py-0.5 rounded">PUBLIC_SUPABASE_PUBLISHABLE_KEY</code>. You can continue using the prototype in guest mode without configuration.
-          </p>
+  <!-- Split-Screen Body Layout -->
+  <div class="flex-grow flex flex-col lg:grid lg:grid-cols-2 min-h-[calc(100vh-64px)] w-full">
+    <!-- LEFT PANEL: Editorial Brand, Hierarchy, and Truthful Value Statements -->
+    <aside
+      class="order-2 lg:order-1 bg-gradient-to-br from-[#381840] via-[#2c1033] to-[#1c0024] text-aura-sidebar-text p-6 sm:p-10 lg:p-14 xl:p-16 flex flex-col justify-between border-t lg:border-t-0 lg:border-r border-white/10 relative overflow-hidden"
+      aria-label="About Altrix Health Platform"
+    >
+      <!-- Subtle Decorative Aura Bloom -->
+      <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-aura-accent-orange/10 blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-aura-accent-purple/10 blur-3xl pointer-events-none"></div>
+
+      <!-- Top Section: Eyebrow, Editorial Heading, and Overview -->
+      <div class="space-y-6 relative z-10">
+        <!-- Eyebrow Pill -->
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-aura-sidebar-active text-xs font-semibold border border-white/10 backdrop-blur-xs">
+          <ShieldCheck class="w-3.5 h-3.5 text-aura-accent-orange" />
+          <span>Private & Tenant-Isolated Vault</span>
         </div>
-      </div>
-    )}
 
-    <!-- Live Authenticated Card (Shown when session exists) -->
-    <div id="auth-signed-in-card" class="hidden rounded-2xl bg-white border border-aura-border shadow-aura-card p-6 space-y-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
-            <UserCheck class="w-5 h-5" />
+        <!-- Editorial Headline -->
+        <h1 class="text-3xl sm:text-4xl lg:text-[42px] font-serif font-normal text-white tracking-tight leading-[1.15]">
+          Clarity and confidence in every health record.
+        </h1>
+
+        <p class="text-xs sm:text-sm text-aura-sidebar-text/90 leading-relaxed max-w-lg">
+          An AI-powered health companion engineered to organize medical records into traceable, plain-language insights grounded in verified clinical evidence without fabricating diagnoses or medication advice.
+        </p>
+
+        <!-- Benefit Statements (4 carefully spaced, truthful pillars supported by implementation) -->
+        <div class="pt-4 space-y-4 max-w-lg">
+          <!-- Benefit 1: Tenant-Isolated Security -->
+          <div class="flex items-start gap-3.5 p-3 rounded-2xl bg-white/5 border border-white/5">
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-500/20">
+              <Lock class="w-4 h-4" />
+            </div>
+            <div class="space-y-0.5">
+              <h2 class="text-xs font-bold text-white">PostgreSQL Row Level Security</h2>
+              <p class="text-[11px] text-aura-sidebar-text leading-relaxed">
+                Personal health records are strictly tenant-isolated to your account ID. No cross-user access.
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 class="text-sm font-bold text-aura-text">You are signed in</h2>
-            <p id="user-email-display" class="text-xs text-aura-text-muted font-mono"></p>
+
+          <!-- Benefit 2: Traceable Findings -->
+          <div class="flex items-start gap-3.5 p-3 rounded-2xl bg-white/5 border border-white/5">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-300 flex items-center justify-center shrink-0 mt-0.5 border border-amber-500/20">
+              <FileCheck2 class="w-4 h-4" />
+            </div>
+            <div class="space-y-0.5">
+              <h2 class="text-xs font-bold text-white">Zero Value Fabrication</h2>
+              <p class="text-[11px] text-aura-sidebar-text leading-relaxed">
+                Optical uncertainty indicators highlight faint readings. Lab parameters are grounded in source text.
+              </p>
+            </div>
+          </div>
+
+          <!-- Benefit 3: Guided 40-Scenario Engine -->
+          <div class="flex items-start gap-3.5 p-3 rounded-2xl bg-white/5 border border-white/5">
+            <div class="w-8 h-8 rounded-xl bg-aura-accent-orange/15 text-aura-accent-orange flex items-center justify-center shrink-0 mt-0.5 border border-aura-accent-orange/20">
+              <HeartPulse class="w-4 h-4" />
+            </div>
+            <div class="space-y-0.5">
+              <h2 class="text-xs font-bold text-white">Curated Clinical Guidance</h2>
+              <p class="text-[11px] text-aura-sidebar-text leading-relaxed">
+                Explore 40 curated medical topics in English and Telugu with authoritative sources (CDC, MedlinePlus, AHA).
+              </p>
+            </div>
+          </div>
+
+          <!-- Benefit 4: Deterministic Safety Gates -->
+          <div class="flex items-start gap-3.5 p-3 rounded-2xl bg-white/5 border border-white/5">
+            <div class="w-8 h-8 rounded-xl bg-rose-500/15 text-rose-300 flex items-center justify-center shrink-0 mt-0.5 border border-rose-500/20">
+              <AlertTriangle class="w-4 h-4" />
+            </div>
+            <div class="space-y-0.5">
+              <h2 class="text-xs font-bold text-white">Strict Pre-Model Safety Priority</h2>
+              <p class="text-[11px] text-aura-sidebar-text leading-relaxed">
+                Urgent symptoms trigger immediate 112/108/911 escalation. Medication dosage queries receive clinical refusal.
+              </p>
+            </div>
           </div>
         </div>
-        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-          Active Session
-        </span>
       </div>
 
-      <div class="p-3 bg-aura-surface-cream rounded-xl text-xs space-y-1 text-aura-text">
-        <div class="flex justify-between">
-          <span class="text-aura-text-muted">User ID:</span>
-          <span id="user-id-display" class="font-mono text-[11px]"></span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-aura-text-muted">Security:</span>
-          <span class="font-medium">Row Level Security (Tenant-Isolated)</span>
-        </div>
+      <!-- Bottom Trust Note -->
+      <div class="pt-8 mt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-[11px] text-aura-sidebar-text/70 relative z-10">
+        <span>Zero PHI shared with third parties</span>
+        <span>•</span>
+        <span>Cryptographic tokens</span>
+        <span>•</span>
+        <span>Guest mode always free</span>
       </div>
+    </aside>
 
-      <div class="pt-2 flex flex-wrap items-center justify-between gap-3">
-        <a
-          id="btn-signed-in-dashboard"
-          href="/dashboard"
-          class="px-5 py-2.5 rounded-full bg-aura-action text-white text-xs font-semibold hover:bg-black transition shadow-xs"
-        >
-          Go to Workspace Dashboard →
-        </a>
-        <button
-          id="btn-sign-out"
-          type="button"
-          class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-white border border-red-200 text-red-600 text-xs font-semibold hover:bg-red-50 transition cursor-pointer"
-        >
-          <LogOut class="w-3.5 h-3.5" />
-          <span>Sign Out</span>
-        </button>
-      </div>
-    </div>
+    <!-- RIGHT PANEL: Authentication Form Experience -->
+    <main
+      id="main-content"
+      class="order-1 lg:order-2 bg-aura-canvas flex flex-col justify-center items-center p-4 sm:p-8 lg:p-12 xl:p-16 min-w-0"
+    >
+      <div class="w-full max-w-md space-y-6">
+        <!-- Supabase Configuration Notice (if not configured) -->
+        {!isSupabaseConfigured && (
+          <div class="rounded-2xl bg-amber-50 border border-amber-200/80 p-4 text-xs text-amber-900 flex items-start gap-3">
+            <AlertTriangle class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div class="space-y-1">
+              <p class="font-bold">Supabase is not configured in this environment.</p>
+              <p class="text-amber-800 text-[11px] leading-relaxed">
+                Authentication requires <code class="font-mono bg-amber-100 px-1 py-0.5 rounded">PUBLIC_SUPABASE_URL</code> and <code class="font-mono bg-amber-100 px-1 py-0.5 rounded">PUBLIC_SUPABASE_PUBLISHABLE_KEY</code>. You can explore all features in guest mode.
+              </p>
+            </div>
+          </div>
+        )}
 
-    <!-- Auth Form Card (Shown when signed out) -->
-    <div id="auth-form-card" class="rounded-2xl bg-white border border-aura-border shadow-aura-card p-6 space-y-6">
-      <!-- Tabs -->
-      <div class="flex border-b border-aura-border/60">
-        <button
-          id="tab-btn-signin"
-          type="button"
-          class="flex-1 py-3 text-xs sm:text-sm font-bold text-aura-text border-b-2 border-aura-action transition cursor-pointer flex items-center justify-center gap-2"
+        <!-- Live Authenticated Card (Shown when active session exists) -->
+        <div
+          id="auth-signed-in-card"
+          class="hidden rounded-3xl bg-white border border-aura-border shadow-aura-card p-6 sm:p-8 space-y-5"
         >
-          <LogIn class="w-4 h-4" />
-          <span>Sign In</span>
-        </button>
-        <button
-          id="tab-btn-signup"
-          type="button"
-          class="flex-1 py-3 text-xs sm:text-sm font-medium text-aura-text-muted hover:text-aura-text border-b-2 border-transparent transition cursor-pointer flex items-center justify-center gap-2"
-        >
-          <UserPlus class="w-4 h-4" />
-          <span>Create Account</span>
-        </button>
-      </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
+                <UserCheck class="w-5 h-5" />
+              </div>
+              <div>
+                <h2 class="text-sm font-bold text-aura-text">Active Vault Session</h2>
+                <p id="user-email-display" class="text-xs text-aura-text-muted font-mono truncate max-w-[200px]"></p>
+              </div>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10.5px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Authenticated
+            </span>
+          </div>
 
-      <!-- Live Error / Success Alert Box -->
-      <div id="auth-alert" class="hidden rounded-xl p-3 text-xs flex items-start gap-2.5">
-        <div id="auth-alert-icon" class="shrink-0 mt-0.5"></div>
-        <div id="auth-alert-text" class="flex-grow"></div>
-      </div>
+          <div class="p-3.5 bg-aura-surface-cream/50 rounded-2xl text-xs space-y-1.5 text-aura-text border border-black/5">
+            <div class="flex justify-between items-center">
+              <span class="text-aura-text-muted">User ID:</span>
+              <span id="user-id-display" class="font-mono text-[11px] truncate max-w-[180px]"></span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-aura-text-muted">Security:</span>
+              <span class="font-medium">Row Level Security (Tenant-Isolated)</span>
+            </div>
+          </div>
 
-      <!-- Sign In Form -->
-      <form id="signin-form" class="space-y-4">
-        <div>
-          <label for="signin-email" class="block text-xs font-bold text-aura-text mb-1.5">
-            Email address
-          </label>
-          <input
-            id="signin-email"
-            name="email"
-            type="email"
-            required
-            autocomplete="email"
-            placeholder="you@example.com"
-            class="w-full h-10 px-3.5 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition"
-          />
+          <div class="pt-2 flex flex-col sm:flex-row items-center gap-2.5">
+            <a
+              id="btn-signed-in-dashboard"
+              href="/dashboard"
+              class="w-full sm:flex-1 py-2.5 rounded-full bg-aura-action text-white text-xs font-semibold hover:bg-black transition shadow-xs text-center flex items-center justify-center gap-2"
+            >
+              <span>Go to Dashboard</span>
+              <ArrowRight class="w-3.5 h-3.5" />
+            </a>
+            <button
+              id="btn-sign-out"
+              type="button"
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-white border border-rose-200 text-rose-600 text-xs font-semibold hover:bg-rose-50 transition cursor-pointer"
+            >
+              <LogOut class="w-3.5 h-3.5" />
+              <span>Sign Out</span>
+            </button>
+          </div>
         </div>
 
-        <div>
-          <label for="signin-password" class="block text-xs font-bold text-aura-text mb-1.5">
-            Password
-          </label>
-          <input
-            id="signin-password"
-            name="password"
-            type="password"
-            required
-            autocomplete="current-password"
-            placeholder="••••••••"
-            class="w-full h-10 px-3.5 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition"
-          />
-        </div>
-
-        <button
-          id="btn-submit-signin"
-          type="submit"
-          class="w-full h-10 rounded-full bg-aura-action text-white text-xs font-semibold hover:bg-black transition shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+        <!-- Auth Form Card (Shown when signed out) -->
+        <div
+          id="auth-form-card"
+          class="rounded-3xl bg-white border border-aura-border shadow-aura-card p-6 sm:p-8 space-y-6"
         >
-          <LogIn class="w-4 h-4" />
-          <span>Sign In to Your Vault</span>
-        </button>
-      </form>
+          <!-- Segmented Tab Controls -->
+          <div class="bg-aura-surface-blush p-1 rounded-2xl border border-aura-border/60 flex items-center gap-1">
+            <button
+              id="tab-btn-signin"
+              type="button"
+              class={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center justify-center gap-2 ${
+                isSignUpInitial
+                  ? 'text-aura-text-muted hover:text-aura-text'
+                  : 'bg-white text-aura-text shadow-2xs font-bold'
+              }`}
+              aria-selected={!isSignUpInitial}
+            >
+              <LogIn class="w-3.5 h-3.5" />
+              <span>Sign In</span>
+            </button>
+            <button
+              id="tab-btn-signup"
+              type="button"
+              class={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer flex items-center justify-center gap-2 ${
+                isSignUpInitial
+                  ? 'bg-white text-aura-text shadow-2xs font-bold'
+                  : 'text-aura-text-muted hover:text-aura-text'
+              }`}
+              aria-selected={isSignUpInitial}
+            >
+              <UserPlus class="w-3.5 h-3.5" />
+              <span>Create Account</span>
+            </button>
+          </div>
 
-      <!-- Sign Up Form (Hidden by default) -->
-      <form id="signup-form" class="hidden space-y-4">
-        <div>
-          <label for="signup-email" class="block text-xs font-bold text-aura-text mb-1.5">
-            Email address
-          </label>
-          <input
-            id="signup-email"
-            name="email"
-            type="email"
-            required
-            autocomplete="email"
-            placeholder="you@example.com"
-            class="w-full h-10 px-3.5 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition"
-          />
-        </div>
-
-        <div>
-          <label for="signup-password" class="block text-xs font-bold text-aura-text mb-1.5">
-            Password <span class="text-aura-text-muted font-normal">(min. 6 characters)</span>
-          </label>
-          <input
-            id="signup-password"
-            name="password"
-            type="password"
-            required
-            minlength="6"
-            autocomplete="new-password"
-            placeholder="••••••••"
-            class="w-full h-10 px-3.5 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition"
-          />
-        </div>
-
-        <div>
-          <label for="signup-language" class="block text-xs font-bold text-aura-text mb-1.5">
-            Preferred Language
-          </label>
-          <select
-            id="signup-language"
-            name="preferred_language"
-            class="w-full h-10 px-3.5 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition"
+          <!-- Live Error / Success Alert Box -->
+          <div
+            id="auth-alert"
+            class="hidden rounded-2xl p-3.5 text-xs flex items-start gap-2.5 leading-relaxed transition-all"
+            role="alert"
+            aria-live="polite"
           >
-            <option value="en">English (Default)</option>
-            <option value="te">తెలుగు (Telugu)</option>
-          </select>
-          <p class="text-[11px] text-aura-text-muted mt-1">
-            Stored in your user profile for bilingual health explanations.
-          </p>
+            <div id="auth-alert-icon" class="shrink-0 mt-0.5"></div>
+            <div id="auth-alert-text" class="flex-grow"></div>
+          </div>
+
+          <!-- Sign In Form -->
+          <form id="signin-form" class={`space-y-4 ${isSignUpInitial ? 'hidden' : ''}`}>
+            <div>
+              <label for="signin-email" class="block text-xs font-bold text-aura-text mb-1.5">
+                Email address
+              </label>
+              <input
+                id="signin-email"
+                name="email"
+                type="email"
+                required
+                autocomplete="email"
+                placeholder="name@example.com"
+                class="w-full h-10 px-3.5 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition placeholder:text-aura-text-subtle"
+              />
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label for="signin-password" class="block text-xs font-bold text-aura-text">
+                  Password
+                </label>
+              </div>
+              <div class="relative">
+                <input
+                  id="signin-password"
+                  name="password"
+                  type="password"
+                  required
+                  autocomplete="current-password"
+                  placeholder="••••••••"
+                  class="w-full h-10 pl-3.5 pr-10 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition"
+                />
+                <button
+                  id="btn-toggle-password-signin"
+                  type="button"
+                  class="absolute inset-y-0 right-0 pr-3 flex items-center text-aura-text-subtle hover:text-aura-text cursor-pointer focus:outline-none"
+                  aria-label="Toggle password visibility"
+                >
+                  <Eye id="icon-eye-signin" class="w-4 h-4" />
+                  <EyeOff id="icon-eyeoff-signin" class="w-4 h-4 hidden" />
+                </button>
+              </div>
+            </div>
+
+            <button
+              id="btn-submit-signin"
+              type="submit"
+              class="w-full h-11 rounded-full bg-aura-action hover:bg-aura-action-hover text-white text-xs font-semibold transition shadow-xs flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-aura-sidebar mt-2"
+            >
+              <LogIn class="w-4 h-4" />
+              <span>Sign In to Your Vault</span>
+            </button>
+
+            <!-- Switch Mode Link -->
+            <p class="text-center text-xs text-aura-text-muted pt-1">
+              Don't have an account?{' '}
+              <button
+                id="btn-switch-to-signup"
+                type="button"
+                class="font-bold text-aura-action hover:underline cursor-pointer"
+              >
+                Create one now
+              </button>
+            </p>
+          </form>
+
+          <!-- Sign Up Form -->
+          <form id="signup-form" class={`space-y-4 ${isSignUpInitial ? '' : 'hidden'}`}>
+            <div>
+              <label for="signup-fullname" class="block text-xs font-bold text-aura-text mb-1.5">
+                Full name
+              </label>
+              <input
+                id="signup-fullname"
+                name="full_name"
+                type="text"
+                required
+                autocomplete="name"
+                placeholder="Dr. Sree / Alex Morgan"
+                class="w-full h-10 px-3.5 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition placeholder:text-aura-text-subtle"
+              />
+            </div>
+
+            <div>
+              <label for="signup-email" class="block text-xs font-bold text-aura-text mb-1.5">
+                Email address
+              </label>
+              <input
+                id="signup-email"
+                name="email"
+                type="email"
+                required
+                autocomplete="email"
+                placeholder="name@example.com"
+                class="w-full h-10 px-3.5 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition placeholder:text-aura-text-subtle"
+              />
+            </div>
+
+            <div>
+              <label for="signup-password" class="block text-xs font-bold text-aura-text mb-1.5">
+                Password <span class="text-aura-text-muted font-normal">(min. 6 characters)</span>
+              </label>
+              <div class="relative">
+                <input
+                  id="signup-password"
+                  name="password"
+                  type="password"
+                  required
+                  minlength="6"
+                  autocomplete="new-password"
+                  placeholder="••••••••"
+                  class="w-full h-10 pl-3.5 pr-10 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition"
+                />
+                <button
+                  id="btn-toggle-password-signup"
+                  type="button"
+                  class="absolute inset-y-0 right-0 pr-3 flex items-center text-aura-text-subtle hover:text-aura-text cursor-pointer focus:outline-none"
+                  aria-label="Toggle password visibility"
+                >
+                  <Eye id="icon-eye-signup" class="w-4 h-4" />
+                  <EyeOff id="icon-eyeoff-signup" class="w-4 h-4 hidden" />
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label for="signup-language" class="block text-xs font-bold text-aura-text mb-1.5">
+                Preferred Language
+              </label>
+              <select
+                id="signup-language"
+                name="preferred_language"
+                class="w-full h-10 px-3 rounded-xl border border-aura-border bg-white text-xs text-aura-text focus:outline-none focus:ring-2 focus:ring-aura-action transition"
+              >
+                <option value="en">English (Default)</option>
+                <option value="te">తెలుగు (Telugu)</option>
+              </select>
+              <p class="text-[11px] text-aura-text-muted mt-1">
+                Stored in your user profile for bilingual health explanations.
+              </p>
+            </div>
+
+            <button
+              id="btn-submit-signup"
+              type="submit"
+              class="w-full h-11 rounded-full bg-aura-action hover:bg-aura-action-hover text-white text-xs font-semibold transition shadow-xs flex items-center justify-center gap-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-aura-sidebar mt-2"
+            >
+              <UserPlus class="w-4 h-4" />
+              <span>Create Private Health Vault</span>
+            </button>
+
+            <!-- Switch Mode Link -->
+            <p class="text-center text-xs text-aura-text-muted pt-1">
+              Already have an account?{' '}
+              <button
+                id="btn-switch-to-signin"
+                type="button"
+                class="font-bold text-aura-action hover:underline cursor-pointer"
+              >
+                Sign in to your vault
+              </button>
+            </p>
+          </form>
         </div>
 
-        <button
-          id="btn-submit-signup"
-          type="submit"
-          class="w-full h-10 rounded-full bg-aura-action text-white text-xs font-semibold hover:bg-black transition shadow-xs flex items-center justify-center gap-2 cursor-pointer"
-        >
-          <UserPlus class="w-4 h-4" />
-          <span>Create Private Health Vault</span>
-        </button>
-      </form>
-    </div>
+        <!-- Guest Health Copilot Callout (Retains public access without requiring an account) -->
+        <div class="rounded-2xl bg-white border border-aura-border/60 p-4 shadow-2xs flex items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-2.5 text-aura-text">
+            <div class="w-7 h-7 rounded-lg bg-aura-surface-cream text-aura-accent-orange flex items-center justify-center shrink-0">
+              <MessageSquare class="w-3.5 h-3.5" />
+            </div>
+            <div>
+              <span class="font-bold block text-aura-text">Need quick health guidance?</span>
+              <span class="text-[11px] text-aura-text-muted">Use the 40-scenario Copilot without signing in.</span>
+            </div>
+          </div>
+          <a
+            href="/copilot"
+            class="px-3.5 py-1.5 rounded-full bg-aura-surface-cream hover:bg-aura-surface-cream-light text-aura-text font-semibold text-xs border border-black/5 transition shrink-0"
+          >
+            Guest Copilot →
+          </a>
+        </div>
+      </div>
+    </main>
   </div>
 </Layout>
 
@@ -252,15 +475,17 @@ import { UserCheck, LogIn, UserPlus, LogOut, ShieldCheck, Info, MessageSquare, A
   const userIdDisplay = document.getElementById('user-id-display');
   const btnSignOut = document.getElementById('btn-sign-out');
 
+  const btnSwitchToSignUp = document.getElementById('btn-switch-to-signup');
+  const btnSwitchToSignIn = document.getElementById('btn-switch-to-signin');
+
   const alertBox = document.getElementById('auth-alert');
   const alertText = document.getElementById('auth-alert-text');
-  const alertIcon = document.getElementById('auth-alert-icon');
 
   function showAlert(message: string, isError: boolean = true) {
     if (!alertBox || !alertText) return;
     alertBox.className = isError
-      ? 'rounded-xl p-3 text-xs flex items-start gap-2.5 bg-red-50 text-red-800 border border-red-200'
-      : 'rounded-xl p-3 text-xs flex items-start gap-2.5 bg-emerald-50 text-emerald-800 border border-emerald-200';
+      ? 'rounded-2xl p-3.5 text-xs flex items-start gap-2.5 bg-rose-50 text-rose-900 border border-rose-200 leading-relaxed'
+      : 'rounded-2xl p-3.5 text-xs flex items-start gap-2.5 bg-emerald-50 text-emerald-900 border border-emerald-200 leading-relaxed';
     alertText.textContent = message;
     alertBox.classList.remove('hidden');
   }
@@ -269,23 +494,82 @@ import { UserCheck, LogIn, UserPlus, LogOut, ShieldCheck, Info, MessageSquare, A
     if (alertBox) alertBox.classList.add('hidden');
   }
 
-  // Switch tabs
-  if (tabBtnSignIn && tabBtnSignUp && formSignIn && formSignUp) {
-    tabBtnSignIn.addEventListener('click', () => {
-      tabBtnSignIn.className = 'flex-1 py-3 text-xs sm:text-sm font-bold text-aura-text border-b-2 border-aura-action transition cursor-pointer flex items-center justify-center gap-2';
-      tabBtnSignUp.className = 'flex-1 py-3 text-xs sm:text-sm font-medium text-aura-text-muted hover:text-aura-text border-b-2 border-transparent transition cursor-pointer flex items-center justify-center gap-2';
-      formSignIn.classList.remove('hidden');
-      formSignUp.classList.add('hidden');
-      hideAlert();
-    });
+  function setTab(mode: 'signin' | 'signup', clearAlert: boolean = true) {
+    if (clearAlert) hideAlert();
 
-    tabBtnSignUp.addEventListener('click', () => {
-      tabBtnSignUp.className = 'flex-1 py-3 text-xs sm:text-sm font-bold text-aura-text border-b-2 border-aura-action transition cursor-pointer flex items-center justify-center gap-2';
-      tabBtnSignIn.className = 'flex-1 py-3 text-xs sm:text-sm font-medium text-aura-text-muted hover:text-aura-text border-b-2 border-transparent transition cursor-pointer flex items-center justify-center gap-2';
-      formSignUp.classList.remove('hidden');
-      formSignIn.classList.add('hidden');
-      hideAlert();
-    });
+    if (mode === 'signup') {
+      tabBtnSignUp?.classList.remove('text-aura-text-muted');
+      tabBtnSignUp?.classList.add('bg-white', 'text-aura-text', 'shadow-2xs', 'font-bold');
+      tabBtnSignUp?.setAttribute('aria-selected', 'true');
+
+      tabBtnSignIn?.classList.remove('bg-white', 'text-aura-text', 'shadow-2xs', 'font-bold');
+      tabBtnSignIn?.classList.add('text-aura-text-muted');
+      tabBtnSignIn?.setAttribute('aria-selected', 'false');
+
+      formSignUp?.classList.remove('hidden');
+      formSignIn?.classList.add('hidden');
+    } else {
+      tabBtnSignIn?.classList.remove('text-aura-text-muted');
+      tabBtnSignIn?.classList.add('bg-white', 'text-aura-text', 'shadow-2xs', 'font-bold');
+      tabBtnSignIn?.setAttribute('aria-selected', 'true');
+
+      tabBtnSignUp?.classList.remove('bg-white', 'text-aura-text', 'shadow-2xs', 'font-bold');
+      tabBtnSignUp?.classList.add('text-aura-text-muted');
+      tabBtnSignUp?.setAttribute('aria-selected', 'false');
+
+      formSignIn?.classList.remove('hidden');
+      formSignUp?.classList.add('hidden');
+    }
+  }
+
+  // Switch tabs via user clicks
+  if (tabBtnSignIn) {
+    tabBtnSignIn.addEventListener('click', () => setTab('signin', true));
+  }
+  if (tabBtnSignUp) {
+    tabBtnSignUp.addEventListener('click', () => setTab('signup', true));
+  }
+  if (btnSwitchToSignUp) {
+    btnSwitchToSignUp.addEventListener('click', () => setTab('signup', true));
+  }
+  if (btnSwitchToSignIn) {
+    btnSwitchToSignIn.addEventListener('click', () => setTab('signin', true));
+  }
+
+  // Password visibility toggle helpers
+  function setupPasswordToggle(buttonId: string, inputId: string, eyeId: string, eyeOffId: string) {
+    const btn = document.getElementById(buttonId);
+    const input = document.getElementById(inputId) as HTMLInputElement | null;
+    const eye = document.getElementById(eyeId);
+    const eyeOff = document.getElementById(eyeOffId);
+
+    if (btn && input && eye && eyeOff) {
+      btn.addEventListener('click', () => {
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        if (isPassword) {
+          eye.classList.add('hidden');
+          eyeOff.classList.remove('hidden');
+        } else {
+          eye.classList.remove('hidden');
+          eyeOff.classList.add('hidden');
+        }
+      });
+    }
+  }
+
+  setupPasswordToggle('btn-toggle-password-signin', 'signin-password', 'icon-eye-signin', 'icon-eyeoff-signin');
+  setupPasswordToggle('btn-toggle-password-signup', 'signup-password', 'icon-eye-signup', 'icon-eyeoff-signup');
+
+  // URL mode or confirmation check
+  const params = new URLSearchParams(window.location.search);
+  const requestedMode = params.get('mode') || params.get('tab');
+  if (requestedMode === 'signup' || requestedMode === 'register') {
+    setTab('signup', false);
+  }
+
+  if (params.get('confirmed') === 'true') {
+    showAlert('Email address confirmed successfully! You can now sign in to your vault.', false);
   }
 
   // Check initial session
@@ -298,10 +582,17 @@ import { UserCheck, LogIn, UserPlus, LogOut, ShieldCheck, Info, MessageSquare, A
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        if (signedInCard) signedInCard.classList.remove('hidden');
-        if (authFormCard) authFormCard.classList.add('hidden');
-        if (userEmailDisplay) userEmailDisplay.textContent = session.user.email || 'Authenticated User';
-        if (userIdDisplay) userIdDisplay.textContent = session.user.id;
+        // If email confirmation parameter is present, show confirmed message on active card
+        if (params.get('confirmed') === 'true') {
+          if (signedInCard) signedInCard.classList.remove('hidden');
+          if (authFormCard) authFormCard.classList.add('hidden');
+          if (userEmailDisplay) userEmailDisplay.textContent = session.user.email || 'Authenticated User';
+          if (userIdDisplay) userIdDisplay.textContent = session.user.id;
+        } else {
+          // If valid session already exists, redirect user directly to safe authenticated destination
+          const dest = getSafeReturnTo();
+          window.location.href = dest;
+        }
       } else {
         if (signedInCard) signedInCard.classList.add('hidden');
         if (authFormCard) authFormCard.classList.remove('hidden');
@@ -316,13 +607,11 @@ import { UserCheck, LogIn, UserPlus, LogOut, ShieldCheck, Info, MessageSquare, A
   // Listen to Auth State Changes
   const supabase = getSupabaseClient();
   if (supabase) {
-    supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        if (signedInCard) signedInCard.classList.remove('hidden');
-        if (authFormCard) authFormCard.classList.add('hidden');
-        if (userEmailDisplay) userEmailDisplay.textContent = session.user.email || 'Authenticated User';
-        if (userIdDisplay) userIdDisplay.textContent = session.user.id;
-      } else {
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user && event === 'SIGNED_IN') {
+        const dest = getSafeReturnTo();
+        window.location.href = dest;
+      } else if (!session) {
         if (signedInCard) signedInCard.classList.add('hidden');
         if (authFormCard) authFormCard.classList.remove('hidden');
       }
@@ -330,9 +619,9 @@ import { UserCheck, LogIn, UserPlus, LogOut, ShieldCheck, Info, MessageSquare, A
   }
 
   function getSafeReturnTo(): string {
-    const params = new URLSearchParams(window.location.search);
-    const target = params.get('returnTo');
-    const allowed = ['/dashboard', '/records', '/review', '/timeline', '/copilot'];
+    const p = new URLSearchParams(window.location.search);
+    const target = p.get('returnTo');
+    const allowed = ['/dashboard', '/records', '/review', '/timeline', '/copilot', '/profile'];
     if (target && allowed.some((a) => target === a || target.startsWith(a + '?') || target.startsWith(a + '/'))) {
       return target;
     }
@@ -344,9 +633,14 @@ import { UserCheck, LogIn, UserPlus, LogOut, ShieldCheck, Info, MessageSquare, A
     formSignIn.addEventListener('submit', async (e) => {
       e.preventDefault();
       hideAlert();
-      const email = (document.getElementById('signin-email') as HTMLFormElement)?.value;
-      const password = (document.getElementById('signin-password') as HTMLFormElement)?.value;
+      const email = (document.getElementById('signin-email') as HTMLInputElement | null)?.value || '';
+      const password = (document.getElementById('signin-password') as HTMLInputElement | null)?.value || '';
       const submitBtn = document.getElementById('btn-submit-signin') as HTMLButtonElement | null;
+
+      if (!email || !password) {
+        showAlert('Please enter both your email and password.', true);
+        return;
+      }
 
       if (submitBtn) {
         submitBtn.disabled = true;
@@ -377,17 +671,34 @@ import { UserCheck, LogIn, UserPlus, LogOut, ShieldCheck, Info, MessageSquare, A
     formSignUp.addEventListener('submit', async (e) => {
       e.preventDefault();
       hideAlert();
-      const email = (document.getElementById('signup-email') as HTMLFormElement)?.value;
-      const password = (document.getElementById('signup-password') as HTMLFormElement)?.value;
-      const lang = (document.getElementById('signup-language') as HTMLFormElement)?.value as 'en' | 'te';
+
+      const fullNameInput = document.getElementById('signup-fullname') as HTMLInputElement | null;
+      const emailInput = document.getElementById('signup-email') as HTMLInputElement | null;
+      const passwordInput = document.getElementById('signup-password') as HTMLInputElement | null;
+      const langSelect = document.getElementById('signup-language') as HTMLSelectElement | null;
       const submitBtn = document.getElementById('btn-submit-signup') as HTMLButtonElement | null;
+
+      const fullName = fullNameInput?.value?.trim() || '';
+      const email = emailInput?.value?.trim() || '';
+      const password = passwordInput?.value || '';
+      const lang = (langSelect?.value || 'en') as 'en' | 'te';
+
+      if (!fullName) {
+        showAlert('Please provide your full name.', true);
+        return;
+      }
+
+      if (!email || !password) {
+        showAlert('Please provide both an email address and a password.', true);
+        return;
+      }
 
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Creating account...';
       }
 
-      const result = await signUpUser(email, password, lang);
+      const result = await signUpUser(email, password, lang, fullName);
 
       if (submitBtn) {
         submitBtn.disabled = false;
@@ -396,12 +707,33 @@ import { UserCheck, LogIn, UserPlus, LogOut, ShieldCheck, Info, MessageSquare, A
 
       if (result.error) {
         showAlert(result.error.message, true);
-      } else {
-        showAlert('Account created! If email confirmation is enabled in your Supabase project, check your inbox to confirm your account before signing in.', false);
-        if (formSignIn && tabBtnSignIn) {
-          tabBtnSignIn.click();
-        }
+        return;
       }
+
+      // Check if session was returned directly (auto-confirm or email confirmation disabled)
+      if (result.session) {
+        const dest = getSafeReturnTo();
+        showAlert(`Account created and signed in! Redirecting to ${dest}...`, false);
+        setTimeout(() => {
+          window.location.href = dest;
+        }, 600);
+        return;
+      }
+
+      // Email confirmation is required by Supabase project settings
+      showAlert(
+        `Account created for ${email}! A confirmation link has been sent to your inbox. Please check your email to verify your account, then sign in.`,
+        false
+      );
+
+      // Pre-populate sign-in email field so user is ready
+      const signInEmailInput = document.getElementById('signin-email') as HTMLInputElement | null;
+      if (signInEmailInput) {
+        signInEmailInput.value = email;
+      }
+
+      // Switch to sign-in tab smoothly WITHOUT clearing the success alert
+      setTab('signin', /* clearAlert = */ false);
     });
   }
 

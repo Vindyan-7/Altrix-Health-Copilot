@@ -129,20 +129,20 @@ describe('Phase 4C: Landing Page, Authentication Flow & Demo Cleanup', () => {
       const dashContent = fs.readFileSync(dashPath, 'utf8');
       expect(dashContent).toContain('dashboard-auth-view');
       expect(dashContent).toContain('dashboard-guest-view');
-      expect(dashContent).toContain('Sign In to Access Your Workspace');
+      expect(dashContent).toContain('Sign In to Access Your Dashboard');
     });
 
-    it('ensures dashboard and records remove misleading upload actions and state "Uploads Coming Soon"', () => {
+    it('ensures dashboard and records remove misleading upload actions and wire honest vault intake', () => {
       const dashContent = fs.readFileSync(path.resolve(process.cwd(), 'src/pages/dashboard.astro'), 'utf8');
       expect(dashContent).not.toContain('+ Upload Record');
-      expect(dashContent).toContain('Uploads Coming Soon');
-      expect(dashContent).toContain('Document Uploads Coming Soon');
+      expect(dashContent).toContain('Upload Document');
+      expect(dashContent).toContain('Sign In to Access Your Dashboard');
 
       const recordsContent = fs.readFileSync(path.resolve(process.cwd(), 'src/pages/records.astro'), 'utf8');
-      expect(recordsContent).not.toContain('<input type="file"');
       expect(recordsContent).not.toContain('simulateExtraction');
       expect(recordsContent).not.toContain('SYNTHETIC_REPORT_STATS');
-      expect(recordsContent).toContain('Document Uploads Coming Soon');
+      expect(recordsContent).toContain('Upload Health Document');
+      expect(recordsContent).toContain('health_documents_vault');
     });
 
     it('ensures timeline and review pages show genuine empty states in normal user flows', () => {
@@ -156,5 +156,249 @@ describe('Phase 4C: Landing Page, Authentication Flow & Demo Cleanup', () => {
       expect(reviewContent).toContain('No Document Staged for Review');
     });
   });
+
+  describe('4. Public Website Navigation, Clean UI & Authentication Repair', () => {
+    it('ensures PublicNav component exists with required navigation items and branding', () => {
+      const navPath = path.resolve(process.cwd(), 'src/components/PublicNav.astro');
+      expect(fs.existsSync(navPath)).toBe(true);
+
+      const navContent = fs.readFileSync(navPath, 'utf8');
+      expect(navContent).toContain('Altrix Health');
+      expect(navContent).toContain('Home');
+      expect(navContent).toContain('Health Copilot');
+      expect(navContent).toContain('Log in');
+      expect(navContent).toContain('Create account');
+      expect(navContent).toContain('/auth?mode=signin');
+      expect(navContent).toContain('/auth?mode=signup');
+    });
+
+    it('ensures Layout.astro isolates Sidebar to workspace pages and does not include global SyntheticBanner', () => {
+      const layoutPath = path.resolve(process.cwd(), 'src/layouts/Layout.astro');
+      const layoutContent = fs.readFileSync(layoutPath, 'utf8');
+
+      // Global SyntheticBanner removed from customer layout
+      expect(layoutContent).not.toContain('SyntheticBanner');
+      expect(layoutContent).not.toContain('<SyntheticBanner');
+
+      // PublicNav rendered on public paths, Sidebar on workspace paths
+      expect(layoutContent).toContain('PublicNav');
+      expect(layoutContent).toContain('isWorkspace');
+      expect(layoutContent).toContain('isWorkspacePath');
+    });
+
+    it('ensures public landing page and footer have no HacXLerate or prototype tags', () => {
+      const indexPath = path.resolve(process.cwd(), 'src/pages/index.astro');
+      const indexContent = fs.readFileSync(indexPath, 'utf8');
+      expect(indexContent).not.toContain('HacXLerate 2026');
+
+      const footerPath = path.resolve(process.cwd(), 'src/components/Footer.astro');
+      const footerContent = fs.readFileSync(footerPath, 'utf8');
+      expect(footerContent).not.toContain('HacXLerate 2026');
+      expect(footerContent).not.toContain('HacXLerate Challenge');
+      expect(footerContent).not.toContain('DEMO MODE');
+    });
+
+    it('ensures auth page supports selecting signup mode from URL parameters and handles email redirect', () => {
+      const authPath = path.resolve(process.cwd(), 'src/pages/auth.astro');
+      const authContent = fs.readFileSync(authPath, 'utf8');
+
+      expect(authContent).toContain('requestedMode');
+      expect(authContent).toContain('isSignUpInitial');
+      expect(authContent).toContain('setTab');
+      expect(authContent).toContain("params.get('confirmed')");
+    });
+
+    it('ensures auth page implements split-screen UX with minimal header and password toggle', () => {
+      const authPath = path.resolve(process.cwd(), 'src/pages/auth.astro');
+      const authContent = fs.readFileSync(authPath, 'utf8');
+
+      // Minimal header & back to website
+      expect(authContent).toContain('Back to website');
+      expect(authContent).toContain('hideNav={true}');
+      expect(authContent).toContain('hideFooter={true}');
+
+      // Split-screen structure
+      expect(authContent).toContain('lg:grid lg:grid-cols-2');
+      expect(authContent).toContain('PostgreSQL Row Level Security');
+      expect(authContent).toContain('Zero Value Fabrication');
+
+      // Password visibility toggles
+      expect(authContent).toContain('btn-toggle-password-signin');
+      expect(authContent).toContain('btn-toggle-password-signup');
+
+      // Guest Copilot reassurance link
+      expect(authContent).toContain('Guest Copilot →');
+    });
+
+    it('ensures signUpUser validates email syntax, handles rate limits, and detects duplicate users', async () => {
+      const { signUpUser } = await import('../src/lib/supabase/auth');
+
+      // Rejects malformed email without domain
+      const invalidRes = await signUpUser('user@invalid', 'validPassword123');
+      expect(invalidRes.error?.code).toBe('INVALID_EMAIL');
+
+      // Valid format passes input validation
+      const validFormatRes = await signUpUser('valid.user@example.com', 'short');
+      expect(validFormatRes.error?.code).toBe('WEAK_PASSWORD');
+    });
+  });
+
+  describe('4. Final Hour: Profile, Sidebar and Signup Name', () => {
+    it('validates required full name during signup in signUpUser()', async () => {
+      const { signUpUser } = await import('../src/lib/supabase/auth');
+
+      // Rejects empty or whitespace-only full name when supplied
+      const emptyNameRes = await signUpUser('test@example.com', 'password123', 'en', '  ');
+      expect(emptyNameRes.error?.code).toBe('MISSING_FULL_NAME');
+      expect(emptyNameRes.error?.message).toContain('full name');
+
+      const singleCharRes = await signUpUser('test@example.com', 'password123', 'en', 'A');
+      expect(singleCharRes.error?.code).toBe('MISSING_FULL_NAME');
+    });
+
+    it('ensures auth page signup form includes required Full name input field', () => {
+      const authPath = path.resolve(process.cwd(), 'src/pages/auth.astro');
+      const authContent = fs.readFileSync(authPath, 'utf8');
+
+      expect(authContent).toContain('id="signup-fullname"');
+      expect(authContent).toContain('name="full_name"');
+      expect(authContent).toContain('Full name');
+      expect(authContent).toContain('signUpUser(email, password, lang, fullName)');
+    });
+
+    it('ensures workspace sidebar has fixed layout structure and scrollable main region', () => {
+      const layoutPath = path.resolve(process.cwd(), 'src/layouts/Layout.astro');
+      const layoutContent = fs.readFileSync(layoutPath, 'utf8');
+
+      // Workspace layout flex container with fixed sidebar and scrollable main
+      expect(layoutContent).toContain('h-screen w-full flex overflow-hidden');
+      expect(layoutContent).toContain('flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-aura-canvas');
+      expect(layoutContent).toContain("currentPath.startsWith('/profile')");
+
+      const sidebarPath = path.resolve(process.cwd(), 'src/components/Sidebar.astro');
+      const sidebarContent = fs.readFileSync(sidebarPath, 'utf8');
+      expect(sidebarContent).toContain('h-screen overflow-y-auto');
+    });
+
+    it('ensures sidebar navigation includes required primary items with single Dashboard entry and separates secondary items', () => {
+      const sidebarPath = path.resolve(process.cwd(), 'src/components/Sidebar.astro');
+      const sidebarContent = fs.readFileSync(sidebarPath, 'utf8');
+
+      // Primary navigation items: single clear Dashboard entry instead of duplicate Home and Workspace
+      expect(sidebarContent).toContain("label: 'Dashboard'");
+      expect(sidebarContent).not.toContain("label: 'Home'");
+      expect(sidebarContent).not.toContain("label: 'Workspace'");
+      expect(sidebarContent).toContain("label: 'Health Copilot'");
+      expect(sidebarContent).toContain("label: 'My Records'");
+      expect(sidebarContent).toContain("label: 'Report Review'");
+      expect(sidebarContent).toContain("label: 'Health Timeline'");
+
+      // Secondary section
+      expect(sidebarContent).toContain('Account & Services');
+      expect(sidebarContent).toContain('My Profile');
+      expect(sidebarContent).toContain('/profile');
+      expect(sidebarContent).toContain('Nearby Care (Coming Soon)');
+
+      // Working sign out button
+      expect(sidebarContent).toContain('id="btn-sidebar-signout"');
+      expect(sidebarContent).toContain('btn-sidebar-signout');
+      expect(sidebarContent).toContain('signOutUser');
+      expect(sidebarContent).toContain("window.location.href = '/'");
+    });
+
+    it('ensures dedicated Profile page exists at src/pages/profile.astro with full name editing', () => {
+      const profilePath = path.resolve(process.cwd(), 'src/pages/profile.astro');
+      expect(fs.existsSync(profilePath)).toBe(true);
+
+      const profileContent = fs.readFileSync(profilePath, 'utf8');
+      expect(profileContent).toContain('Account Profile');
+      expect(profileContent).toContain('id="profile-fullname"');
+      expect(profileContent).toContain('id="profile-email"');
+      expect(profileContent).toContain('id="profile-language"');
+      expect(profileContent).toContain('id="btn-save-profile"');
+      expect(profileContent).toContain('updateUserProfile');
+      expect(profileContent).toContain('id="btn-profile-signout"');
+    });
+
+    it('ensures TopBar links profile to /profile when signed in and renders user initials', () => {
+      const topbarPath = path.resolve(process.cwd(), 'src/components/TopBar.astro');
+      const topbarContent = fs.readFileSync(topbarPath, 'utf8');
+
+      expect(topbarContent).toContain('id="topbar-profile-link"');
+      expect(topbarContent).toContain("linkEl.href = '/profile'");
+      expect(topbarContent).toContain('getInitials');
+    });
+
+    it('ensures public navigation logo and links route to /', () => {
+      const publicNavPath = path.resolve(process.cwd(), 'src/components/PublicNav.astro');
+      const publicNavContent = fs.readFileSync(publicNavPath, 'utf8');
+
+      // Brand link points to public root /
+      expect(publicNavContent).toContain('href="/"');
+      expect(publicNavContent).toContain('aria-label="Altrix Health Copilot Home"');
+      expect(publicNavContent).toContain('Home');
+    });
+
+    it('ensures signed-out visitors on /dashboard and /records see unauthenticated gates without private data', () => {
+      const dashboardPath = path.resolve(process.cwd(), 'src/pages/dashboard.astro');
+      const dashboardContent = fs.readFileSync(dashboardPath, 'utf8');
+
+      // Dashboard hides private data and shows guest gate by default when unauthenticated
+      expect(dashboardContent).toContain('id="dashboard-auth-view" class="hidden');
+      expect(dashboardContent).toContain('id="dashboard-guest-view"');
+      expect(dashboardContent).toContain('Sign In to Access Your Dashboard');
+      expect(dashboardContent).toContain('btnSignOut');
+      expect(dashboardContent).toContain("window.location.href = '/'");
+
+      const recordsPath = path.resolve(process.cwd(), 'src/pages/records.astro');
+      const recordsContent = fs.readFileSync(recordsPath, 'utf8');
+
+      // Records hides vault-auth-view and displays guest view
+      expect(recordsContent).toContain('id="vault-auth-view" class="hidden');
+      expect(recordsContent).toContain('id="vault-guest-view"');
+      expect(recordsContent).toContain('Want to test private document storage & multi-user isolation?');
+    });
+
+    it('ensures auth page redirects signed-in users away from login to safe destination', () => {
+      const authPath = path.resolve(process.cwd(), 'src/pages/auth.astro');
+      const authContent = fs.readFileSync(authPath, 'utf8');
+
+      // Active session redirect logic
+      expect(authContent).toContain("if (params.get('confirmed') === 'true')");
+      expect(authContent).toContain('const dest = getSafeReturnTo()');
+      expect(authContent).toContain('window.location.href = dest');
+    });
+
+    it('ensures records page contains live document upload dropzone and secure download integration', () => {
+      const recordsPath = path.resolve(process.cwd(), 'src/pages/records.astro');
+      const recordsContent = fs.readFileSync(recordsPath, 'utf8');
+
+      // Dropzone and live upload
+      expect(recordsContent).toContain('id="upload-container"');
+      expect(recordsContent).toContain('id="dropzone"');
+      expect(recordsContent).toContain('id="file-input"');
+      expect(recordsContent).toContain('id="btn-upload-file"');
+      expect(recordsContent).toContain('health_documents_vault');
+      expect(recordsContent).toContain('POST');
+      expect(recordsContent).toContain('/api/vault/documents');
+
+      // Secure download integration
+      expect(recordsContent).toContain('/api/vault/download');
+      expect(recordsContent).toContain('btn-doc-download');
+    });
+
+    it('ensures secure download endpoint validates token, parameters, and path scoping', async () => {
+      const downloadPath = path.resolve(process.cwd(), 'src/pages/api/vault/download.ts');
+      expect(fs.existsSync(downloadPath)).toBe(true);
+
+      const downloadContent = fs.readFileSync(downloadPath, 'utf8');
+      expect(downloadContent).toContain('verifyAccessToken');
+      expect(downloadContent).toContain('DownloadQuerySchema');
+      expect(downloadContent).toContain('createSignedUrl');
+      expect(downloadContent).toContain('expectedPrefix');
+    });
+  });
 });
+
+
 

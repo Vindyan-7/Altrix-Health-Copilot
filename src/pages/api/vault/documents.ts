@@ -62,7 +62,7 @@ export const GET: APIRoute = async ({ request }) => {
 
   const { data, error: dbError } = await client
     .from('health_documents')
-    .select('id, profile_id, document_type, document_date, source_facility, status, is_synthetic_demo, created_at, original_filename_sanitized, file_size_bytes')
+    .select('id, profile_id, document_type, document_date, source_facility, status, is_synthetic_demo, created_at, original_filename_sanitized, file_size_bytes, storage_path, mime_type')
     .order('created_at', { ascending: false });
 
   if (dbError) {
@@ -158,6 +158,18 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(
         JSON.stringify({ error: 'Failed to initialize authenticated database client', code: 'INTERNAL_ERROR' }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Enforce that storage_path is strictly isolated under user's own path: <user.id>/<filename>
+    const expectedPrefix = `${user.id}/`;
+    if (!parseResult.data.storage_path.startsWith(expectedPrefix)) {
+      return new Response(
+        JSON.stringify({
+          error: 'Security violation: storage_path must reside within user-scoped folder.',
+          code: 'FORBIDDEN_PATH',
+        }),
+        { status: 403, headers: { 'Content-Type': 'application/json' } }
       );
     }
 

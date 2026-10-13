@@ -25,7 +25,7 @@ import Layout from '../layouts/Layout.astro';
       <!-- Eyebrow Pill -->
       <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-aura-surface-cream text-aura-text text-xs font-semibold border border-black/5 shadow-2xs">
         <span class="w-2 h-2 rounded-full bg-aura-accent-orange animate-pulse"></span>
-        <span>Aura Health Platform • HacXLerate 2026</span>
+        <span>Aura Health Platform • Personal Health Companion</span>
       </div>
 
       <!-- Main Heading -->
@@ -61,7 +61,7 @@ import Layout from '../layouts/Layout.astro';
           class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-aura-surface-cream hover:bg-aura-surface-cream-light text-aura-text text-sm font-semibold shadow-xs transition border border-black/5"
         >
           <ShieldCheck class="w-4 h-4 text-emerald-700" stroke-width={2} />
-          <span id="btn-workspace-text">Continue to Workspace</span>
+          <span id="btn-workspace-text">Go to Dashboard</span>
         </a>
       </div>
 
@@ -145,7 +145,7 @@ import Layout from '../layouts/Layout.astro';
           href="/copilot?mode=ai"
           class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-semibold transition shadow-2xs"
         >
-          <span>✨ Ask General Health AI (Gemini)</span>
+          <span>✨ Ask AI Health Chat</span>
         </a>
       </div>
     </div>
@@ -307,7 +307,7 @@ import Layout from '../layouts/Layout.astro';
       const workspaceText = document.getElementById('btn-workspace-text');
       if (session?.user && workspaceBtn && workspaceText) {
         workspaceBtn.setAttribute('href', '/dashboard');
-        workspaceText.textContent = 'Go to My Workspace';
+        workspaceText.textContent = 'Go to Dashboard';
       }
     });
   }

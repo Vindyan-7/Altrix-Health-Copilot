@@ -2,21 +2,37 @@
 import Sidebar from '../components/Sidebar.astro';
 import TopBar from '../components/TopBar.astro';
 import Footer from '../components/Footer.astro';
-import SyntheticBanner from '../components/SyntheticBanner.astro';
+import PublicNav from '../components/PublicNav.astro';
 
 export interface Props {
   title: string;
   description?: string;
   subtext?: string;
+  isWorkspace?: boolean;
+  hideNav?: boolean;
+  hideFooter?: boolean;
 }
 
 const {
   title,
   description = 'Altrix Health Copilot — Personal health records companion and guided health assistant.',
   subtext,
+  isWorkspace: isWorkspaceProp,
+  hideNav = false,
+  hideFooter = false,
 } = Astro.props;
 
 const currentPath = Astro.url.pathname;
+
+// Automatic layout determination: workspace paths use Sidebar + TopBar, public paths use PublicNav
+const isWorkspacePath =
+  currentPath.startsWith('/dashboard') ||
+  currentPath.startsWith('/records') ||
+  currentPath.startsWith('/timeline') ||
+  currentPath.startsWith('/review') ||
+  currentPath.startsWith('/profile');
+
+const isWorkspace = isWorkspaceProp !== undefined ? isWorkspaceProp : isWorkspacePath;
 ---
 
 <!doctype html>
@@ -46,18 +62,31 @@ const currentPath = Astro.url.pathname;
       Skip to main content
     </a>
 
-    <!-- Top Demo Banner -->
-    <SyntheticBanner subtext={subtext} />
+    {isWorkspace ? (
+      <!-- Workspace Layout: Left Navigation Rail (Fixed/Sticky) + Right Scrollable Column -->
+      <div class="h-screen w-full flex overflow-hidden">
+        <!-- Full-Height Fixed Left Navigation Rail -->
+        <Sidebar activePath={currentPath} />
 
-    <!-- App Shell Frame: Sidebar + Main Content -->
-    <div class="flex-grow flex w-full">
-      <!-- Full-Height Left Navigation Rail -->
-      <Sidebar activePath={currentPath} />
+        <!-- Main Independently Scrollable Column -->
+        <div class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-aura-canvas">
+          <!-- Top Utility Bar -->
+          <TopBar />
 
-      <!-- Main Scrollable Column -->
-      <div class="flex-grow flex flex-col min-w-0 bg-aura-canvas">
-        <!-- Top Utility Bar -->
-        <TopBar />
+          <!-- Main Viewport Content -->
+          <main id="main-content" class="flex-grow min-w-0">
+            <slot />
+          </main>
+
+          <!-- Footer -->
+          <Footer />
+        </div>
+      </div>
+    ) : (
+      <!-- Public Website Layout: Responsive Public Navigation + Full-Width Main Viewport -->
+      <div class="flex-grow flex flex-col min-w-0 w-full bg-aura-canvas">
+        <!-- Public Top Navigation -->
+        {!hideNav && <PublicNav activePath={currentPath} />}
 
         <!-- Main Viewport -->
         <main id="main-content" class="flex-grow min-w-0">
@@ -65,9 +94,9 @@ const currentPath = Astro.url.pathname;
         </main>
 
         <!-- Footer -->
-        <Footer />
+        {!hideFooter && <Footer />}
       </div>
-    </div>
+    )}
   </body>
 </html>
 

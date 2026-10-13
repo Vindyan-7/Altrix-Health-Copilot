@@ -22,7 +22,7 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
 }).format(new Date());
 ---
 
-<Layout title="Workspace Dashboard" description="Your authenticated health workspace and personal health vault.">
+<Layout title="Dashboard" description="Your authenticated health dashboard and personal health vault.">
   <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
     <!-- Authenticated View (Rendered when valid Supabase session is active) -->
     <div id="dashboard-auth-view" class="hidden space-y-6 sm:space-y-8">
@@ -32,7 +32,7 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
           <div class="flex flex-wrap items-center gap-2 text-xs text-aura-text-muted">
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-[11px] font-semibold border border-emerald-200 shadow-2xs">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              AUTHENTICATED WORKSPACE
+              AUTHENTICATED DASHBOARD
             </span>
             <span class="hidden sm:inline">•</span>
             <span class="font-medium text-aura-text-muted">{formattedDate}</span>
@@ -43,7 +43,7 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
           </h1>
 
           <p class="text-xs sm:text-sm text-aura-text-muted leading-relaxed max-w-xl">
-            This is your private health workspace. All records and extraction parameters are tenant-isolated and protected by PostgreSQL Row Level Security.
+            This is your private health dashboard. All records and extraction parameters are tenant-isolated and protected by PostgreSQL Row Level Security.
           </p>
         </div>
 
@@ -57,13 +57,14 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
             <span>Open Health Copilot</span>
           </a>
 
-          <span
-            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-aura-surface-cream text-aura-text-muted text-xs sm:text-sm font-medium border border-black/5"
-            title="Document uploads coming soon in an upcoming release"
+          <a
+            href="/records"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-aura-surface-cream hover:bg-aura-surface-cream-light text-aura-text text-xs sm:text-sm font-semibold transition border border-black/5"
+            title="Upload health documents to your private vault"
           >
-            <Upload class="w-4 h-4 text-aura-text-muted" stroke-width={2} />
-            <span>Uploads Coming Soon</span>
-          </span>
+            <Upload class="w-4 h-4 text-aura-action" stroke-width={2} />
+            <span>Upload Document</span>
+          </a>
 
           <button
             id="btn-dashboard-signout"
@@ -212,10 +213,10 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
 
       <div class="space-y-2">
         <h1 class="text-3xl font-serif font-normal text-aura-text">
-          Sign In to Access Your Workspace
+          Sign In to Access Your Dashboard
         </h1>
         <p class="text-sm text-aura-text-muted leading-relaxed max-w-lg mx-auto">
-          The Workspace Dashboard is your private health environment. Sign in with your Altrix account to access your stored documents, personal timeline, and private health vault.
+          The Dashboard is your private health environment. Sign in with your Altrix account to access your stored documents, personal timeline, and private health vault.
         </p>
       </div>
 
@@ -355,8 +356,10 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
         if (guestView) guestView.classList.add('hidden');
         if (authView) authView.classList.remove('hidden');
 
+        const fullName = session.user.user_metadata?.full_name?.trim();
         const email = session.user.email || 'Member';
-        if (greetingEl) greetingEl.textContent = email.split('@')[0];
+        const displayName = fullName || email.split('@')[0];
+        if (greetingEl) greetingEl.textContent = displayName;
         if (emailEl) emailEl.textContent = email;
 
         await loadUserRecords(session.access_token);
@@ -378,8 +381,10 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
       if (session?.user && session?.access_token) {
         if (guestView) guestView.classList.add('hidden');
         if (authView) authView.classList.remove('hidden');
+        const fullName = session.user.user_metadata?.full_name?.trim();
         const email = session.user.email || 'Member';
-        if (greetingEl) greetingEl.textContent = email.split('@')[0];
+        const displayName = fullName || email.split('@')[0];
+        if (greetingEl) greetingEl.textContent = displayName;
         if (emailEl) emailEl.textContent = email;
         await loadUserRecords(session.access_token);
       } else {
@@ -393,8 +398,7 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
     btnSignOut.addEventListener('click', async () => {
       btnSignOut.textContent = 'Signing out...';
       await signOutUser();
-      if (guestView) guestView.classList.remove('hidden');
-      if (authView) authView.classList.add('hidden');
+      window.location.href = '/';
     });
   }
 </script>
