@@ -39,18 +39,20 @@ Reviewed evidence determines what may be said; templates determine tone; AI may 
 10. Update this file and `docs/DEVELOPMENT_LOG.md` after each milestone with current status, test results, known issues, and the next exact task.
 
 ## Current implementation status
-Phase 4C: Landing Page, Authentication Flow and Demo Cleanup completed on branch `feat/guest-health-copilot-mvp`:
+Phase 4C Final Acceptance Fixes completed on branch `feat/guest-health-copilot-mvp`:
 - **Current Baseline:** `feat/guest-health-copilot-mvp` active; all other branches preserved intact.
-- **Phase 4C Deliverables:**
+- **Phase 4C Deliverables & Final Fixes:**
   1. **Dedicated Public Landing Page:** `src/pages/index.astro` serves as the public entry point with Aura aesthetic, hero animation, feature overview, guided chat topic chips, and dynamic workspace CTA without forced login.
   2. **Dedicated Authenticated Workspace:** `src/pages/dashboard.astro` displays authenticated user profile, real vault documents, honest empty states, and workspace actions without fake demo personas.
   3. **Decoupled Auth & Safe Redirection:** `src/pages/auth.astro` provides clean Sign In/Sign Up tabs, safe internal-only redirection (`getSafeReturnTo`), and Supabase email confirmation documentation.
-  4. **Customer-Facing Demo Data Purge:** Removed all instances of "Priya Sharma (34F)", fake stats, sample-record generation buttons, and developer team credits from customer-facing views.
-  5. **Honest AI Fallback Engine:** Server and client return explicit unavailable status and direct users to the 40-scenario Guided Health Guide when AI is unconfigured or unavailable, preserving emergency/dosage safety gates.
-- **Quality Gates:** 137/137 Vitest unit tests pass across 9 test suites, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
+  4. **Misleading Upload Controls Removed:** Removed active file dropzone, upload buttons, and fake extraction simulation from `/records` and `/dashboard`. Honest "Document Uploads Coming Soon" states applied.
+  5. **Customer-Facing Demo Data Purge:** Removed all instances of "Priya Sharma (34F)", fake stats, sample-record generation buttons, developer team credits, and synthetic patient timeline records from normal user flows. `/timeline` and `/review` show genuine empty states when empty.
+  6. **Honest AI Fallback Engine:** Server and client return explicit unavailable status and direct users to the 40-scenario Guided Health Guide when AI is unconfigured or unavailable, preserving emergency/dosage safety gates.
+- **Quality Gates:** 139/139 Vitest unit tests pass across 9 test suites, TypeScript strict mode passes (`tsc --noEmit`), and production build passes cleanly (`astro build`).
 
 ## Current next task
-CTO Review and Sprint Acceptance of Phase 4C Master Implementation. Do not begin OCR, real document uploads, real-patient analysis, or production merging.
+Final Acceptance Verification by CTO & Product Manager. Do not begin OCR, real document uploads, real-patient analysis, or production merging.
+
 
 
 

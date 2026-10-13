@@ -488,6 +488,23 @@ Antigravity: inspect the current repository and environment, report findings, th
   - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
   - Production Build: Clean (`astro build` with `@astrojs/vercel`, 7 static routes prerendered including `/` and `/dashboard` + 5 serverless functions bundled in 7.79s).
 
+## 2026-10-13 — Phase 4C Final Acceptance Fixes: Upload Removal & Demo Content Audit (feat/guest-health-copilot-mvp)
+- **Preview Deployment Verification:**
+  - Located actual Vercel preview deployment for baseline commit `a3ae29f`: `https://altrix-health-copilot-f8g6499yq-vindyan-7s-projects.vercel.app`.
+  - Verified all 7 application routes (`/`, `/auth`, `/dashboard`, `/copilot`, `/records`, `/review`, `/timeline`) return HTTP 200.
+- **Misleading Upload Controls Removed:**
+  - `src/pages/dashboard.astro`: Replaced active "+ Upload Record" button with disabled "Uploads Coming Soon" indicator. Updated empty vault state to honest "Document Uploads Coming Soon" with zero misleading upload action buttons.
+  - `src/pages/records.astro`: Removed the active file intake dropzone, `<input type="file">`, `simulateExtraction` timer simulation, and fake success state ("Document Successfully Extracted (Offline Mock)"). Replaced with an honest in-development notice stating that direct uploads and automated OCR extraction are in development for upcoming milestones.
+- **Customer-Facing Demo Content Purge & Genuine Empty States:**
+  - `src/pages/records.astro`: Removed the Quick Demo hero banner that pushed synthetic lab panels in normal user flows.
+  - `src/pages/timeline.astro`: Removed `SYNTHETIC_PATIENT` import, hardcoded Hemoglobin/Glucose trend charts, and hardcoded Apollo Clinic/Metro Lab encounters. Implemented genuine empty state ("Your Health Timeline is Empty") for accounts without confirmed records.
+  - `src/pages/review.astro`: Wrapped synthetic report viewer in `#review-viewer-container`, revealing it only when `?demo=synthetic` query parameter is explicitly provided. In normal user navigation, renders `#review-empty-state` ("No Document Staged for Review").
+- **Quality Gates:**
+  - Vitest Unit Tests: **139/139 passing** across 9 test suites (+2 new tests in `tests/landing-and-auth-flow.test.ts` asserting upload removal and genuine empty states).
+  - TypeScript Strict: Clean (`tsc --noEmit`, 0 errors).
+  - Production Build: Clean (`astro build` with `@astrojs/vercel`, 7 static routes prerendered + 5 serverless functions bundled in 7.21s).
+
+
 
 
 

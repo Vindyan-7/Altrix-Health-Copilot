@@ -57,13 +57,13 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
             <span>Open Health Copilot</span>
           </a>
 
-          <a
-            href="/records"
-            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-aura-action hover:bg-aura-action-hover text-white text-xs sm:text-sm font-semibold shadow-xs transition"
+          <span
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-aura-surface-cream text-aura-text-muted text-xs sm:text-sm font-medium border border-black/5"
+            title="Document uploads coming soon in an upcoming release"
           >
-            <Upload class="w-4 h-4 text-white" stroke-width={2} />
-            <span>+ Upload Record</span>
-          </a>
+            <Upload class="w-4 h-4 text-aura-text-muted" stroke-width={2} />
+            <span>Uploads Coming Soon</span>
+          </span>
 
           <button
             id="btn-dashboard-signout"
@@ -145,17 +145,17 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
           class="bg-aura-surface hover:bg-aura-surface-blush rounded-aura-card p-5 shadow-aura-card border border-aura-border/40 flex flex-col justify-between min-h-[150px] space-y-3 group transition"
         >
           <div class="flex items-start justify-between">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle">Document Intake</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-aura-text-subtle">Stored Documents</span>
             <div class="w-8 h-8 rounded-full bg-aura-surface-cream flex items-center justify-center text-aura-text">
               <Files class="w-4 h-4" />
             </div>
           </div>
           <div>
             <h3 class="font-serif font-normal text-aura-text text-lg group-hover:text-aura-action transition">My Records</h3>
-            <p class="text-[11px] text-aura-text-muted mt-0.5">Upload and manage laboratory reports</p>
+            <p class="text-[11px] text-aura-text-muted mt-0.5">View and organize stored health records</p>
           </div>
           <div class="pt-2 border-t border-aura-border/40 flex items-center justify-between text-xs text-aura-action font-semibold">
-            <span>Manage Records</span>
+            <span>View Records</span>
             <ArrowRight class="w-3.5 h-3.5" />
           </div>
         </a>
@@ -285,26 +285,22 @@ const formattedDate = new Intl.DateTimeFormat('en-US', {
 
       if (docs.length === 0) {
         vaultContentEl.innerHTML = `
-          <div class="p-8 text-center bg-aura-surface-cream/20 rounded-2xl border border-aura-border/40 space-y-4">
-            <div class="w-12 h-12 mx-auto rounded-full bg-aura-surface-cream flex items-center justify-center text-aura-action">
+          <div class="p-8 text-center bg-aura-surface-cream/20 rounded-2xl border border-aura-border/40 space-y-3">
+            <div class="w-12 h-12 mx-auto rounded-full bg-aura-surface-cream flex items-center justify-center text-aura-text-muted">
               <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
             <div class="space-y-1">
               <h3 class="text-base font-serif font-normal text-aura-text">Your Health Vault is Empty</h3>
               <p class="text-xs text-aura-text-muted max-w-md mx-auto leading-relaxed">
-                You haven't uploaded any medical records yet. Upload lab reports, prescriptions, or clinical summaries to organize them in your private vault.
+                No medical records stored yet. Direct document uploads with OCR extraction are in development for an upcoming release.
               </p>
             </div>
             <div class="pt-2">
-              <a
-                href="/records"
-                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-aura-action hover:bg-aura-action-hover text-white text-xs font-semibold shadow-xs transition"
-              >
-                <span>Upload Your First Document</span>
-                <span>→</span>
-              </a>
+              <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-aura-surface-cream text-aura-text-muted text-xs font-semibold border border-black/5">
+                <span>Document Uploads Coming Soon</span>
+              </span>
             </div>
           </div>
         `;

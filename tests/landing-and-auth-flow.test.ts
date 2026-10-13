@@ -131,5 +131,30 @@ describe('Phase 4C: Landing Page, Authentication Flow & Demo Cleanup', () => {
       expect(dashContent).toContain('dashboard-guest-view');
       expect(dashContent).toContain('Sign In to Access Your Workspace');
     });
+
+    it('ensures dashboard and records remove misleading upload actions and state "Uploads Coming Soon"', () => {
+      const dashContent = fs.readFileSync(path.resolve(process.cwd(), 'src/pages/dashboard.astro'), 'utf8');
+      expect(dashContent).not.toContain('+ Upload Record');
+      expect(dashContent).toContain('Uploads Coming Soon');
+      expect(dashContent).toContain('Document Uploads Coming Soon');
+
+      const recordsContent = fs.readFileSync(path.resolve(process.cwd(), 'src/pages/records.astro'), 'utf8');
+      expect(recordsContent).not.toContain('<input type="file"');
+      expect(recordsContent).not.toContain('simulateExtraction');
+      expect(recordsContent).not.toContain('SYNTHETIC_REPORT_STATS');
+      expect(recordsContent).toContain('Document Uploads Coming Soon');
+    });
+
+    it('ensures timeline and review pages show genuine empty states in normal user flows', () => {
+      const timelineContent = fs.readFileSync(path.resolve(process.cwd(), 'src/pages/timeline.astro'), 'utf8');
+      expect(timelineContent).not.toContain('SYNTHETIC_PATIENT');
+      expect(timelineContent).toContain('Your Health Timeline is Empty');
+      expect(timelineContent).toContain('timeline-empty-state');
+
+      const reviewContent = fs.readFileSync(path.resolve(process.cwd(), 'src/pages/review.astro'), 'utf8');
+      expect(reviewContent).toContain('review-empty-state');
+      expect(reviewContent).toContain('No Document Staged for Review');
+    });
   });
 });
+
