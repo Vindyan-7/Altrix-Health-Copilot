@@ -92,66 +92,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     clientAddress ||
     'unknown-client';
 
-  // 1. Instance-wide quota check
-  const globalQuota = checkGlobalChatQuota();
-  if (!globalQuota.allowed) {
-    return new Response(
-      JSON.stringify({
-        error: 'Too Many Requests: Instance-wide AI chat capacity reached. Please retry shortly.',
-        code: 'GLOBAL_QUOTA_EXCEEDED',
-      }),
-      {
-        status: 429,
-        headers: {
-          'Content-Type': 'application/json',
-          'Retry-After': String(globalQuota.retryAfterSeconds),
-          'X-GlobalQuota-Remaining': '0',
-        },
-      }
-    );
-  }
-
-  // 2. Check Authentication for Rate Limit Tier
-  const authHeader = request.headers.get('authorization') || request.headers.get('Authorization');
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
-  let isAuthenticated = false;
-  let rateLimitKey = `guest:${clientIp}`;
-  let maxRequests = GUEST_MAX_REQUESTS;
-
-  if (token) {
-    const { user } = await verifyAccessToken(token);
-    if (user) {
-      isAuthenticated = true;
-      rateLimitKey = `user:${user.id}`;
-      maxRequests = AUTH_MAX_REQUESTS;
-    }
-  }
-
-  // 3. User / IP Rate Limit
-  const rateLimit = checkRateLimit(rateLimitKey, maxRequests);
-  if (!rateLimit.allowed) {
-    return new Response(
-      JSON.stringify({
-        error: isAuthenticated
-          ? 'Rate limit exceeded: You have reached the authenticated usage limit (20 queries per 10 minutes).'
-          : 'Rate limit exceeded: Guest AI usage is limited to 5 queries per 10 minutes. Sign in to unlock higher limits.',
-        code: 'RATE_LIMIT_EXCEEDED',
-      }),
-      {
-        status: 429,
-        headers: {
-          'Content-Type': 'application/json',
-          'Retry-After': String(rateLimit.retryAfterSeconds),
-          'X-RateLimit-Limit': String(maxRequests),
-          'X-RateLimit-Remaining': '0',
-          'X-RateLimit-Reset': String(rateLimit.resetAt),
-          'X-GlobalQuota-Remaining': String(globalQuota.remaining),
-        },
-      }
-    );
-  }
-
-  // 4. Content-Length Bounds Check
+  // 1. Content-Length Bounds Check
   const contentLength = request.headers.get('content-length');
   if (contentLength && parseInt(contentLength, 10) > MAX_PAYLOAD_BYTES) {
     return new Response(
@@ -187,7 +128,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     const { messages, locale } = parseResult.data;
     const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
 
-    // 5. Pre-Model Safety Gate 1: Emergency Red Flag Interception
+    // 2. Pre-Model Safety Gate 1: Emergency Red Flag Interception
+    // Emergencies bypass all rate limits and global quotas
     const emergencyMatch = checkEmergency(lastUserMessage);
     if (emergencyMatch) {
       return new Response(
@@ -207,16 +149,13 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
           status: 200,
           headers: {
             'Content-Type': 'application/json',
-            'X-RateLimit-Limit': String(maxRequests),
-            'X-RateLimit-Remaining': String(rateLimit.remaining),
-            'X-RateLimit-Reset': String(rateLimit.resetAt),
-            'X-GlobalQuota-Remaining': String(globalQuota.remaining),
           },
         }
       );
     }
 
-    // 6. Pre-Model Safety Gate 2: Medication Dosage Refusal
+    // 3. Pre-Model Safety Gate 2: Medication Dosage Refusal
+    // Deterministic safety refusal intercepts before quota/model
     const dosageMatch = checkDosageInterception(lastUserMessage);
     if (dosageMatch) {
       return new Response(
@@ -236,8 +175,63 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
           status: 200,
           headers: {
             'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
+
+    // 4. Instance-wide quota check for AI model requests
+    const globalQuota = checkGlobalChatQuota();
+    if (!globalQuota.allowed) {
+      return new Response(
+        JSON.stringify({
+          error: 'Too Many Requests: Instance-wide AI chat capacity reached. Please retry shortly.',
+          code: 'GLOBAL_QUOTA_EXCEEDED',
+        }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': String(globalQuota.retryAfterSeconds),
+            'X-GlobalQuota-Remaining': '0',
+          },
+        }
+      );
+    }
+
+    // 5. Check Authentication for Rate Limit Tier
+    const authHeader = request.headers.get('authorization') || request.headers.get('Authorization');
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+    let isAuthenticated = false;
+    let rateLimitKey = `guest:${clientIp}`;
+    let maxRequests = GUEST_MAX_REQUESTS;
+
+    if (token) {
+      const { user } = await verifyAccessToken(token);
+      if (user) {
+        isAuthenticated = true;
+        rateLimitKey = `user:${user.id}`;
+        maxRequests = AUTH_MAX_REQUESTS;
+      }
+    }
+
+    // 6. User / IP Rate Limit
+    const rateLimit = checkRateLimit(rateLimitKey, maxRequests);
+    if (!rateLimit.allowed) {
+      return new Response(
+        JSON.stringify({
+          error: isAuthenticated
+            ? 'Rate limit exceeded: You have reached the authenticated usage limit (20 queries per 10 minutes).'
+            : 'Rate limit exceeded: Guest AI usage is limited to 5 queries per 10 minutes. Sign in to unlock higher limits.',
+          code: 'RATE_LIMIT_EXCEEDED',
+        }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': String(rateLimit.retryAfterSeconds),
             'X-RateLimit-Limit': String(maxRequests),
-            'X-RateLimit-Remaining': String(rateLimit.remaining),
+            'X-RateLimit-Remaining': '0',
             'X-RateLimit-Reset': String(rateLimit.resetAt),
             'X-GlobalQuota-Remaining': String(globalQuota.remaining),
           },

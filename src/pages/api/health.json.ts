@@ -11,11 +11,17 @@ export const GET: APIRoute = async () => {
   const gemini = new GeminiProvider();
   const geminiHealth = await gemini.healthCheck();
 
-  // Inspect configuration presence strictly as booleans (NEVER expose values)
-  const hasGeminiKey = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim().length > 0);
-  const geminiModel = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
-  const hasSupabaseUrl = Boolean(process.env.PUBLIC_SUPABASE_URL && process.env.PUBLIC_SUPABASE_URL.trim().length > 0);
-  const hasSupabaseKey = Boolean(process.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY && process.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY.trim().length > 0);
+  // Inspect configuration presence safely across SSR & Node environments
+  const env = ((import.meta as unknown as { env?: Record<string, string> }).env) ||
+    (typeof process !== 'undefined' ? process.env : {}) || {};
+  const geminiKey = (env.GEMINI_API_KEY || (typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : '')) as string;
+  const geminiModel = (env.GEMINI_MODEL || (typeof process !== 'undefined' ? process.env.GEMINI_MODEL : '')) || 'gemini-3.8-flash';
+  const supabaseUrl = (env.PUBLIC_SUPABASE_URL || (typeof process !== 'undefined' ? process.env.PUBLIC_SUPABASE_URL : '')) as string;
+  const supabaseKey = (env.PUBLIC_SUPABASE_PUBLISHABLE_KEY || (typeof process !== 'undefined' ? process.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY : '')) as string;
+
+  const hasGeminiKey = Boolean(geminiKey && geminiKey.trim().length > 0 && !geminiKey.includes('your-'));
+  const hasSupabaseUrl = Boolean(supabaseUrl && supabaseUrl.trim().length > 0 && !supabaseUrl.includes('your-'));
+  const hasSupabaseKey = Boolean(supabaseKey && supabaseKey.trim().length > 0 && !supabaseKey.includes('your-'));
 
   return new Response(
     JSON.stringify({
